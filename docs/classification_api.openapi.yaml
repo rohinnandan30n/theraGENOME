@@ -1,0 +1,478 @@
+openapi: 3.0.0
+info:
+  title: theraGENOME Pathogenicity Classification API
+  description: ML model serving for variant pathogenicity classification with SHAP-based interpretability
+  version: 1.0.0
+  contact:
+    name: theraGENOME Support
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://api.theragenome.com/api/v1
+    description: Production server
+
+paths:
+  /classification/classify:
+    post:
+      summary: Classify variant pathogenicity
+      description: |
+        Classify a single variant as Pathogenic/Benign/VUS.
+        Returns classification, confidence, and SHAP-based feature importance.
+      operationId: classifyVariant
+      parameters:
+        - name: model_version
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [v1, v2, v3]
+            default: v2
+          description: Model version to use for classification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassificationRequest'
+            example:
+              chrom: "17"
+              pos: 41244394
+              ref: "T"
+              alt: "G"
+              phyloP_score: 3.0
+              SIFT_score: 0.01
+              PolyPhen_score: 0.95
+              CADD_score: 30.0
+              gnomAD_freq: 0.00001
+              REVEL_score: 0.85
+              MutationTaster_score: 0.95
+              FathmM_score: -2.5
+              variant_type: "SNP"
+              amino_acid_change: "D123H"
+              gene_symbol: "BRCA1"
+      responses:
+        '200':
+          description: Successfully classified variant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassificationResponse'
+        '400':
+          description: Invalid input features
+        '500':
+          description: Classification error
+
+  /classification/batch_classify:
+    post:
+      summary: Classify multiple variants in batch
+      description: |
+        Classify multiple variants in a single request.
+        Returns array of classifications without feature importance (for performance).
+      operationId: batchClassifyVariants
+      parameters:
+        - name: model_version
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [v1, v2, v3]
+            default: v2
+          description: Model version to use
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchClassificationRequest'
+      responses:
+        '200':
+          description: Batch classification complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchClassificationResponse'
+        '400':
+          description: Invalid batch request
+        '500':
+          description: Batch processing error
+
+  /classification/model_info:
+    get:
+      summary: Get model metadata
+      description: |
+        Retrieve information about the classification model.
+        Includes version, performance metrics, and feature list.
+      operationId: getModelInfo
+      parameters:
+        - name: model_version
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [v1, v2, v3]
+          description: Model version to query (latest if not specified)
+      responses:
+        '200':
+          description: Model information retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelInfoResponse'
+        '404':
+          description: Model not found
+        '500':
+          description: Server error
+
+  /classification/model_versions:
+    get:
+      summary: List available model versions
+      description: |
+        Get list of all available model versions with descriptions.
+      operationId: listModelVersions
+      responses:
+        '200':
+          description: Model versions list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  model_name:
+                    type: string
+                    description: Model name
+                  versions:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        version:
+                          type: string
+                        description:
+                          type: string
+                        registered_at:
+                          type: string
+                          format: date-time
+                  total_versions:
+                    type: integer
+
+  /classification/shap_values/{variant_id}:
+    get:
+      summary: Get detailed SHAP feature importance
+      description: |
+        Retrieve detailed SHAP values for explainability.
+        Used by the XAI/Why Engine (Dev 4).
+      operationId: getSHAPValues
+      parameters:
+        - name: variant_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Variant ID in format chrom-pos-ref-alt
+          example: "17-41244394-T-G"
+        - name: model_version
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [v1, v2, v3]
+            default: v2
+      responses:
+        '200':
+          description: SHAP values and interpretation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  variant_id:
+                    type: string
+                  model_version:
+                    type: string
+                  classification:
+                    type: string
+                  interpretation:
+                    $ref: '#/components/schemas/SHAPInterpretation'
+        '400':
+          description: Invalid variant ID format
+        '500':
+          description: Error generating SHAP values
+
+components:
+  schemas:
+    FeatureImportance:
+      type: object
+      properties:
+        shap_value:
+          type: number
+          format: float
+          description: SHAP value (positive=pathogenic, negative=benign)
+        importance_score:
+          type: number
+          format: float
+          description: Absolute importance magnitude
+        importance_weight:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Normalized importance (0-1)
+        direction:
+          type: string
+          enum: [pathogenic, benign]
+          description: Direction of effect
+
+    SHAPInterpretation:
+      type: object
+      properties:
+        interpretation_method:
+          type: string
+          enum: [SHAP, Gradient-based, Permutation]
+          description: Method used for interpretation
+        shap_values:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureImportance'
+          description: Top 5 features with SHAP values
+        all_features:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureImportance'
+          description: All features and their importance
+        base_value:
+          type: number
+          format: float
+          description: Model base value / bias
+        prediction_contribution:
+          type: number
+          format: float
+          description: Total feature contribution to prediction
+
+    ClassificationRequest:
+      type: object
+      required:
+        - chrom
+        - pos
+        - ref
+        - alt
+        - phyloP_score
+        - SIFT_score
+        - PolyPhen_score
+        - CADD_score
+        - gnomAD_freq
+        - REVEL_score
+        - MutationTaster_score
+        - FathmM_score
+        - variant_type
+        - amino_acid_change
+      properties:
+        chrom:
+          type: string
+          description: Chromosome (1-22, X, Y, MT)
+        pos:
+          type: integer
+          description: 1-based genomic position
+        ref:
+          type: string
+          description: Reference allele
+        alt:
+          type: string
+          description: Alternate allele
+        phyloP_score:
+          type: number
+          format: float
+          minimum: -14
+          maximum: 6
+          description: PhyloP evolutionary conservation
+        SIFT_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: SIFT deleterious score
+        PolyPhen_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: PolyPhen-2 probably damaging score
+        CADD_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 99
+          description: CADD combined score
+        gnomAD_freq:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: gnomAD population frequency
+        REVEL_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: REVEL ensemble score
+        MutationTaster_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: MutationTaster score
+        FathmM_score:
+          type: number
+          format: float
+          description: FathmM functional impact
+        variant_type:
+          type: string
+          enum: [SNP, Deletion, Insertion, Substitution, InDel]
+          description: Type of variant
+        amino_acid_change:
+          type: string
+          description: Amino acid change notation (e.g., D123H)
+        gene_symbol:
+          type: string
+          description: HGNC gene symbol (optional)
+
+    ClassificationResponse:
+      type: object
+      properties:
+        variant_id:
+          type: string
+          description: Variant identifier (chrom-pos-ref-alt)
+        chrom:
+          type: string
+        pos:
+          type: integer
+        ref:
+          type: string
+        alt:
+          type: string
+        classification:
+          type: string
+          enum: [Pathogenic, Benign, VUS]
+          description: Classification result
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: Confidence score
+        probabilities:
+          type: object
+          properties:
+            benign:
+              type: number
+              format: float
+            pathogenic:
+              type: number
+              format: float
+        model_version:
+          type: string
+          description: Model version used
+        clinical_significance:
+          type: string
+          description: Clinical significance
+        feature_importance:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureImportance'
+          description: Top 5 important features
+        shape_values:
+          $ref: '#/components/schemas/SHAPInterpretation'
+          description: Full SHAP interpretation
+
+    BatchClassificationRequest:
+      type: object
+      required:
+        - variants
+      properties:
+        variants:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClassificationRequest'
+          minItems: 1
+          maxItems: 1000
+          description: List of variants to classify
+        max_batch_size:
+          type: integer
+          default: 1000
+          description: Maximum batch size
+
+    BatchClassification:
+      type: object
+      properties:
+        variant_id:
+          type: string
+        classification:
+          type: string
+          enum: [Pathogenic, Benign, VUS, ERROR]
+        confidence:
+          type: number
+          format: float
+        probabilities:
+          type: object
+          additionalProperties:
+            type: number
+        error:
+          type: string
+          description: Error message if classification failed
+
+    BatchClassificationResponse:
+      type: object
+      properties:
+        total_variants:
+          type: integer
+        classifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchClassification'
+        model_version:
+          type: string
+
+    ModelPerformance:
+      type: object
+      properties:
+        accuracy:
+          type: number
+          format: float
+        sensitivity:
+          type: number
+          format: float
+        specificity:
+          type: number
+          format: float
+        auc_roc:
+          type: number
+          format: float
+        f1_score:
+          type: number
+          format: float
+
+    ModelInfoResponse:
+      type: object
+      properties:
+        model_name:
+          type: string
+        version:
+          type: string
+        model_type:
+          type: string
+          enum: [sklearn, pytorch, tensorflow]
+        description:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        performance:
+          $ref: '#/components/schemas/ModelPerformance'
+        registered_at:
+          type: string
+          format: date-time
+
+tags:
+  - name: classification
+    description: Variant pathogenicity classification endpoints
