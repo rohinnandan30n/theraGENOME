@@ -246,6 +246,122 @@ volumes:
   grafana-data:
   elasticsearch-data:
 
+  # ============================================================================
+  # TheraGenome FastAPI - Python Backend Services
+  # ============================================================================
+  theragenome-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: theragenome-api
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: thergenome_dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      ENVIRONMENT: production
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    networks:
+      - theragenome
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================================================
+  # Variant Results API - Deno/TypeScript Service
+  # ============================================================================
+  variant-results-api:
+    build:
+      context: .
+      dockerfile: Dockerfile.deno
+    container_name: theragenome-variant-results
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: thergenome_dev
+      DB_USER: postgres
+      DB_PASSWORD: password
+      PORT: 8001
+    ports:
+      - "8001:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./theraGENOME/src:/app/src
+    networks:
+      - theragenome
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # ============================================================================
+  # Kafka - Message Queue for Event Streaming
+  # ============================================================================
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: theragenome-kafka
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+    volumes:
+      - kafka-data:/var/lib/kafka/data
+    ports:
+      - "9092:9092"
+    networks:
+      - theragenome
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions.sh", "--bootstrap-server", "localhost:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # Zookeeper - Kafka Coordination
+  # ============================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: theragenome-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    volumes:
+      - zookeeper-data:/var/lib/zookeeper/data
+    ports:
+      - "2181:2181"
+    networks:
+      - theragenome
+
+volumes:
+  postgres-data:
+  redis-data:
+  kafka-data:
+  zookeeper-data:
+
 networks:
   theragenome:
     driver: bridge

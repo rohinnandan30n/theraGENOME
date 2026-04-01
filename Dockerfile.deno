@@ -1,0 +1,21 @@
+# Dockerfile for Deno/TypeScript Services
+
+FROM denoland/deno:latest
+
+WORKDIR /app
+
+# Copy application files
+COPY . .
+
+# Cache dependencies
+RUN deno cache src/main.ts
+
+# Expose port
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+    CMD deno run --allow-net --eval "const res = await fetch('http://localhost:8000/health'); Deno.exit(res.ok ? 0 : 1);" || exit 1
+
+# Run application
+CMD ["deno", "run", "--allow-net", "--allow-read", "--allow-env", "src/main.ts"]
