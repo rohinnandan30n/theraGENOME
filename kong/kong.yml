@@ -1,0 +1,455 @@
+_format_version: "3.0"
+_transform: "true"
+
+# ============================================================================
+# theraGENOME Kong API Gateway Configuration
+# ============================================================================
+# Deck format declarative configuration for Kong
+# Includes: Microservice routing, JWT auth (JWKS), rate-limiting,
+# request logging (JSON), and OpenTelemetry tracing
+# ============================================================================
+
+# Global tags for organization
+_info:
+  title: theraGENOME API Gateway
+  description: Kong API Gateway for theraGENOME microservices (Dev 1, 2, 3)
+  version: 1.0.0
+
+# ============================================================================
+# UPSTREAM SERVICES - Backend microservices
+# ============================================================================
+
+upstreams:
+  # Dev 1: Variant Classification Service
+  dev1-variant-service:
+    type: roundrobin
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 5
+          successes: 2
+      passive:
+        type: http
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+    targets:
+      - target: 127.0.0.1:8000
+        weight: 100
+
+  # Dev 2: Pathogen Resistance Service
+  dev2-pathogen-service:
+    type: roundrobin
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 5
+          successes: 2
+      passive:
+        type: http
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+    targets:
+      - target: 127.0.0.1:8001
+        weight: 100
+
+  # Dev 3: Drug Safety Service
+  dev3-drug-safety-service:
+    type: roundrobin
+    healthchecks:
+      active:
+        type: http
+        http_path: /health
+        healthy:
+          interval: 5
+          successes: 2
+      passive:
+        type: http
+        healthy:
+          http_statuses: [200, 201, 204, 301, 302, 304, 307, 308]
+    targets:
+      - target: 127.0.0.1:8002
+        weight: 100
+
+# ============================================================================
+# SERVICES - API Gateway services/routes
+# ============================================================================
+
+services:
+  # ========================================================================
+  # DEV 1: Variant Classification Service
+  # ========================================================================
+  dev1-variant-service:
+    url: http://dev1-variant-service
+    protocol: http
+    port: 80
+    path: /api/v1
+    name: dev1-variant-service
+    tags:
+      - dev1
+      - variants
+      - classification
+    
+    # -------- Route: GET /variants/{rsid} --------
+    routes:
+      - name: dev1-get-variant
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/variants
+        strip_path: false
+        methods:
+          - GET
+
+      - name: dev1-classify-variant
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/classify
+        strip_path: false
+        methods:
+          - POST
+
+    # JWT Authentication Plugin
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithms:
+            - RS256
+            - HS256
+          uri_param_names:
+            - token
+          cookie_names:
+            - jwt
+          header_names:
+            - Authorization
+      
+      # Rate Limiting Plugin (100 req/min per consumer)
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: redis
+          redis_host: localhost
+          redis_port: 6379
+          limit_by: consumer
+          fault_tolerant: true
+
+      # Request Logging Plugin (JSON to stdout)
+      - name: tcp-log
+        config:
+          host: localhost
+          port: 5000
+          tls: false
+          custom_fields_by_lua:
+            timestamp: "return ngx.var.msec"
+            request_id: "return ngx.var.request_id"
+            service_name: "'dev1-variant-service'"
+
+      # OpenTelemetry Tracing Plugin
+      - name: opentelemetry
+        config:
+          trace_samplers:
+            - name: always_on
+          header_type: preserve
+          queue:
+            max_batch_size: 200
+          report_to_localhost: true
+
+  # ========================================================================
+  # DEV 2: Pathogen Resistance Service
+  # ========================================================================
+  dev2-pathogen-service:
+    url: http://dev2-pathogen-service
+    protocol: http
+    port: 80
+    path: /api/v1
+    name: dev2-pathogen-service
+    tags:
+      - dev2
+      - pathogens
+      - resistance
+
+    routes:
+      - name: dev2-resistance-genes
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/pathogens/([^/]+)/resistance-genes
+        strip_path: false
+        methods:
+          - GET
+
+      - name: dev2-predict-resistance
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/pathogens/([^/]+)/predict-resistance
+        strip_path: false
+        methods:
+          - POST
+
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithms:
+            - RS256
+            - HS256
+          uri_param_names:
+            - token
+          cookie_names:
+            - jwt
+          header_names:
+            - Authorization
+
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: redis
+          redis_host: localhost
+          redis_port: 6379
+          limit_by: consumer
+          fault_tolerant: true
+
+      - name: tcp-log
+        config:
+          host: localhost
+          port: 5000
+          tls: false
+          custom_fields_by_lua:
+            timestamp: "return ngx.var.msec"
+            request_id: "return ngx.var.request_id"
+            service_name: "'dev2-pathogen-service'"
+
+      - name: opentelemetry
+        config:
+          trace_samplers:
+            - name: always_on
+          header_type: preserve
+          queue:
+            max_batch_size: 200
+          report_to_localhost: true
+
+  # ========================================================================
+  # DEV 3: Drug Safety Service
+  # ========================================================================
+  dev3-drug-safety-service:
+    url: http://dev3-drug-safety-service
+    protocol: http
+    port: 80
+    path: /api/v1
+    name: dev3-drug-safety-service
+    tags:
+      - dev3
+      - drugs
+      - safety
+      - toxicity
+
+    routes:
+      - name: dev3-pgx-interactions
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/drugs/([^/]+)/pgx-interactions
+        strip_path: false
+        methods:
+          - GET
+
+      - name: dev3-adverse-events
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/drugs/([^/]+)/adverse-events
+        strip_path: false
+        methods:
+          - GET
+
+      - name: dev3-check-interactions
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/drugs/([^/]+)/check-interactions
+        strip_path: false
+        methods:
+          - POST
+
+      - name: dev3-predict-toxicity
+        protocols:
+          - http
+          - https
+        paths:
+          - /api/v1/drugs/([^/]+)/predict-toxicity
+        strip_path: false
+        methods:
+          - POST
+
+    plugins:
+      - name: jwt
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithms:
+            - RS256
+            - HS256
+          uri_param_names:
+            - token
+          cookie_names:
+            - jwt
+          header_names:
+            - Authorization
+
+      - name: rate-limiting
+        config:
+          minute: 100
+          policy: redis
+          redis_host: localhost
+          redis_port: 6379
+          limit_by: consumer
+          fault_tolerant: true
+
+      - name: tcp-log
+        config:
+          host: localhost
+          port: 5000
+          tls: false
+          custom_fields_by_lua:
+            timestamp: "return ngx.var.msec"
+            request_id: "return ngx.var.request_id"
+            service_name: "'dev3-drug-safety-service'"
+
+      - name: opentelemetry
+        config:
+          trace_samplers:
+            - name: always_on
+          header_type: preserve
+          queue:
+            max_batch_size: 200
+          report_to_localhost: true
+
+# ============================================================================
+# CONSUMERS - API Gateway consumers (clinicians/applications)
+# ============================================================================
+
+consumers:
+  - username: clinician-001
+    tags:
+      - clinician
+      - dev-team
+    acls:
+      - group: clinicians
+    credentials:
+      - name: jwt
+        config:
+          algorithm: RS256
+          secret: "your-super-secret-key-here"
+          key: "clinician-001-key"
+
+  - username: clinician-002
+    tags:
+      - clinician
+      - dev-team
+    acls:
+      - group: clinicians
+    credentials:
+      - name: jwt
+        config:
+          algorithm: RS256
+          secret: "your-super-secret-key-here"
+          key: "clinician-002-key"
+
+# ============================================================================
+# PLUGINS - Global plugins configuration
+# ============================================================================
+
+plugins:
+  # Global CORS Configuration
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - PATCH
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Length
+        - Content-MD5
+        - Content-Type
+        - Date
+        - X-Auth-Token
+        - Authorization
+      exposed_headers:
+        - X-Auth-Token
+        - X-Request-Id
+
+  # Global Request/Response Transformer
+  - name: request-transformer
+    config:
+      add:
+        headers:
+          - X-API-Gateway: Kong
+          - X-Service-Version: 1.0.0
+
+# ============================================================================
+# OAUTH2 Integration (Optional: For PKCE flow)
+# ============================================================================
+# Uncomment to enable OAuth2 + PKCE flow
+# oauth2_tokens:
+#   - credential:
+#       client_id: theragenome-web-app
+#       client_secret: your-client-secret
+#       redirect_uris:
+#         - http://localhost:3000/callback
+
+# ============================================================================
+# JWT VALIDATION ENDPOINTS (Shared JWKS Endpoint)
+# ============================================================================
+# Configure your JWKS provider URL in Kong config:
+# 
+# To use this configuration:
+# 1. Generate RSA keypair: openssl genrsa -out private_key.pem 2048
+# 2. Extract public key: openssl rsa -in private_key.pem -pubout -out public_key.pem
+# 3. Convert to JWKS format and host at: https://auth.theragenome.com/.well-known/jwks.json
+# 4. Configure JWT plugin to reference this URL
+#
+# Example JWT payload:
+# {
+#   "sub": "clinician-001",
+#   "iss": "https://auth.theragenome.com",
+#   "aud": "https://api.theragenome.com",
+#   "scope": "variants pathogens drugs",
+#   "iat": 1609459200,
+#   "exp": 1609545600
+# }
+
+# ============================================================================
+# RATE LIMITING CONFIGURATION
+# ============================================================================
+# Current settings: 100 requests per minute per consumer (clinician)
+# 
+# To adjust:
+# - minute: 100          # requests per minute
+# - hour: 6000           # requests per hour (optional)
+# - policy: redis        # use Redis for distributed rate limiting
+# - limit_by: consumer   # limit by authenticated consumer
+# 
+# Redis setup required:
+# docker run -d -p 6379:6379 redis:7

@@ -1,0 +1,431 @@
+openapi: 3.0.0
+info:
+  title: theraGENOME Drug Safety & Toxicity API
+  description: API for pharmacokinetic prediction, drug-drug interactions, and toxicity assessment
+  version: 1.0.0
+  contact:
+    name: theraGENOME Support
+  license:
+    name: HIPAA-Compliant
+
+servers:
+  - url: http://localhost:8002/api/v1
+    description: Local development server
+  - url: https://api.theragenome.com/api/v1
+    description: Production server
+
+paths:
+  /drugs/{id}/pgx-interactions:
+    get:
+      summary: Get pharmacogenomic interactions for drug
+      description: |
+        Retrieve known pharmacogenomic (PGx) interactions for a drug,
+        including metabolic pathways and gene-drug interactions.
+      operationId: getPgxInteractions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Drug identifier (DrugBank ID or SMILES)
+          example: "DB00001"
+        - name: include_metabolism
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include metabolic pathway information
+        - name: phenotype
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [EM, IM, PM, UM]
+          description: Cytochrome P450 metabolizer phenotype
+      responses:
+        '200':
+          description: Successfully retrieved PGx interactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PgxInteractionsResponse'
+              example:
+                drug_id: "DB00001"
+                drug_name: "Warfarin"
+                pgx_interactions:
+                  - gene: "CYP2C9"
+                    phenotype: "EM"
+                    impact: "Normal metabolism"
+                    dosing_recommendation: "Standard dose"
+                  - gene: "VKORC1"
+                    polymorphism: "-1639G>A"
+                    impact: "Reduced warfarin requirement"
+                    dosing_recommendation: "Consider lower dose"
+                metabolic_pathways:
+                  - enzyme: "CYP2C9"
+                    percentage: 92
+                  - enzyme: "CYP2C19"
+                    percentage: 8
+                last_updated: "2024-03-30T12:00:00Z"
+        '404':
+          description: Drug not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /drugs/{id}/adverse-events:
+    get:
+      summary: Get adverse events for drug
+      description: |
+        Retrieve adverse events from FAERS database and literature.
+      operationId: getAdverseEvents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Drug identifier
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [Mild, Moderate, Severe, Fatal]
+          description: Filter by event severity
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+          description: Maximum number of events to return
+      responses:
+        '200':
+          description: Successfully retrieved adverse events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdverseEventsResponse'
+              example:
+                drug_id: "DB00001"
+                drug_name: "Warfarin"
+                adverse_events:
+                  - event_id: "FAERS-12345"
+                    event_name: "Bleeding"
+                    severity: "Severe"
+                    frequency: "Very common (>10%)"
+                    case_count: 15432
+                    report_date: "2024-03-30"
+                  - event_id: "FAERS-12346"
+                    event_name: "Skin rash"
+                    severity: "Mild"
+                    frequency: "Common (1-10%)"
+                    case_count: 2341
+                    report_date: "2024-03-30"
+                total_events: 2
+                data_source: "FDA FAERS"
+
+  /drugs/{id}/check-interactions:
+    post:
+      summary: Check drug-drug interactions
+      description: |
+        Check for potential drug-drug interactions using DrugBank and
+        PharmGKB databases.
+      operationId: checkInteractions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Primary drug identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInteractionsRequest'
+            example:
+              concomitant_drugs:
+                - drug_id: "DB00002"
+                  drug_name: "Paracetamol"
+                - drug_id: "DB00003"
+                  drug_name: "Aspirin"
+      responses:
+        '200':
+          description: Drug-drug interactions analyzed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DrugInteractionsResponse'
+              example:
+                primary_drug: "Warfarin"
+                interactions:
+                  - interactant_drug: "Aspirin"
+                    severity: "High"
+                    mechanism: "Increased antiplatelet effect"
+                    recommendation: "Avoid combination or monitor closely"
+                  - interactant_drug: "Paracetamol"
+                    severity: "Low"
+                    mechanism: "Minor interaction"
+                    recommendation: "No action needed"
+                total_interactions: 2
+        '400':
+          description: Invalid request
+
+  /drugs/{id}/predict-toxicity:
+    post:
+      summary: Predict drug toxicity
+      description: |
+        Use ML model to predict potential toxicity based on molecular
+        structure and patient factors.
+      operationId: predictToxicity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Drug identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictToxicityRequest'
+            example:
+              patient_factors:
+                age: 65
+                liver_function: "Normal"
+                kidney_function: "Moderate impairment"
+                concomitant_drugs: ["DB00001"]
+      responses:
+        '200':
+          description: Toxicity prediction successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToxicityPredictionResponse'
+              example:
+                drug_id: "DB00001"
+                drug_name: "Warfarin"
+                toxicity_risk: "Moderate"
+                risk_score: 0.68
+                predicted_adverse_effects:
+                  - adverse_effect: "Bleeding"
+                    probability: 0.45
+                    severity: "High"
+                  - adverse_effect: "Hepatotoxicity"
+                    probability: 0.12
+                    severity: "High"
+                recommendations:
+                  - Perform baseline LFTs and CBC
+                  - Monitor INR more frequently
+                  - Counsel patient on bleeding signs
+                model_version: "1.3.2"
+        '500':
+          description: Prediction error
+
+components:
+  schemas:
+    PgxInteractionsResponse:
+      type: object
+      required:
+        - drug_id
+        - drug_name
+        - pgx_interactions
+      properties:
+        drug_id:
+          type: string
+        drug_name:
+          type: string
+        pgx_interactions:
+          type: array
+          items:
+            type: object
+            properties:
+              gene:
+                type: string
+              phenotype:
+                type: string
+              impact:
+                type: string
+              dosing_recommendation:
+                type: string
+        metabolic_pathways:
+          type: array
+          items:
+            type: object
+            properties:
+              enzyme:
+                type: string
+              percentage:
+                type: number
+        last_updated:
+          type: string
+          format: date-time
+
+    AdverseEventsResponse:
+      type: object
+      required:
+        - drug_id
+        - drug_name
+        - adverse_events
+      properties:
+        drug_id:
+          type: string
+        drug_name:
+          type: string
+        adverse_events:
+          type: array
+          items:
+            type: object
+            properties:
+              event_id:
+                type: string
+              event_name:
+                type: string
+              severity:
+                type: string
+              frequency:
+                type: string
+              case_count:
+                type: integer
+              report_date:
+                type: string
+                format: date
+        total_events:
+          type: integer
+        data_source:
+          type: string
+
+    CheckInteractionsRequest:
+      type: object
+      required:
+        - concomitant_drugs
+      properties:
+        concomitant_drugs:
+          type: array
+          items:
+            type: object
+            required:
+              - drug_id
+            properties:
+              drug_id:
+                type: string
+              drug_name:
+                type: string
+
+    DrugInteractionsResponse:
+      type: object
+      required:
+        - primary_drug
+        - interactions
+      properties:
+        primary_drug:
+          type: string
+        interactions:
+          type: array
+          items:
+            type: object
+            properties:
+              interactant_drug:
+                type: string
+              severity:
+                type: string
+                enum: [None, Low, Moderate, High]
+              mechanism:
+                type: string
+              recommendation:
+                type: string
+        total_interactions:
+          type: integer
+
+    PredictToxicityRequest:
+      type: object
+      required:
+        - patient_factors
+      properties:
+        patient_factors:
+          type: object
+          required:
+            - age
+          properties:
+            age:
+              type: integer
+            liver_function:
+              type: string
+              enum: [Normal, Mild, Moderate, Severe]
+            kidney_function:
+              type: string
+              enum: [Normal, Mild, Moderate, Severe]
+            concomitant_drugs:
+              type: array
+              items:
+                type: string
+
+    ToxicityPredictionResponse:
+      type: object
+      required:
+        - drug_id
+        - drug_name
+        - toxicity_risk
+        - risk_score
+      properties:
+        drug_id:
+          type: string
+        drug_name:
+          type: string
+        toxicity_risk:
+          type: string
+          enum: [Low, Moderate, High, Critical]
+        risk_score:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        predicted_adverse_effects:
+          type: array
+          items:
+            type: object
+            properties:
+              adverse_effect:
+                type: string
+              probability:
+                type: number
+              severity:
+                type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+        model_version:
+          type: string
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - status
+      properties:
+        error:
+          type: string
+        status:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
