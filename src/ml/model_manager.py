@@ -17,6 +17,38 @@ class ModelRegistry:
         self.model_metadata = {}
         os.makedirs(models_dir, exist_ok=True)
         logger.info(f"Model registry initialized at {models_dir}")
+        self._discover_models()
+    
+    def _discover_models(self):
+        """Auto-discover and register models in the models directory"""
+        try:
+            if not os.path.exists(self.models_dir):
+                return
+            
+            for filename in os.listdir(self.models_dir):
+                if filename.endswith('.pkl'):
+                    # Parse filename: model_name_vVERSION.pkl
+                    parts = filename.replace('.pkl', '').split('_v')
+                    if len(parts) == 2:
+                        model_name = parts[0]
+                        version = parts[1]
+                        model_path = os.path.join(self.models_dir, filename)
+                        
+                        model_id = f"{model_name}:{version}"
+                        if model_id not in self.model_metadata:
+                            self.model_metadata[model_id] = {
+                                'name': model_name,
+                                'version': version,
+                                'path': model_path,
+                                'registered_at': datetime.utcnow().isoformat(),
+                                'model_type': 'sklearn',
+                                'description': f'Auto-discovered {model_name} v{version}',
+                                'features': [],
+                                'performance': {}
+                            }
+                            logger.info(f"Auto-discovered model: {model_id}")
+        except Exception as e:
+            logger.error(f"Error discovering models: {str(e)}")
     
     def register_model(self, model_name: str, version: str, model_path: str, 
                        metadata: Dict[str, Any] = None) -> bool:
