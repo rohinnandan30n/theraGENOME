@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-ssl-config
+  namespace: theragenome
+data:
+  postgresql.conf: |
+    # SSL Configuration
+    ssl = on
+    ssl_cert_file = '/var/run/secrets/kubernetes.io/certs/server.crt'
+    ssl_key_file = '/var/run/secrets/kubernetes.io/certs/server.key'
+    ssl_ca_file = '/var/run/secrets/kubernetes.io/certs/ca.crt'
+    
+    # SSL protocol versions (TLS 1.2 minimum)
+    ssl_min_protocol_version = 'TLSv1.2'
+    ssl_max_protocol_version = 'TLSv1.3'
+    
+    # Preferred SSL ciphers
+    ssl_prefer_server_ciphers = on
+    ssl_dh_params_file = '/var/run/secrets/kubernetes.io/certs/dh.pem'
+    
+    # Client certificate authentication (optional, for mutual TLS)
+    ssl_passphrase_command = ''
+    
+    # Connection settings
+    password_encryption = scram-sha-256
+    
+    # Enhanced logging
+    log_connections = on
+    log_disconnections = on
+    log_statement = 'all'
+    log_min_duration_statement = 1000
+    log_hostname = on
+    
+  pg_hba.conf: |
+    # PostgreSQL client authentication configuration
+    # TYPE  DATABASE        USER            ADDRESS                 METHOD
+    
+    # Allow local connections without SSL
+    local   all             all                                     trust
+    
+    # Allow socket connections
+    host    all             all             127.0.0.1/32            md5
+    host    all             all             ::1/128                 md5
+    
+    # Require SSL for remote connections (SCRAM authentication)
+    hostssl all             postgres        0.0.0.0/0               scram-sha-256
+    hostssl all             public          0.0.0.0/0               scram-sha-256
+    
+    # Reject non-SSL connections
+    hostnossl all           all             0.0.0.0/0               reject
+    hostnossl all           all             ::/0                    reject
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: postgresql-server-certs
+  namespace: theragenome
+type: kubernetes.io/tls
+data:
+  # These need to be generated using:
+  # openssl req -new -nodes -x509 -days 3650 -keyout server.key -out server.crt -subj "/CN=postgresql.theragenome.svc.cluster.local"
+  # openssl dhparam -out dh.pem 2048
+  # openssl req -new -nodes -x509 -days 3650 -keyout ca.key -out ca.crt -subj "/CN=TheraGenome-CA"
+  # Then base64 encode these and add below
+  tls.crt: |
+    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMrakNDQVlvQ0NRQzN0UUhrekhEbk56QU5CZ2txaGtpRzl3MEJBUXNGQURCM01SUXdEZ1lEVlFRR0RBaEcKYjI0Z1ZtRnNhV1JoZEc4eEZEQVNCZ05WQkFnTUMwSmxiR2xsSUVOaGJHbG1ieXhGRERBU0JnTlZCQWNUQzBObApjblpsY2kxellTMVZibVJzTXlBeEhqQWNCZ05WQkFrVEZEQmZNQkFHQTFVRUJ4TUoxVlVJRlZ2WkcxdnZEbzsK

@@ -1,0 +1,230 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: otel-collector-config
+  namespace: monitoring
+data:
+  otel-collector-config.yaml: |
+    receivers:
+      otlp:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:4317
+          http:
+            endpoint: 0.0.0.0:4318
+      
+      prometheus:
+        config:
+          scrape_configs:
+          - job_name: 'otel-collector'
+            scrape_interval: 10s
+            static_configs:
+            - targets: ['localhost:8888']
+      
+      jaeger:
+        protocols:
+          grpc:
+            endpoint: 0.0.0.0:14250
+          thrift_http:
+            endpoint: 0.0.0.0:14268
+      
+      zipkin:
+        endpoint: 0.0.0.0:9411
+    
+    processors:
+      batch:
+        send_batch_size: 1024
+        send_batch_max_size: 2048
+        timeout: 5s
+      
+      memory_limiter:
+        check_interval: 1s
+        limit_mib: 512
+        spike_limit_mib: 128
+      
+      sampling:
+        policies:
+        - name: critical-paths
+          type: always_sample
+          paths:
+          - '/patients/*'
+          - '/variants/*'
+        - name: low-volume-endpoints
+          type: probabilistic
+          probabilistic:
+            sampling_percentage: 10
+      
+      attributes:
+        actions:
+        - key: environment
+          value: production
+          action: insert
+        - key: service.namespace
+          value: theragenome
+          action: insert
+      
+      resource_detection:
+        detectors:
+        - kubernetes
+        - env
+        override: true
+    
+    exporters:
+      prometheus:
+        endpoint: 0.0.0.0:8888
+      
+      jaeger:
+        endpoint: jaeger:14250
+        tls:
+          insecure: true
+      
+      logging:
+        loglevel: debug
+      
+      otlp:
+        client:
+          endpoint: prometheus-remote-write:9090
+          headers:
+            Authorization: "Bearer ${PROMETHEUS_TOKEN}"
+    
+    service:
+      pipelines:
+        traces:
+          receivers: [otlp, jaeger, zipkin]
+          processors: [memory_limiter, batch, sampling, attributes, resource_detection]
+          exporters: [jaeger, logging]
+        
+        metrics:
+          receivers: [otlp, prometheus]
+          processors: [memory_limiter, batch, attributes, resource_detection]
+          exporters: [prometheus, logging]
+        
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch, attributes, resource_detection]
+          exporters: [logging]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: monitoring
+  labels:
+    app: otel-collector
+spec:
+  ports:
+  - name: otlp-grpc
+    port: 4317
+    targetPort: 4317
+    protocol: TCP
+  - name: otlp-http
+    port: 4318
+    targetPort: 4318
+    protocol: TCP
+  - name: jaeger-grpc
+    port: 14250
+    targetPort: 14250
+    protocol: TCP
+  - name: jaeger-http
+    port: 14268
+    targetPort: 14268
+    protocol: TCP
+  - name: zipkin
+    port: 9411
+    targetPort: 9411
+    protocol: TCP
+  - name: metrics
+    port: 8888
+    targetPort: 8888
+    protocol: TCP
+  selector:
+    app: otel-collector
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otel-collector
+  namespace: monitoring
+  labels:
+    app: otel-collector
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      containers:
+      - name: collector
+        image: otel/opentelemetry-collector:latest
+        ports:
+        - name: otlp-grpc
+          containerPort: 4317
+          protocol: TCP
+        - name: otlp-http
+          containerPort: 4318
+          protocol: TCP
+        - name: jaeger-grpc
+          containerPort: 14250
+          protocol: TCP
+        - name: jaeger-http
+          containerPort: 14268
+          protocol: TCP
+        - name: zipkin
+          containerPort: 9411
+          protocol: TCP
+        - name: metrics
+          containerPort: 8888
+          protocol: TCP
+        
+        env:
+        - name: GOGC
+          value: "80"
+        
+        resources:
+          requests:
+            cpu: 200m
+            memory: 256Mi
+          limits:
+            cpu: 1000m
+            memory: 1Gi
+        
+        volumeMounts:
+        - name: config
+          mountPath: /etc/otel/config.yaml
+          subPath: otel-collector-config.yaml
+          readOnly: true
+        
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 13133
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+      
+      volumes:
+      - name: config
+        configMap:
+          name: otel-collector-config

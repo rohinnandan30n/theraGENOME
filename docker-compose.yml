@@ -239,13 +239,6 @@ services:
     networks:
       - theragenome
 
-volumes:
-  postgres-data:
-  redis-data:
-  prometheus-data:
-  grafana-data:
-  elasticsearch-data:
-
   # ============================================================================
   # TheraGenome FastAPI - Python Backend Services
   # ============================================================================
@@ -265,7 +258,7 @@ volumes:
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
       ENVIRONMENT: production
     ports:
-      - "8000:8000"
+      - "8010:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -359,6 +352,9 @@ volumes:
 volumes:
   postgres-data:
   redis-data:
+  prometheus-data:
+  grafana-data:
+  elasticsearch-data:
   kafka-data:
   zookeeper-data:
 
