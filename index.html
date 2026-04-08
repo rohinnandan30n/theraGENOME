@@ -294,6 +294,7 @@ header{position:sticky;top:0;z-index:500;background:rgba(6,8,15,0.88);backdrop-f
 
 <nav class="nav-tabs">
   <button class="tab-btn active" onclick="showTab('variants',this)">Gene Variants</button>
+  <button class="tab-btn" onclick="showTab('simulator',this)">3D Simulator</button>
   <button class="tab-btn" onclick="showTab('organs',this)">3D Organ Viewer</button>
   <button class="tab-btn" onclick="showTab('cancer',this)">Cancer Mechanisms</button>
 </nav>
@@ -304,53 +305,57 @@ header{position:sticky;top:0;z-index:500;background:rgba(6,8,15,0.88);backdrop-f
     <div class="section-eyebrow">Pharmacogenomics Library</div>
     <h1 class="section-title">Every gene tells a story.<br><em>Yours determines the dose.</em></h1>
     <p class="section-subtitle">Explore how germline and somatic variants reshape drug metabolism, cancer risk, and targeted therapy eligibility across the human genome. Each card features a live molecular simulation of that gene's protein structure.</p>
-    <section class="edu-3d-shell" aria-label="Integrated 3D molecular and organ viewer">
-      <div class="edu-3d-head">
-        <div>
-          <h2 class="edu-3d-title">Interactive 3D Organ Simulation</h2>
-          <p class="edu-3d-copy">The 3D experience from the features/3D branch is now embedded directly into this education flow, with the same visual language and typography for a unified learning experience.</p>
+
+    <!-- 3D SIMULATOR (new top-level section) -->
+    <div id="sec-simulator" class="section">
+      <section class="edu-3d-shell" aria-label="3D Simulator">
+        <div class="edu-3d-head">
+          <div>
+            <h2 class="edu-3d-title">Interactive 3D Organ Simulation</h2>
+            <p class="edu-3d-copy">Explore and interact with high-fidelity 3D organ models. Select an organ, adjust toxicity, and visualize real-time changes using the integrated Three.js-powered simulator.</p>
+          </div>
+          <span class="edu-3d-badge">3D Simulator</span>
         </div>
-        <span class="edu-3d-badge">Merged 3D Module</span>
-      </div>
-      <div class="edu-3d-grid">
-        <div class="edu-3d-viewer">
-          <div id="three-container">
-            <div class="loader">
-              <div class="viewer-loader-spinner"></div>
-              <p>Loading 3D Model...</p>
+        <div class="edu-3d-grid">
+          <div class="edu-3d-viewer">
+            <div id="three-container">
+              <div class="loader">
+                <div class="viewer-loader-spinner"></div>
+                <p>Loading 3D Model...</p>
+              </div>
             </div>
           </div>
+          <aside class="edu-3d-controls">
+            <div>
+              <div class="viewer-control-label">Select Organ</div>
+              <select id="organSelector" class="viewer-select">
+                <option value="">-- Choose an Organ --</option>
+              </select>
+            </div>
+            <div>
+              <div class="viewer-control-label">Quick Access</div>
+              <div class="viewer-btn-row">
+                <button class="viewer-chip-btn" onclick="window.switchOrgan('human_body')">Full Body</button>
+                <button class="viewer-chip-btn" onclick="window.switchOrgan('heart')">Heart</button>
+                <button class="viewer-chip-btn" onclick="window.switchOrgan('kidneys')">Kidneys</button>
+              </div>
+            </div>
+            <div>
+              <div class="viewer-control-label">Toxicity Level</div>
+              <div class="viewer-btn-row">
+                <button class="toxicity-btn high" onclick="window.updateModel('high')">High</button>
+                <button class="toxicity-btn low" onclick="window.updateModel('low')">Low</button>
+                <button class="toxicity-btn reset" onclick="window.updateModel('reset')">Reset</button>
+              </div>
+            </div>
+            <div class="viewer-status">
+              <span id="organ-name" class="status neutral">Not loaded</span>
+              <p id="organ-info">Use mouse to rotate, scroll to zoom, and right-click to pan. The model response changes with toxicity selection.</p>
+            </div>
+          </aside>
         </div>
-        <aside class="edu-3d-controls">
-          <div>
-            <div class="viewer-control-label">Select Organ</div>
-            <select id="organSelector" class="viewer-select">
-              <option value="">-- Choose an Organ --</option>
-            </select>
-          </div>
-          <div>
-            <div class="viewer-control-label">Quick Access</div>
-            <div class="viewer-btn-row">
-              <button class="viewer-chip-btn" onclick="window.switchOrgan('human_body')">Full Body</button>
-              <button class="viewer-chip-btn" onclick="window.switchOrgan('heart')">Heart</button>
-              <button class="viewer-chip-btn" onclick="window.switchOrgan('kidneys')">Kidneys</button>
-            </div>
-          </div>
-          <div>
-            <div class="viewer-control-label">Toxicity Level</div>
-            <div class="viewer-btn-row">
-              <button class="toxicity-btn high" onclick="window.updateModel('high')">High</button>
-              <button class="toxicity-btn low" onclick="window.updateModel('low')">Low</button>
-              <button class="toxicity-btn reset" onclick="window.updateModel('reset')">Reset</button>
-            </div>
-          </div>
-          <div class="viewer-status">
-            <span id="organ-name" class="status neutral">Not loaded</span>
-            <p id="organ-info">Use mouse to rotate, scroll to zoom, and right-click to pan. The model response changes with toxicity selection.</p>
-          </div>
-        </aside>
-      </div>
-    </section>
+      </section>
+    </div>
     <div class="filter-bar">
       <button class="filter-chip active" onclick="filterVariants('all',this)">All Variants</button>
       <button class="filter-chip pgx" onclick="filterVariants('pgx',this)">Drug Metabolism</button>
@@ -1078,6 +1083,26 @@ function showTab(id, btn) {
   btn.classList.add('active');
   document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
   document.getElementById('sec-' + id).classList.add('active');
+
+  // If switching to 3D Simulator, (re)init viewer if needed
+  if (id === 'simulator') {
+    // Always re-initialize the viewer when switching to the tab
+    if (typeof initViewer === 'function') {
+      // Remove any existing canvas to avoid duplicates
+      var container = document.getElementById('three-container');
+      if (container) {
+        // Remove all children (canvas, loader, etc.)
+        while (container.firstChild) container.removeChild(container.firstChild);
+        // Re-add loader markup
+        var loader = document.createElement('div');
+        loader.className = 'loader';
+        loader.innerHTML = '<div class="viewer-loader-spinner"></div><p>Loading 3D Model...</p>';
+        container.appendChild(loader);
+      }
+      initViewer();
+      if (typeof switchOrgan === 'function') switchOrgan('human_body');
+    }
+  }
 }
 
 function showCancerTab(id, btn) {
