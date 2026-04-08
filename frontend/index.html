@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheraGENOME AI — Demo Control Panel</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">TheraGENOME AI</h1>
+            <p class="tagline">Interactive Demo Control Panel</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Demo Control Panel Section -->
+        <section class="control-panel">
+            <div class="panel-header">
+                <h2>🎯 Demo Scenarios</h2>
+                <p>Select a scenario to demonstrate the system's capabilities</p>
+            </div>
+
+            <div class="button-group">
+                <button class="demo-button safe-case" data-case-id="safe_case">
+                    <span class="icon">✓</span>
+                    <span class="label">Safe Case</span>
+                    <span class="description">No drug interactions</span>
+                </button>
+
+                <button class="demo-button high-risk-case" data-case-id="high_risk_case">
+                    <span class="icon">⚠</span>
+                    <span class="label">High Risk Case</span>
+                    <span class="description">Genetic contraindications</span>
+                </button>
+
+                <button class="demo-button comparison-case" data-case-id="comparison_case">
+                    <span class="icon">⚖</span>
+                    <span class="label">Compare Drugs</span>
+                    <span class="description">Multi-drug comparison</span>
+                </button>
+            </div>
+
+            <div class="mode-selector">
+                <label>Display Mode:</label>
+                <select id="modeSelect" class="mode-dropdown">
+                    <option value="doctor">Doctor Mode (Full Details)</option>
+                    <option value="patient">Patient Mode (Simplified)</option>
+                </select>
+            </div>
+
+            <!-- Voice Input Controls -->
+            <div class="voice-input-controls">
+                <h3>🎤 Voice Input</h3>
+                
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <label for="voiceLanguage">Language:</label>
+                    <select id="voiceLanguage" class="language-dropdown">
+                        <option value="en-US">🇬🇧 English</option>
+                        <option value="hi-IN">🇮🇳 हिंदी (Hindi)</option>
+                        <option value="ta-IN">🇮🇳 தமிழ் (Tamil)</option>
+                        <option value="te-IN">🇮🇳 తెలుగు (Telugu)</option>
+                        <option value="kn-IN">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                </div>
+
+                <div class="voice-button-group">
+                    <button class="voice-button" id="startListeningBtn" title="Start listening for voice commands">
+                        <span class="icon">🎤</span>
+                        <span class="label">Start Listening</span>
+                    </button>
+                    <button class="voice-button stop-button hidden" id="stopListeningBtn" title="Stop listening">
+                        <span class="icon">⏹</span>
+                        <span class="label">Stop Listening</span>
+                    </button>
+                </div>
+                <div class="voice-transcript" id="voiceTranscript" class="hidden">
+                    <div class="interim-text" id="interimTranscript"></div>
+                    <div class="final-text" id="finalTranscript"></div>
+                </div>
+                <div class="voice-status" id="voiceStatus"></div>
+            </div>
+        </section>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state hidden">
+            <div class="spinner"></div>
+            <p>Analyzing scenario...</p>
+        </div>
+
+        <!-- Results Container -->
+        <div id="resultsContainer" class="results-container hidden">
+
+            <!-- Input Summary -->
+            <section class="result-section input-summary">
+                <h3>📋 Input Summary</h3>
+                <div class="summary-card">
+                    <div class="summary-item">
+                        <span class="label">Scenario:</span>
+                        <span class="value" id="scenarioName">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Description:</span>
+                        <span class="value" id="scenarioDescription">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Intent Detected:</span>
+                        <span class="value badge" id="intentDetected">—</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Processing Time:</span>
+                        <span class="value" id="processingTime">—</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Decision Result Card -->
+            <section class="result-section decision-result">
+                <h3>🔍 Decision Result</h3>
+                <div class="decision-card" id="decisionCard">
+                    <div class="decision-header">
+                        <h4 id="decisionTemplate" class="template-badge">—</h4>
+                        <span class="confidence" id="confidenceScore">—</span>
+                    </div>
+
+                    <div class="decision-body">
+                        <div class="risk-indicator">
+                            <span class="label">Risk Level:</span>
+                            <span class="risk-badge" id="riskLevel">—</span>
+                        </div>
+
+                        <div class="drug-info">
+                            <span class="label">Drug:</span>
+                            <span class="value" id="drugName">—</span>
+                        </div>
+
+                        <div class="reason-codes">
+                            <span class="label">Reason Codes:</span>
+                            <div class="codes-list" id="reasonCodes">
+                                <!-- populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="decision-footer">
+                        <button class="secondary-button" id="toggleExplanation">
+                            💡 Show Explanation
+                        </button>
+                        <button class="secondary-button" id="speakResultBtn" title="Read decision aloud">
+                            🔊 Speak Result
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Voice Output Controls -->
+            <section class="result-section voice-output-controls hidden" id="voiceOutputControls">
+                <h3>🔊 Voice Output</h3>
+                <div class="voice-button-group">
+                    <button class="voice-button hidden" id="pauseSpeakBtn" title="Pause speech">
+                        <span class="icon">⏸</span>
+                        <span class="label">Pause</span>
+                    </button>
+                    <button class="voice-button hidden" id="resumeSpeakBtn" title="Resume speech">
+                        <span class="icon">▶</span>
+                        <span class="label">Resume</span>
+                    </button>
+                    <button class="voice-button stop-button hidden" id="stopSpeakBtn" title="Stop speaking">
+                        <span class="icon">⏹</span>
+                        <span class="label">Stop</span>
+                    </button>
+                </div>
+                <div class="speech-status" id="speechStatus"></div>
+            </section>
+
+            <!-- Explanation Panel (Collapsible) -->
+            <section class="result-section explanation-panel hidden" id="explanationPanel">
+                <h3>🧠 Detailed Explanation</h3>
+                <div class="explanation-content">
+                    <div class="explanation-section">
+                        <h4>Clinical Rationale</h4>
+                        <div class="reason-details" id="reasonDetails">
+                            <!-- populated by JS -->
+                        </div>
+                    </div>
+
+                    <div class="explanation-section" id="modulesSection" class="hidden">
+                        <h4>Model Details (Doctor Mode)</h4>
+                        <div class="modules-data" id="modulesData">
+                            <!-- populated by JS -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Comparison View (Conditional) -->
+            <section class="result-section comparison-view hidden" id="comparisonView">
+                <h3>⚖ Drug Comparison</h3>
+                <div class="comparison-table" id="comparisonTable">
+                    <!-- populated by JS -->
+                </div>
+            </section>
+
+            <!-- Report View (Conditional) -->
+            <section class="result-section report-view hidden" id="reportView">
+                <h3>📄 Analysis Report</h3>
+                <div class="report-content" id="reportContent">
+                    <!-- populated by JS -->
+                </div>
+            </section>
+
+            <!-- Safety Warning (Conditional) -->
+            <section class="result-section safety-warning hidden" id="safetyWarning">
+                <div class="warning-banner">
+                    <span class="warning-icon">⚠️</span>
+                    <div class="warning-content">
+                        <h3>Safety Alert</h3>
+                        <p id="warningMessage">—</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Raw Response Toggle (Dev Mode) -->
+            <section class="result-section raw-response">
+                <button class="secondary-button" id="toggleRawResponse">
+                    📊 View Raw Response
+                </button>
+                <div class="raw-response-container hidden" id="rawResponseContainer">
+                    <pre id="rawResponseContent"></pre>
+                </div>
+            </section>
+
+            <!-- Reset Button -->
+            <div class="action-buttons">
+                <button class="secondary-button" id="resetButton">
+                    ↻ Run Another Demo
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state hidden">
+            <div class="error-icon">❌</div>
+            <h3>Something went wrong</h3>
+            <p id="errorMessage">—</p>
+            <button class="secondary-button" id="errorRetryButton">Try Again</button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>TheraGENOME AI © 2025 | Demo Control Panel v1.0</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="assets/js/voice-service.js"></script>
+    <script src="assets/js/api-client.js"></script>
+    <script src="assets/js/ui-renderer.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
