@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>theraGENOME | Precision Medicine Education</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<style>
+:root {
+  --bg: #06080f;
+  --bg1: #0c0f1a;
+  --bg2: #111524;
+  --bg3: #181d2e;
+  --surface: #1e2438;
+  --surface2: #252b3d;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --teal: #00d4aa;
+  --teal-dim: #007a63;
+  --teal-glow: rgba(0,212,170,0.15);
+  --purple: #9b59f5;
+  --purple-dim: #5c2fb8;
+  --purple-glow: rgba(155,89,245,0.15);
+  --rose: #f0567a;
+  --rose-glow: rgba(240,86,122,0.15);
+  --amber: #f5a623;
+  --amber-glow: rgba(245,166,35,0.12);
+  --text: #e8ecf4;
+  --text-muted: #7a82a0;
+  --text-dim: #4a5068;
+  --font-display: 'DM Serif Display', serif;
+  --font-body: 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");opacity:0.4;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(0,212,170,0.07) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 85% 90%,rgba(155,89,245,0.07) 0%,transparent 70%);}
+::-webkit-scrollbar{width:5px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px;}
+
+header{position:sticky;top:0;z-index:500;background:rgba(6,8,15,0.88);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--border);padding:0 2.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:var(--font-display);font-size:1.5rem;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--teal) 0%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(0,212,170,0.3));}
+.logo-tag{font-family:var(--font-body);font-size:0.78rem;font-weight:400;-webkit-text-fill-color:var(--text-muted);margin-left:0.5rem;}
+.api-input{background:var(--surface);border:1px solid var(--border);padding:0.45rem 0.9rem;border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:0.75rem;width:210px;outline:none;transition:border-color 0.2s;}
+.api-input:focus{border-color:var(--teal);}
+.api-input::placeholder{color:var(--text-dim);}
+
+.nav-tabs{display:flex;justify-content:center;border-bottom:1px solid var(--border);background:rgba(6,8,15,0.6);backdrop-filter:blur(10px);position:sticky;top:64px;z-index:400;}
+.tab-btn{background:none;border:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--text-muted);padding:1rem 2rem;cursor:pointer;position:relative;transition:color 0.2s;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.tab-btn:hover{color:var(--text);}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);}
+
+.section{display:none;}
+.section.active{display:block;animation:fadeUp 0.4s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── GENE VARIANTS ── */
+#sec-variants{padding:3rem 3rem 5rem;max-width:1480px;margin:0 auto;}
+.section-eyebrow{font-family:var(--font-mono);font-size:0.72rem;font-weight:500;color:var(--teal);text-transform:uppercase;letter-spacing:2px;margin-bottom:0.75rem;display:flex;align-items:center;gap:0.5rem;}
+.section-eyebrow::before{content:'';display:inline-block;width:20px;height:1px;background:var(--teal);}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,3.5vw,2.8rem);font-weight:400;line-height:1.15;letter-spacing:-0.02em;margin-bottom:0.6rem;}
+.section-subtitle{color:var(--text-muted);font-size:0.95rem;line-height:1.65;max-width:600px;margin-bottom:2.5rem;}
+.filter-bar{display:flex;gap:0.5rem;margin-bottom:2rem;flex-wrap:wrap;}
+.filter-chip{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:0.35rem 1rem;font-size:0.78rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all 0.2s;}
+.filter-chip:hover{border-color:var(--teal);color:var(--teal);}
+.filter-chip.active{background:var(--teal-glow);border-color:var(--teal);color:var(--teal);}
+.filter-chip.active.pgx{background:rgba(0,180,220,0.1);border-color:#00b4dc;color:#00b4dc;}
+.filter-chip.active.risk{background:var(--rose-glow);border-color:var(--rose);color:var(--rose);}
+.filter-chip.active.cancer{background:var(--purple-glow);border-color:var(--purple);color:var(--purple);}
+
+.variant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1rem;}
+
+/* ── GENE CARD (enhanced with visual preview) ── */
+.gene-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius-lg);display:flex;flex-direction:column;cursor:pointer;transition:transform 0.25s ease,border-color 0.25s,box-shadow 0.25s;position:relative;overflow:hidden;}
+.gene-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.25s;z-index:2;}
+.gene-card.pgx::before{background:linear-gradient(90deg,#00b4dc,var(--teal));}
+.gene-card.risk::before{background:linear-gradient(90deg,var(--rose),var(--amber));}
+.gene-card.cancer::before{background:linear-gradient(90deg,var(--purple),var(--rose));}
+.gene-card:hover{transform:translateY(-4px);border-color:var(--border2);}
+.gene-card.pgx:hover{box-shadow:0 12px 40px rgba(0,180,220,0.1);}
+.gene-card.risk:hover{box-shadow:0 12px 40px rgba(240,86,122,0.1);}
+.gene-card.cancer:hover{box-shadow:0 12px 40px rgba(155,89,245,0.1);}
+.gene-card:hover::before{opacity:1;}
+
+/* Molecular canvas preview on card */
+.gene-viz-strip{height:110px;width:100%;position:relative;overflow:hidden;flex-shrink:0;}
+.gene-viz-canvas{position:absolute;inset:0;width:100%;height:100%;}
+.gene-viz-label{position:absolute;bottom:6px;right:10px;font-family:var(--font-mono);font-size:0.58rem;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:1px;}
+
+.card-body{padding:1.25rem 1.5rem 1.5rem;}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.85rem;}
+.gene-symbol{font-family:var(--font-mono);font-size:1.4rem;font-weight:700;letter-spacing:-0.03em;}
+.gene-card.pgx .gene-symbol{color:#00b4dc;}
+.gene-card.risk .gene-symbol{color:var(--rose);}
+.gene-card.cancer .gene-symbol{color:var(--purple);}
+.badge{font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:0.08em;padding:0.2rem 0.55rem;border-radius:4px;font-weight:500;}
+.badge.pgx{background:rgba(0,180,220,0.12);color:#00b4dc;border:1px solid rgba(0,180,220,0.25);}
+.badge.risk{background:var(--rose-glow);color:var(--rose);border:1px solid rgba(240,86,122,0.25);}
+.badge.cancer{background:var(--purple-glow);color:var(--purple);border:1px solid rgba(155,89,245,0.25);}
+.badge.drug{background:var(--amber-glow);color:var(--amber);border:1px solid rgba(245,166,35,0.25);}
+.card-teaser{font-size:0.86rem;color:var(--text-muted);line-height:1.6;flex:1;margin-bottom:1.25rem;}
+.card-cta{background:none;border:1px solid var(--border2);color:var(--text-muted);border-radius:8px;padding:0.55rem 1rem;font-family:var(--font-body);font-size:0.82rem;font-weight:600;cursor:pointer;transition:all 0.2s;width:100%;display:flex;align-items:center;justify-content:center;gap:0.5rem;}
+.gene-card.pgx .card-cta:hover{background:rgba(0,180,220,0.1);border-color:#00b4dc;color:#00b4dc;}
+.gene-card.risk .card-cta:hover{background:var(--rose-glow);border-color:var(--rose);color:var(--rose);}
+.gene-card.cancer .card-cta:hover{background:var(--purple-glow);border-color:var(--purple);color:var(--purple);}
+
+/* ── ORGAN VIEWER ── */
+#sec-organs{height:calc(100vh - 116px);display:none;flex-direction:column;}
+#sec-organs.active{display:flex;}
+.organ-selector-bar{display:flex;gap:0.5rem;padding:0.85rem 1.5rem;background:rgba(6,8,15,0.7);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);flex-wrap:wrap;align-items:center;flex-shrink:0;z-index:10;}
+.organ-btn{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:0.35rem 1.1rem;font-family:var(--font-body);font-size:0.78rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all 0.22s;white-space:nowrap;}
+.organ-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-glow);}
+.organ-btn.active{background:var(--teal-glow);border-color:var(--teal);color:var(--teal);}
+.organ-viewer-wrap{display:flex;flex:1;overflow:hidden;}
+.canvas-region{flex:1;position:relative;background:#03040a;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.organ-iframe{width:100%;height:100%;border:0;display:block;}
+.viewer-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:1.5rem;padding:2rem;}
+.welcome-rings{position:relative;width:120px;height:120px;display:flex;align-items:center;justify-content:center;}
+.welcome-rings::before,.welcome-rings::after{content:'';position:absolute;border-radius:50%;border:1px solid var(--teal);animation:ring-pulse 3s ease infinite;}
+.welcome-rings::before{width:100%;height:100%;opacity:0.3;}
+.welcome-rings::after{width:70%;height:70%;opacity:0.5;animation-delay:1s;}
+.welcome-icon{font-size:2.5rem;z-index:1;}
+@keyframes ring-pulse{0%,100%{transform:scale(1);opacity:0.3;}50%{transform:scale(1.1);opacity:0.6;}}
+.welcome-title{font-family:var(--font-display);font-size:1.8rem;color:var(--text);}
+.welcome-sub{font-size:0.88rem;color:var(--text-dim);line-height:1.7;max-width:280px;}
+.welcome-hint{font-family:var(--font-mono);font-size:0.68rem;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px;padding:0.4rem 1rem;border:1px solid rgba(0,212,170,0.2);border-radius:999px;background:var(--teal-glow);}
+.iframe-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;background:#03040a;z-index:2;pointer-events:none;transition:opacity 0.5s;}
+.iframe-loading.hidden{opacity:0;}
+.loading-spinner{width:40px;height:40px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px;}
+.organ-info-panel{width:400px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.panel-inner{padding:2rem 1.75rem;flex:1;}
+.panel-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center;gap:1.25rem;padding:2rem;}
+.placeholder-ring{width:80px;height:80px;border:2px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;animation:pulse-ring 3s ease infinite;}
+@keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(0,212,170,0.2);border-color:var(--border2);}50%{box-shadow:0 0 0 12px rgba(0,212,170,0);border-color:var(--teal);}}
+.placeholder-title{font-family:var(--font-display);font-size:1.4rem;color:var(--text);}
+.placeholder-sub{font-size:0.85rem;color:var(--text-dim);line-height:1.65;max-width:200px;}
+.panel-details{display:none;}
+.organ-name{font-family:var(--font-display);font-size:2.2rem;letter-spacing:-0.02em;color:var(--text);line-height:1.1;margin-bottom:0.35rem;}
+.organ-role{font-family:var(--font-mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--teal);margin-bottom:2rem;}
+.panel-section{margin-bottom:2rem;}
+.panel-section-label{font-family:var(--font-mono);font-size:0.65rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:0.75rem;}
+.gene-chips{display:flex;flex-wrap:wrap;gap:0.4rem;}
+.gene-chip{font-family:var(--font-mono);font-size:0.72rem;font-weight:500;background:var(--teal-glow);color:var(--teal);padding:0.22rem 0.65rem;border-radius:999px;border:1px solid rgba(0,212,170,0.2);}
+.organ-text{font-size:0.88rem;line-height:1.75;color:var(--text-muted);}
+
+/* ── CANCER ── */
+#sec-cancer{padding:3rem 3rem 5rem;max-width:1480px;margin:0 auto;}
+.cancer-subtabs{display:flex;gap:0.5rem;margin-bottom:2.5rem;flex-wrap:wrap;}
+.subtab{background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:0.4rem 1.25rem;font-size:0.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;transition:all 0.2s;}
+.subtab:hover{border-color:var(--rose);color:var(--rose);}
+.subtab.active{background:var(--rose-glow);border-color:var(--rose);color:var(--rose);}
+.cancer-content{display:none;}
+.cancer-content.active{display:block;animation:fadeUp 0.3s ease;}
+
+/* ── GLASS CANCER CARD (enhanced with PDB viewer button) ── */
+.glass-card{background:rgba(30,36,56,0.5);backdrop-filter:blur(12px);border:1px solid var(--border2);border-radius:var(--radius-lg);display:flex;flex-direction:column;transition:transform 0.2s,box-shadow 0.2s;position:relative;overflow:hidden;}
+.glass-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(240,86,122,0.04) 0%,transparent 60%);pointer-events:none;}
+.glass-card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(240,86,122,0.08);}
+
+/* PDB preview strip on cancer cards */
+.cancer-pdb-strip{height:130px;position:relative;overflow:hidden;background:#03040a;flex-shrink:0;border-bottom:1px solid var(--border);}
+.cancer-pdb-strip iframe{width:100%;height:100%;border:0;pointer-events:none;}
+.pdb-overlay{position:absolute;inset:0;display:flex;flex-direction:column;align-items:flex-end;justify-content:flex-end;padding:0.65rem;background:linear-gradient(to top,rgba(3,4,10,0.8) 0%,transparent 60%);gap:0.3rem;}
+.pdb-open-btn{background:rgba(0,212,170,0.15);border:1px solid rgba(0,212,170,0.4);color:var(--teal);font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:1px;padding:0.3rem 0.65rem;border-radius:6px;cursor:pointer;transition:all 0.2s;backdrop-filter:blur(6px);}
+.pdb-open-btn:hover{background:rgba(0,212,170,0.3);}
+.pdb-label{font-family:var(--font-mono);font-size:0.56rem;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1px;}
+
+.glass-card-inner{padding:1.5rem;}
+.glass-card-name{font-family:var(--font-display);font-size:1.15rem;margin-bottom:0.75rem;color:var(--text);}
+.glass-card-desc{font-size:0.85rem;line-height:1.65;color:var(--text-muted);flex:1;margin-bottom:1rem;}
+.glass-card-sig{font-family:var(--font-mono);font-size:0.72rem;color:var(--rose);background:var(--rose-glow);padding:0.3rem 0.65rem;border-radius:6px;border:1px solid rgba(240,86,122,0.2);display:inline-block;}
+.drug-stripe{border-left:3px solid var(--teal);}
+.drug-meta{font-family:var(--font-mono);font-size:0.68rem;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.5rem;}
+.teal-tag{font-family:var(--font-mono);font-size:0.7rem;background:rgba(0,212,170,0.1);color:var(--teal);padding:0.25rem 0.65rem;border-radius:6px;border:1px solid rgba(0,212,170,0.2);}
+.purple-tag{font-family:var(--font-mono);font-size:0.68rem;background:rgba(155,89,245,0.1);color:var(--purple);padding:0.15rem 0.5rem;border-radius:4px;border:1px solid rgba(155,89,245,0.2);}
+
+/* ── PDB MODAL ── */
+.pdb-modal-backdrop{position:fixed;inset:0;z-index:1000;background:rgba(3,4,10,0.92);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:2rem;}
+.pdb-modal-backdrop.open{display:flex;}
+.pdb-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-xl);width:100%;max-width:1100px;height:85vh;display:flex;flex-direction:column;box-shadow:0 40px 80px rgba(0,0,0,0.6);animation:modalIn 0.3s cubic-bezier(.34,1.56,.64,1);overflow:hidden;}
+.pdb-modal-head{padding:1.25rem 1.75rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:linear-gradient(180deg,var(--bg3) 0%,transparent 100%);}
+.pdb-modal-title{font-family:var(--font-mono);font-size:0.8rem;color:var(--teal);text-transform:uppercase;letter-spacing:1.5px;}
+.pdb-modal-sub{font-size:0.78rem;color:var(--text-dim);margin-top:0.2rem;}
+.pdb-modal-body{flex:1;display:flex;overflow:hidden;position:relative;}
+.pdb-viewer-frame{flex:1;border:0;display:block;}
+.pdb-side-info{width:280px;flex-shrink:0;background:var(--bg1);border-left:1px solid var(--border);padding:1.5rem;overflow-y:auto;display:flex;flex-direction:column;gap:1.25rem;}
+.pdb-info-block{}
+.pdb-info-label{font-family:var(--font-mono);font-size:0.62rem;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:0.5rem;}
+.pdb-info-value{font-size:0.85rem;color:var(--text-muted);line-height:1.65;}
+.pdb-info-highlight{font-family:var(--font-mono);font-size:0.75rem;color:var(--teal);background:var(--teal-glow);padding:0.25rem 0.6rem;border-radius:6px;border:1px solid rgba(0,212,170,0.2);display:inline-block;margin-bottom:0.35rem;}
+.pdb-loading{position:absolute;inset:0;width:calc(100% - 280px);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1rem;background:#03040a;z-index:2;pointer-events:none;transition:opacity 0.6s;}
+.pdb-loading.hidden{opacity:0;}
+.modal-close{background:var(--surface);border:1px solid var(--border);border-radius:8px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;color:var(--text-muted);transition:all 0.2s;flex-shrink:0;}
+.modal-close:hover{background:var(--surface2);color:var(--text);}
+
+/* ── GENE DETAIL MODAL ── */
+.modal-backdrop{position:fixed;inset:0;z-index:900;background:rgba(3,4,10,0.85);backdrop-filter:blur(10px);display:none;align-items:center;justify-content:center;padding:2rem;}
+.modal-backdrop.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-xl);width:100%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 0 1px rgba(255,255,255,0.04);animation:modalIn 0.3s cubic-bezier(.34,1.56,.64,1);overflow:hidden;}
+@keyframes modalIn{from{transform:scale(0.92) translateY(20px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.modal-head{padding:1.75rem 2rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;justify-content:space-between;flex-shrink:0;background:linear-gradient(180deg,var(--bg3) 0%,transparent 100%);}
+.modal-gene{font-family:var(--font-mono);font-size:2rem;font-weight:700;letter-spacing:-0.04em;}
+.modal-gene.pgx{color:#00b4dc;}
+.modal-gene.risk{color:var(--rose);}
+.modal-gene.cancer{color:var(--purple);}
+.modal-type{margin-top:0.3rem;}
+
+/* Modal split: viz + text */
+.modal-body{display:flex;flex:1;overflow:hidden;}
+.modal-viz-panel{width:240px;flex-shrink:0;background:#03040a;border-right:1px solid var(--border);position:relative;overflow:hidden;}
+.modal-viz-canvas{width:100%;height:100%;display:block;}
+.modal-viz-label{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-family:var(--font-mono);font-size:0.6rem;color:rgba(255,255,255,0.2);text-transform:uppercase;letter-spacing:1px;}
+
+/* PDB button inside gene modal */
+.modal-pdb-btn{display:flex;align-items:center;gap:0.5rem;background:var(--teal-glow);border:1px solid rgba(0,212,170,0.3);color:var(--teal);border-radius:8px;padding:0.5rem 0.9rem;font-family:var(--font-mono);font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;cursor:pointer;transition:all 0.2s;width:100%;justify-content:center;margin-bottom:0.75rem;}
+.modal-pdb-btn:hover{background:rgba(0,212,170,0.25);}
+.modal-pdb-btn svg{width:14px;height:14px;flex-shrink:0;}
+
+.modal-text-panel{flex:1;overflow-y:auto;padding:2rem;}
+.modal-explanation{font-size:0.97rem;line-height:1.85;color:var(--text-muted);font-family:var(--font-body);}
+.modal-explanation p{margin-bottom:1rem;}
+.modal-explanation strong{color:var(--teal);font-weight:600;}
+.ask-zone{margin-top:2rem;padding:1.5rem;background:var(--bg3);border-radius:var(--radius);border:1px solid var(--border);}
+.ask-title{font-size:0.78rem;font-weight:600;color:var(--text-dim);margin-bottom:0.75rem;display:flex;align-items:center;gap:0.4rem;}
+.ask-title::before{content:'✦';color:var(--teal);font-size:0.6rem;}
+.ask-row{display:flex;gap:0.6rem;}
+.ask-input{flex:1;background:var(--bg1);border:1px solid var(--border);padding:0.6rem 0.9rem;border-radius:8px;font-family:var(--font-body);font-size:0.85rem;color:var(--text);outline:none;transition:border-color 0.2s;}
+.ask-input:focus{border-color:var(--teal);}
+.ask-input::placeholder{color:var(--text-dim);}
+.ask-btn{background:linear-gradient(135deg,var(--teal-dim),var(--teal));border:none;border-radius:8px;padding:0 1.1rem;font-family:var(--font-body);font-size:0.82rem;font-weight:600;color:#000;cursor:pointer;transition:opacity 0.2s,transform 0.1s;white-space:nowrap;}
+.ask-btn:hover{opacity:0.9;}
+.ask-btn:active{transform:scale(0.97);}
+.ai-response{display:none;margin-top:1rem;padding:1.25rem;background:var(--teal-glow);border-left:2px solid var(--teal);border-radius:0 8px 8px 0;font-size:0.88rem;line-height:1.7;color:var(--text-muted);}
+.ai-response p{margin-bottom:0.5rem;}
+.ai-response strong{color:var(--teal);}
+.spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;display:none;margin:0.75rem auto 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">theraGENOME<span class="logo-tag">| Precision Medicine</span></div>
+</header>
+
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="showTab('variants',this)">Gene Variants</button>
+  <button class="tab-btn" onclick="showTab('organs',this)">3D Organ Viewer</button>
+  <button class="tab-btn" onclick="showTab('cancer',this)">Cancer Mechanisms</button>
+</nav>
+
+<!-- GENE VARIANTS -->
+<div id="sec-variants" class="section active">
+  <div style="padding:3rem 3rem 5rem;max-width:1480px;margin:0 auto;">
+    <div class="section-eyebrow">Pharmacogenomics Library</div>
+    <h1 class="section-title">Every gene tells a story.<br><em>Yours determines the dose.</em></h1>
+    <p class="section-subtitle">Explore how germline and somatic variants reshape drug metabolism, cancer risk, and targeted therapy eligibility across the human genome. Each card features a live molecular simulation of that gene's protein structure.</p>
+    <div class="filter-bar">
+      <button class="filter-chip active" onclick="filterVariants('all',this)">All Variants</button>
+      <button class="filter-chip pgx" onclick="filterVariants('pgx',this)">Drug Metabolism</button>
+      <button class="filter-chip risk" onclick="filterVariants('risk',this)">Disease Risk</button>
+      <button class="filter-chip cancer" onclick="filterVariants('cancer',this)">Oncogenes</button>
+    </div>
+    <div class="variant-grid" id="variantGrid"></div>
+  </div>
+</div>
+
+<!-- 3D ORGAN VIEWER -->
+<div id="sec-organs" class="section">
+  <div class="organ-selector-bar">
+    <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:1.5px;margin-right:0.5rem;">Select organ:</span>
+    <button class="organ-btn" onclick="loadOrgan('brain',this)">Brain</button>
+    <button class="organ-btn" onclick="loadOrgan('heart',this)">Heart</button>
+    <button class="organ-btn" onclick="loadOrgan('lungs',this)">Lungs</button>
+    <button class="organ-btn" onclick="loadOrgan('liver',this)">Liver</button>
+    <button class="organ-btn" onclick="loadOrgan('kidneys',this)">Kidneys</button>
+    <button class="organ-btn" onclick="loadOrgan('stomach',this)">Stomach</button>
+    <button class="organ-btn" onclick="loadOrgan('pancreas',this)">Pancreas</button>
+    <button class="organ-btn" onclick="loadOrgan('bone_marrow',this)">Bone Marrow</button>
+  </div>
+  <div class="organ-viewer-wrap">
+    <div class="canvas-region" id="canvasRegion">
+      <div class="viewer-welcome" id="viewerWelcome">
+        <div class="welcome-rings"><span class="welcome-icon">🔬</span></div>
+        <div class="welcome-title">3D Organ Explorer</div>
+        <p class="welcome-sub">Select any organ above to load an interactive 3D model you can rotate, zoom, and explore.</p>
+        <span class="welcome-hint">↑ Choose an organ to begin</span>
+      </div>
+      <div class="iframe-loading hidden" id="iframeLoading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading 3D model...</div>
+      </div>
+    </div>
+    <div class="organ-info-panel">
+      <div class="panel-inner">
+        <div class="panel-placeholder" id="panelPlaceholder">
+          <div class="placeholder-ring">&#x1FAC0;</div>
+          <div class="placeholder-title">Select an organ</div>
+          <p class="placeholder-sub">Click any organ button above to explore its pharmacogenomic profile.</p>
+        </div>
+        <div class="panel-details" id="panelDetails">
+          <div class="organ-name" id="oName"></div>
+          <div class="organ-role" id="oRole"></div>
+          <div class="panel-section">
+            <div class="panel-section-label">Key expressed genes</div>
+            <div class="gene-chips" id="oGenes"></div>
+          </div>
+          <div class="panel-section">
+            <div class="panel-section-label">Pharmacogenomic role</div>
+            <div class="organ-text" id="oText"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CANCER MECHANISMS -->
+<div id="sec-cancer" class="section">
+  <div style="padding:3rem 3rem 5rem;max-width:1480px;margin:0 auto;">
+    <div class="section-eyebrow">Oncology &amp; Precision Therapy</div>
+    <h2 class="section-title">From mutation to medicine.</h2>
+    <p class="section-subtitle">Molecular drivers of cancer, the targeted agents that exploit them, and the biomarkers that predict who responds. Click <strong style="color:var(--teal)">View Protein Structure</strong> on any card to explore the actual 3D protein in the RCSB Protein Data Bank.</p>
+    <div class="cancer-subtabs">
+      <button class="subtab active" onclick="showCancerTab('common',this)">Common Cancers</button>
+      <button class="subtab" onclick="showCancerTab('targeted',this)">Targeted Therapy</button>
+      <button class="subtab" onclick="showCancerTab('biomarkers',this)">Predictive Biomarkers</button>
+    </div>
+    <div id="cc-common" class="cancer-content active"><div class="variant-grid" id="cCommonGrid"></div></div>
+    <div id="cc-targeted" class="cancer-content"><div class="variant-grid" id="cTargetedGrid"></div></div>
+    <div id="cc-biomarkers" class="cancer-content"><div class="variant-grid" id="cBioGrid"></div></div>
+  </div>
+</div>
+
+<!-- GENE DETAIL MODAL -->
+<div class="modal-backdrop" id="modalBg">
+  <div class="modal">
+    <div class="modal-head">
+      <div>
+        <div class="modal-gene" id="mGene"></div>
+        <div class="modal-type"><span class="badge" id="mBadge"></span></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">&#x2715;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-viz-panel">
+        <canvas class="modal-viz-canvas" id="modalVizCanvas"></canvas>
+        <div class="modal-viz-label">Molecular Simulation</div>
+      </div>
+      <div class="modal-text-panel">
+        <button class="modal-pdb-btn" id="modalPdbBtn" onclick="openPdbFromModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+          View Protein Structure (RCSB PDB)
+        </button>
+        <div class="modal-explanation" id="mExplanation"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PDB STRUCTURE MODAL -->
+<div class="pdb-modal-backdrop" id="pdbModalBg">
+  <div class="pdb-modal">
+    <div class="pdb-modal-head">
+      <div>
+        <div class="pdb-modal-title" id="pdbModalTitle">Protein Structure Viewer</div>
+        <div class="pdb-modal-sub" id="pdbModalSub">Interactive 3D structure from RCSB Protein Data Bank</div>
+      </div>
+      <button class="modal-close" onclick="closePdbModal()">&#x2715;</button>
+    </div>
+    <div class="pdb-modal-body">
+      <div class="pdb-loading" id="pdbLoading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading protein structure...</div>
+      </div>
+      <iframe class="pdb-viewer-frame" id="pdbViewerFrame" title="PDB Structure Viewer" allowfullscreen></iframe>
+      <div class="pdb-side-info" id="pdbSideInfo"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   MOLECULAR CANVAS ANIMATION ENGINE
+   Renders an animated particle/helix simulation 
+   representing each gene's molecular theme
+════════════════════════════════════════════════ */
+
+var VIZ_THEMES = {
+  // pgx = flowing enzyme channels (cyan stream)
+  pgx:    { primary:'#00b4dc', secondary:'rgba(0,180,220,0.15)', mode:'enzyme' },
+  // risk = double helix DNA (rose/amber)
+  risk:   { primary:'#f0567a', secondary:'rgba(245,166,35,0.2)', mode:'helix' },
+  // cancer = unstable dividing cells (purple burst)
+  cancer: { primary:'#9b59f5', secondary:'rgba(155,89,245,0.15)', mode:'burst' }
+};
+
+function createMolecularViz(canvas, badge, geneName) {
+  var theme = VIZ_THEMES[badge] || VIZ_THEMES.pgx;
+  var ctx = canvas.getContext('2d');
+  var W, H, particles = [], helixT = 0, frameId;
+
+  function resize() {
+    W = canvas.offsetWidth;
+    H = canvas.offsetHeight;
+    canvas.width = W;
+    canvas.height = H;
+    initParticles();
+  }
+
+  function initParticles() {
+    particles = [];
+    var count = theme.mode === 'burst' ? 28 : theme.mode === 'helix' ? 0 : 22;
+    for (var i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        r: 1.2 + Math.random() * 2.5,
+        vx: (Math.random() - 0.5) * 0.5,
+        vy: (Math.random() - 0.5) * 0.5,
+        alpha: 0.2 + Math.random() * 0.6,
+        pulse: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  function drawEnzyme(t) {
+    ctx.clearRect(0, 0, W, H);
+    // flowing ribbon
+    ctx.save();
+    var grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, 'transparent');
+    grad.addColorStop(0.4, theme.secondary);
+    grad.addColorStop(1, 'transparent');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // undulating stream lines
+    for (var s = 0; s < 3; s++) {
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(0,180,220,' + (0.12 + s * 0.08) + ')';
+      ctx.lineWidth = 1;
+      for (var x = 0; x <= W; x += 2) {
+        var y = H/2 + Math.sin((x / W) * Math.PI * 2 + t * 0.6 + s * 1.1) * (H * 0.25 - s * 8);
+        x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    }
+
+    // floating nodes
+    particles.forEach(function(p, i) {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.pulse += 0.04;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      var a = p.alpha * (0.5 + 0.5 * Math.sin(p.pulse));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = theme.primary.replace(')', ',' + a + ')').replace('rgb', 'rgba');
+      ctx.fill();
+      // connect nearby
+      particles.forEach(function(q, j) {
+        if (j <= i) return;
+        var dx = p.x - q.x, dy = p.y - q.y, dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 55) {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(0,180,220,' + (0.08 * (1 - dist/55)) + ')';
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(q.x, q.y);
+          ctx.stroke();
+        }
+      });
+    });
+    ctx.restore();
+  }
+
+  function drawHelix(t) {
+    ctx.clearRect(0, 0, W, H);
+    var cx = W / 2, amplitude = W * 0.28, pitchY = H / 7;
+    var steps = 60;
+
+    // gradient bg tint
+    var g = ctx.createRadialGradient(cx, H/2, 0, cx, H/2, W/2);
+    g.addColorStop(0, 'rgba(240,86,122,0.06)');
+    g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    // two strands
+    [0, Math.PI].forEach(function(offset, strand) {
+      ctx.beginPath();
+      for (var i = 0; i <= steps; i++) {
+        var frac = i / steps;
+        var y = frac * H;
+        var x = cx + Math.sin(frac * Math.PI * 4 + t * 0.8 + offset) * amplitude;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = strand === 0 ? 'rgba(240,86,122,0.55)' : 'rgba(245,166,35,0.45)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+
+    // rungs
+    for (var i = 0; i <= steps; i += 3) {
+      var frac = i / steps;
+      var y = frac * H;
+      var x1 = cx + Math.sin(frac * Math.PI * 4 + t * 0.8) * amplitude;
+      var x2 = cx + Math.sin(frac * Math.PI * 4 + t * 0.8 + Math.PI) * amplitude;
+      ctx.beginPath();
+      ctx.moveTo(x1, y);
+      ctx.lineTo(x2, y);
+      ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+      // base pair dots
+      var dotR = 2.5;
+      ctx.beginPath();
+      ctx.arc(x1, y, dotR, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(240,86,122,0.7)';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(x2, y, dotR, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(245,166,35,0.7)';
+      ctx.fill();
+    }
+  }
+
+  function drawBurst(t) {
+    ctx.clearRect(0, 0, W, H);
+    var cx = W/2, cy = H/2;
+    var g = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W,H)*0.6);
+    g.addColorStop(0, 'rgba(155,89,245,0.12)');
+    g.addColorStop(1, 'transparent');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
+
+    // orbiting electrons
+    var orbitCount = 3;
+    for (var o = 0; o < orbitCount; o++) {
+      var rx = W * (0.28 + o * 0.07), ry = H * (0.22 + o * 0.06);
+      var angle = t * (0.4 + o * 0.15) + (o * Math.PI * 2 / orbitCount);
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, o * 0.8, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(155,89,245,' + (0.08 + o * 0.04) + ')';
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      // electron dot
+      var ex = cx + Math.cos(angle) * rx;
+      var ey = cy + Math.sin(angle) * ry;
+      ctx.beginPath();
+      ctx.arc(ex, ey, 3, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(155,89,245,0.8)';
+      ctx.fill();
+      // glow
+      var gg = ctx.createRadialGradient(ex, ey, 0, ex, ey, 8);
+      gg.addColorStop(0, 'rgba(155,89,245,0.3)');
+      gg.addColorStop(1, 'transparent');
+      ctx.fillStyle = gg;
+      ctx.beginPath();
+      ctx.arc(ex, ey, 8, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // nucleus
+    var nr = 6 + Math.sin(t) * 2;
+    var ng = ctx.createRadialGradient(cx, cy, 0, cx, cy, nr);
+    ng.addColorStop(0, 'rgba(200,150,255,0.9)');
+    ng.addColorStop(1, 'rgba(155,89,245,0.3)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, nr, 0, Math.PI*2);
+    ctx.fillStyle = ng;
+    ctx.fill();
+
+    // particles
+    particles.forEach(function(p) {
+      p.x += p.vx; p.y += p.vy; p.pulse += 0.05;
+      if (p.x < 0 || p.x > W) p.vx *= -1;
+      if (p.y < 0 || p.y > H) p.vy *= -1;
+      var a = p.alpha * (0.4 + 0.6 * Math.sin(p.pulse));
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r * 0.7, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(155,89,245,' + a + ')';
+      ctx.fill();
+    });
+  }
+
+  var t = 0;
+  function loop() {
+    t += 0.016;
+    if (theme.mode === 'enzyme') drawEnzyme(t);
+    else if (theme.mode === 'helix') drawHelix(t);
+    else drawBurst(t);
+    frameId = requestAnimationFrame(loop);
+  }
+
+  resize();
+  new ResizeObserver(resize).observe(canvas);
+  loop();
+
+  return function() { cancelAnimationFrame(frameId); };
+}
+
+/* Modal canvas animation */
+var modalVizStop = null;
+function startModalViz(badge) {
+  if (modalVizStop) { modalVizStop(); modalVizStop = null; }
+  var canvas = document.getElementById('modalVizCanvas');
+  var panel = canvas.parentElement;
+  canvas.width = panel.offsetWidth;
+  canvas.height = panel.offsetHeight;
+  modalVizStop = createMolecularViz(canvas, badge, '');
+}
+
+/* ════════════════════════════════
+   DATA
+════════════════════════════════ */
+var currentGene = null;
+var currentIframe = null;
+
+// PDB IDs for gene variants
+var GENE_PDB = {
+  BRCA1: { id:'1JNX', desc:'BRCA1 BRCT domain — DNA repair interface', drug:null },
+  BRCA2: { id:'3EU7', desc:'BRCA2 DNA-binding domain with DSS1', drug:null },
+  CYP2D6:{ id:'2F9Q', desc:'CYP2D6 with thioridazine substrate bound', drug:'Thioridazine' },
+  CYP2C19:{id:'4GQS', desc:'CYP2C19 with antifungal voriconazole', drug:'Voriconazole' },
+  CYP3A4: {id:'1TQN', desc:'CYP3A4 with metyrapone inhibitor', drug:'Metyrapone' },
+  TPMT:  { id:'2BZG', desc:'TPMT with S-adenosylmethionine cofactor', drug:'SAM cofactor' },
+  DPYD:  { id:'1H7X', desc:'DPD enzyme structure — thymidine catabolism', drug:null },
+  UGT1A1:{ id:'2IAF', desc:'UGT1A1 glucuronosyl transferase domain', drug:null },
+  SLCO1B1:{id:'6ZTL', desc:'OATP1B1 transporter homology model', drug:null },
+  APOE:  { id:'1GS9', desc:'APOE3 N-terminal domain — lipid receptor binding', drug:null },
+  HER2:  { id:'3PP0', desc:'HER2 kinase domain with lapatinib', drug:'Lapatinib' },
+  KRAS:  { id:'6OIM', desc:'KRAS G12C with AMG-510 (sotorasib) covalently bound', drug:'Sotorasib' },
+  EGFR:  { id:'1M17', desc:'EGFR kinase domain with erlotinib', drug:'Erlotinib' },
+  TP53:  { id:'2OCJ', desc:'TP53 DNA-binding domain — R248W hotspot region', drug:null },
+  NPM1:  { id:'2P1B', desc:'NPM1 C-terminal domain — nucleolar localisation signal', drug:null },
+  FLT3:  { id:'6JQR', desc:'FLT3 kinase with gilteritinib bound', drug:'Gilteritinib' },
+  MTHFR: { id:'1ZPT', desc:'MTHFR catalytic domain with FAD cofactor', drug:null },
+  CFTR:  { id:'5UAK', desc:'CFTR full-length structure — cryo-EM', drug:null },
+  LDLR:  { id:'1N7D', desc:'LDL receptor ligand-binding domain — EGF precursor', drug:null },
+  PCSK9: { id:'2P4E', desc:'PCSK9 catalytic domain with prodomain', drug:null }
+};
+
+// PDB IDs for cancer cards
+var CANCER_PDB = {
+  // common cancers
+  'Breast Cancer':     { id:'3PP0', title:'HER2 kinase + lapatinib', note:'HER2 kinase domain with targeted inhibitor lapatinib co-crystallised at 2.8Å resolution.' },
+  'Colorectal Cancer': { id:'4DS1', title:'BRAF V600E kinase', note:'BRAF V600E oncogenic kinase — the same target as vemurafenib/encorafenib in BRAF-mutant CRC.' },
+  'Lung Cancer (NSCLC)':{ id:'1M17', title:'EGFR + erlotinib', note:'EGFR kinase domain with first-generation TKI erlotinib bound — illustrates the drug-binding pocket exploited by osimertinib.' },
+  'Acute Myeloid Leukaemia':{ id:'6JQR', title:'FLT3 + gilteritinib', note:'FLT3 kinase with gilteritinib — the approved second-line drug for FLT3-ITD/TKD AML.' },
+  'Pancreatic Cancer': { id:'4OBE', title:'KRAS G12C structure', note:'KRAS G12C oncogenic form — the GTPase switch locked in active state driving 90% of PDAC.' },
+  'Ovarian Cancer':    { id:'1JNX', title:'BRCA1 BRCT domain', note:'BRCA1 BRCT domain — mutant forms cannot bind phosphorylated repair proteins, causing HR deficiency.' },
+  'Prostate Cancer':   { id:'3EU7', title:'BRCA2 DNA-binding domain', note:'BRCA2 bound to DSS1 — loss of this interface causes HR deficiency targetable by PARP inhibitors.' },
+  // targeted
+  'Osimertinib (Tagrisso)':   { id:'4ZAU', title:'EGFR T790M + osimertinib', note:'3rd-generation EGFR-TKI osimertinib covalently bound to Cys797 in the EGFR T790M-resistant kinase.' },
+  'Alectinib (Alecensa)':      { id:'3L9P', title:'ALK kinase domain', note:'ALK kinase domain — the fusion protein constitutively activated in ALK-positive NSCLC.' },
+  'Sotorasib (Lumakras)':      { id:'6OIM', title:'KRAS G12C + AMG-510', note:'First-in-class KRAS G12C inhibitor sotorasib (AMG-510) covalently bound to Cys12, locking KRAS GDP-inactive.' },
+  'Trastuzumab Deruxtecan (T-DXd)': { id:'3PP0', title:'HER2 + lapatinib pocket', note:'HER2 kinase domain — the trastuzumab binding epitope is the extracellular domain (domain IV), not shown here, but the kinase pocket illustrates the activated receptor.' },
+  'Olaparib (Lynparza)':       { id:'4HRA', title:'PARP1 + olaparib', note:'PARP1 catalytic domain with olaparib bound — trapping mechanism that causes lethal DSBs in BRCA-deficient cells.' },
+  'Venetoclax + Azacitidine':  { id:'6O0K', title:'BCL-2 + venetoclax', note:'BCL-2 anti-apoptotic protein with venetoclax occupying the BH3-binding hydrophobic groove at 2.2Å resolution.' },
+  'Ivosidenib (Tibsovo)':      { id:'5SUN', title:'IDH1 R132H + ivosidenib', note:'IDH1 mutant R132H with ivosidenib — the inhibitor blocks 2-HG oncometabolite production and restores myeloid differentiation.' },
+  'Pembrolizumab (Keytruda)':  { id:'5JXE', title:'PD-1 / PD-L1 complex', note:'PD-1 bound to PD-L1 — the interaction that pembrolizumab disrupts to restore T-cell anti-tumour activity.' },
+  // biomarkers
+  'Tumour Mutational Burden (TMB)': { id:'1BNA', title:'B-DNA double helix', note:'DNA double helix — high TMB reflects accumulated somatic mutations (typically >10/Mb) generating neoantigens recognised by T cells.' },
+  'Microsatellite Instability (MSI-H)': { id:'3ZQF', title:'MLH1-PMS2 mismatch repair', note:'MLH1-PMS2 heterodimer — the mismatch repair complex; loss of expression causes MSI-H and immunotherapy sensitivity.' },
+  'PD-L1 Expression (IHC)':   { id:'5JXE', title:'PD-1/PD-L1 interface', note:'Structural basis of immune checkpoint; PD-L1 on tumour cells binds PD-1 on T cells to suppress cytotoxicity.' },
+  'Homologous Recombination Deficiency (HRD)': { id:'1JNX', title:'BRCA1 BRCT domain', note:'BRCA1 BRCT domain mutations disrupt phosphopeptide binding needed for HR — the molecular basis of HRD tested by myChoice CDx.' },
+  'Claudin 18.2 (CLDN18.2)':  { id:'6AKX', title:'Claudin tight junction', note:'Claudin family tight-junction protein structure — CLDN18.2 is aberrantly expressed in gastric/pancreatic cancers, targeted by zolbetuximab.' }
+};
+
+var ORGAN_MODELS = {
+  brain:'0aa0e33c5c854d1bab7bac9e1c7acaec', heart:'8ad7eb387e6e41e0abfe17eec5351f8b',
+  lungs:'acbb5f0e16a14179ae4f63c5b6b83ad7', stomach:'619c05a7877548519f62320b97aaf60c',
+  liver:'bf6273bdf0664f8b809a27fcac8693cb', kidneys:'337f06a149e24f05a9d639b161f8f3e9',
+  pancreas:'8acf64dc315b49308b4fcbd47e48b92b', bone_marrow:'d04ef0cacb1649b0be092ceb23a88200'
+};
+
+var ORGANS = {
+  liver:{name:"Liver",role:"Drug Metabolism",genes:["CYP2D6","CYP2C19","CYP3A4","UGT1A1","SLCO1B1","CYP2C9"],desc:"The liver is the body's most sophisticated chemical processing plant—1.5 kg of tissue performing over 500 biochemical reactions simultaneously. Every drug swallowed passes through portal circulation to the liver before reaching systemic circulation. This first-pass effect can dramatically reduce how much active drug reaches its target.\n\nPhase I metabolism (CYP450 oxidation, reduction, hydrolysis) followed by phase II conjugation (glucuronidation by UGTs, sulfation by SULTs, methylation by TPMT, acetylation by NATs) determines a drug's bioavailability, half-life, and toxicity profile. The CYP3A subfamily accounts for approximately 50% of all drug metabolism; CYP2D6 approximately 25%; CYP2C9 and CYP2C19 together approximately 15%. SLCO1B1 (OATP1B1) and SLCO1B3 govern hepatic uptake of statins, methotrexate, and repaglinide. ABCB1 and ABCG2 at the canalicular membrane mediate biliary drug efflux. The same antidepressant dose that works perfectly for one patient can fail completely—or cause severe toxicity—in another, based entirely on their CYP2D6 genotype."},
+  heart:{name:"Heart",role:"Cardiovascular Pharmacogenomics",genes:["KCNH2","SCN5A","RYR2","SLCO1B1","CYP2C19"],desc:"The heart beats 100,000 times daily using a precisely orchestrated electrical system driven by ion channels. KCNH2 encodes the hERG potassium channel (IKr current), which governs cardiac repolarisation. Over 500 pathogenic KCNH2 variants cause LQTS Type 2; more clinically important is that over 150 commonly prescribed drugs—antipsychotics, macrolide antibiotics, antihistamines, antifungals—block hERG and cause drug-induced QTc prolongation and Torsades de Pointes, particularly in carriers of subclinical hERG variants.\n\nSCN5A encodes Nav1.5; loss-of-function causes Brugada syndrome (flecainide is contraindicated and can be lethal); gain-of-function causes LQTS Type 3. RYR2 variants cause catecholaminergic polymorphic ventricular tachycardia (CPVT)—exercise-induced arrhythmia; flecainide added to nadolol significantly reduces events. CYP2C19 genotype determines clopidogrel activation efficacy post-PCI—poor metabolisers require alternative antiplatelet agents. SLCO1B1*5 genotyping is critical for patients starting high-dose statins post-acute coronary syndrome."},
+  brain:{name:"Brain",role:"CNS Pharmacogenomics",genes:["APOE","HTR2A","COMT","CYP2D6","ABCB1"],desc:"The blood-brain barrier selectively restricts molecular access to the central nervous system. Drug penetration depends on ABCB1 (P-glycoprotein) efflux pump activity—variants in ABCB1 alter CNS concentrations of many psychiatric and neurological drugs. Genetic variants affect both how drugs enter the brain and how brain receptors respond once they arrive.\n\nNeuropharmacogenomics integrates: drug metabolism (CYP2D6 for TCAs, antipsychotics, codeine, atomoxetine; CYP2C19 for escitalopram, citalopram, sertraline), receptor target polymorphisms (HTR2A 5-HT2A receptor variants 102T>C and -1438A>G associated with differential antidepressant and antipsychotic response; COMT Val158Met affects prefrontal dopamine catabolism), and APOE genotype (critical for ARIA risk monitoring during lecanemab and donanemab anti-amyloid immunotherapy). This is why antidepressants are notoriously difficult to optimise: the same SSRI at identical doses can cause intolerable side effects in one patient, no effect in another, and complete remission in a third—based on their combined pharmacogenomic profile."},
+  kidneys:{name:"Kidneys",role:"Renal Drug Excretion",genes:["SLC22A2","ABCB1","SLC47A1","SLC47A2"],desc:"The kidneys filter the entire blood volume approximately 50 times per day, clearing drug metabolites into urine through a combination of glomerular filtration, active tubular secretion, and partial reabsorption. Genetic variants in renal transporters determine how long drugs remain in the body.\n\nOCT2 (SLC22A2) is the primary basolateral uptake transporter for metformin and cisplatin in renal tubular cells. The rs316019 variant (A270S) reduces metformin and cisplatin clearance, and is associated with cisplatin-induced nephrotoxicity. MATE1 (SLC47A1) and MATE2-K (SLC47A2) are apical efflux transporters that complete the secretion of metformin into urine; their variants modify metformin urinary excretion and potentially affect glycaemic pharmacodynamics. OAT3 (SLC22A8) governs renal clearance of furosemide and methotrexate. MDR1/ABCB1 variants affect tubular efflux of digoxin, colchicine, and tacrolimus."},
+  lungs:{name:"Lungs",role:"Respiratory and Oncology",genes:["CFTR","EGFR","ALK","ROS1","KRAS","STK11"],desc:"The lungs perform over 20,000 breath cycles daily, with cells in constant contact with environmental carcinogens. Lung cancer is the clearest real-world showcase of precision oncology: comprehensive molecular profiling of every NSCLC biopsy is now standard of care globally, because the specific driver mutation determines which therapy achieves the best outcome.\n\nRequired panel (NCCN/ESMO): EGFR (sensitising mutations plus exon 20 insertions plus T790M), ALK (fusion by IHC/FISH/NGS), ROS1 (fusion), KRAS G12C, BRAF V600E, MET exon 14 skipping/amplification, NTRK1/2/3 fusions, RET fusions, HER2 exon 20 insertions, plus PD-L1 IHC and TMB. STK11/LKB1 loss is a critically important negative predictive marker—it confers primary resistance to PD-1 blockade in KRAS-mutant NSCLC, and identifying it before prescribing immunotherapy avoids ineffective treatment. CFTR variants are also relevant: modulator eligibility for CF patients depends on their specific CFTR class and mutation."},
+  pancreas:{name:"Pancreas",role:"Endocrine and Oncology",genes:["KRAS","BRCA1","BRCA2","TP53","CDKN2A","SMAD4"],desc:"The pancreas has dual roles: endocrine insulin production and exocrine digestive enzyme secretion. Pancreatic ductal adenocarcinoma (PDAC) is one of the most difficult cancers to treat, with a 5-year overall survival of approximately 12%. Yet precision medicine offers a real survival window for a meaningful subset of patients.\n\nMolecular progression of PDAC follows a defined sequence: KRAS mutation is the earliest event (over 90% of cases), followed by CDKN2A/p16 loss (approximately 90%), TP53 mutation (approximately 75%), and SMAD4/DPC4 loss (approximately 55%). Loss of SMAD4 expression distinguishes locally resectable from metastatic phenotype. BRCA1/2 germline mutations occur in 5-7% of PDAC patients; the POLO trial demonstrated olaparib maintenance after platinum-based chemotherapy improves PFS from 3.8 to 7.4 months. NCCN guidelines now recommend germline multi-gene panel testing for all newly diagnosed PDAC patients."},
+  stomach:{name:"Stomach",role:"Gastric Oncology",genes:["HER2","MSI","KRAS","TP53","FGFR2","CLDN18"],desc:"Gastric adenocarcinoma is molecularly heterogeneous, and its TCGA classification into four subtypes has directly driven biomarker-guided treatment. EBV-positive tumours (9%) show extreme PIK3CA mutation density and PD-L1 overexpression—exceptionally immunotherapy-responsive. MSI-high tumours (22%) result from mismatch repair deficiency and respond durably to checkpoint inhibitors. GS/diffuse-type tumours (20%) carry CDH1 and RHOA mutations and have poor prognosis. CIN-type (50%) are the most genomically stable and harbour HER2 amplification in 15-20% of cases.\n\nTrastuzumab plus chemotherapy (ToGA trial) remains the standard in HER2-positive disease. Zolbetuximab, an anti-Claudin-18.2 monoclonal antibody, demonstrated PFS benefit in the SPOTLIGHT and GLOW trials for Claudin-18.2-high, RAS wild-type tumours—establishing a third major actionable biomarker category in gastric cancer alongside HER2 and MSI status."},
+  bone_marrow:{name:"Bone Marrow",role:"Haematopoietic Oncology",genes:["NPM1","FLT3","DNMT3A","TP53","IDH1","IDH2"],desc:"Bone marrow produces approximately 200 billion blood cells every day in a tightly regulated hierarchy. In acute myeloid leukaemia, gene mutations disrupt this hierarchy—immature myeloblasts proliferate uncontrollably and crowd out normal blood production. Modern AML treatment is now deeply personalised: a comprehensive molecular panel of the leukaemia cells determines which specific combination of chemotherapy and targeted drugs offers the best outcome.\n\nELN 2022 risk stratification integrates cytogenetics with molecular mutation status across NPM1, FLT3-ITD (allelic ratio), TP53, RUNX1, ASXL1, DNMT3A, IDH1, IDH2, and CEBPA into Favourable, Intermediate, or Adverse risk groups. Key targeted agents: midostaurin (FLT3-ITD frontline), gilteritinib (FLT3 relapsed/refractory), ivosidenib or olutasidenib (IDH1 mutant), enasidenib (IDH2 mutant), venetoclax plus azacitidine (older or unfit patients—CR/CRi 66% in VIALE-A)."}
+};
+
+var VARIANTS = {
+  BRCA1:{badge:"risk",type:"Hereditary Cancer Risk",teaser:"Tumour suppressor gene. Pathogenic variants confer 60-80% lifetime breast cancer risk.",desc:"BRCA1 is the cell's quality-control inspector for DNA damage. When DNA is copied billions of times daily, mistakes happen. BRCA1 finds those mistakes and dispatches repair machinery—specifically through the homologous recombination (HR) pathway for double-strand break repair. When BRCA1 carries a pathogenic frameshift, nonsense, or splice variant, errors accumulate silently over decades.\n\nClinical impact: Lifetime breast cancer risk 60-80%; ovarian 40-60%; elevated pancreatic and prostate risk also documented. PARP inhibitors (Olaparib, Niraparib, Rucaparib) exploit BRCA1-deficient HR through synthetic lethality—trapping PARP-1 on single-strand breaks that cannot be repaired, causing lethal double-strand breaks. Risk-reducing salpingo-oophorectomy and enhanced imaging surveillance are guideline-endorsed. Knowing your BRCA1 status is powerful information—it gives clinicians and patients a head start before cancer develops."},
+  BRCA2:{badge:"risk",type:"Hereditary Cancer Risk",teaser:"HR repair gene. PARP inhibitor target in breast, ovarian, pancreatic, and prostate cancers.",desc:"BRCA2 is a molecular matchmaker that brings the RAD51 repair protein to sites of DNA strand breakage, mediating template-directed repair. Without it, the cell is forced into error-prone NHEJ (non-homologous end joining), generating chromosomal instability.\n\nBRCA2 mutations elevate breast, ovarian, pancreatic, and male prostate cancer risk. In pancreatic ductal adenocarcinoma, BRCA2 mutations occur in 7% of cases—the POLO trial demonstrated olaparib maintenance improves PFS 7.4 vs 3.8 months post-platinum. In metastatic castration-resistant prostate cancer, BRCA2 prevalence is approximately 13%, and rucaparib achieves a 44% response rate. HRD testing via Myriad myChoice CDx is required before PARP inhibitor prescribing in ovarian cancer. Germline cascade screening of first-degree relatives is strongly recommended after an index case is identified."},
+  CYP2D6:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Processes ~25% of all clinical drugs. Genotype determines dosing of codeine, tamoxifen, and antidepressants.",desc:"CYP2D6 is a hepatic cytochrome P450 enzyme responsible for phase I metabolism of approximately 25% of clinically used drugs. Think of it as a chemical recycling speed setting in your liver—but one that varies enormously between individuals based on inherited star alleles.\n\nMetaboliser phenotypes: Poor (PM, e.g. *4/*4)—drug accumulates, small doses cause toxicity. Intermediate (IM). Normal (NM, *1/*1). Ultrarapid (UM, gene duplications)—drug clears so fast it never reaches therapeutic levels. Key clinical consequences: Codeine is converted to morphine by CYP2D6—PMs gain no analgesia; UMs risk fatal respiratory depression. Tamoxifen requires CYP2D6 for endoxifen generation; PMs have 5x lower endoxifen AUC, compromising breast cancer treatment. Paroxetine and fluoxetine are mechanism-based inhibitors that phenoconvert normal metabolisers into functional PMs. CPIC Level A recommendations cover codeine, tramadol, antidepressants, and atomoxetine."},
+  CYP2C19:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Activates Clopidogrel. Loss-of-function alleles increase cardiovascular event risk substantially.",desc:"CYP2C19 is the molecular activator switch for several critical medications. Clopidogrel (Plavix) is completely inert until the liver converts it into its active thienopyridine thiol form—and CYP2C19 performs this conversion. Patients carrying loss-of-function alleles cannot adequately activate the drug, so it cannot prevent clots.\n\nKey alleles: *2 (splicing defect, most common globally), *3 (stop codon, prevalent in East Asian populations). PM frequency: 2-15% Caucasian, 15-25% East Asian. FDA black-box warning for CYP2C19 poor metabolisers on clopidogrel was issued in 2010. The TRITON-TIMI 38 trial demonstrated prasugrel superior to clopidogrel regardless of genotype; prasugrel or ticagrelor is preferred for *2/*2 or *2/*3 carriers after PCI. The gain-of-function *17 allele increases metabolism of PPIs (omeprazole, pantoprazole) and escitalopram. Voriconazole plasma exposure increases 4-fold in CYP2C19 PMs, dramatically raising toxicity risk."},
+  CYP3A4:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Most abundant hepatic enzyme. Metabolises 50% of all drugs. Highly sensitive to inducers and inhibitors.",desc:"CYP3A4 is the heavyweight champion of hepatic drug metabolism—expressed at roughly 30% of total liver CYP content, handling approximately half of all clinically used medicines including statins, immunosuppressants, HIV antiretrovirals, and many cancer drugs.\n\nWhat makes CYP3A4 uniquely important clinically is its dramatic susceptibility to drug-food-drug interactions. Potent inducers—rifampicin, carbamazepine, phenytoin, St John's Wort—can reduce plasma drug levels by up to 90%, causing treatment failure for tacrolimus, cyclosporin, or antiretroviral regimens. Potent inhibitors—ketoconazole, ritonavir (deliberately used as a pharmacokinetic booster), voriconazole, grapefruit naringenin—cause levels to skyrocket, creating toxicity from statins, midazolam, and many targeted cancer drugs including ibrutinib and venetoclax."},
+  TPMT:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Thiopurine inactivation enzyme. Loss-of-function alleles cause life-threatening myelosuppression.",desc:"TPMT (thiopurine S-methyltransferase) breaks down thiopurine drugs—chemotherapy agents used for leukaemia, Crohn's disease, and organ transplant immunosuppression. Think of it as a drain: if you inherit one or two broken copies, the drain is partially or fully blocked. 6-mercaptopurine and azathioprine back up to toxic levels, destroying bone marrow.\n\nLoss-of-function alleles: *3A (most common Caucasian, A154T+Y240C double mutation), *3C (most common Asian and African populations, Y240C alone), *2. Genotype frequency: approximately 10% of patients are intermediate metabolisers (*1/*3A); 0.3% are poor metabolisers (*3A/*3A). CPIC guidelines: heterozygotes start at 50-75% dose; homozygous PMs should use alternative agents. NUDT15 Arg139Cys variant—highly prevalent in East and South Asian populations—acts synergistically on thiopurine toxicity, and co-testing is now recommended."},
+  DPYD:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Deficiency causes fatal 5-FU toxicity. FDA mandates pre-treatment testing since 2022.",desc:"DPYD encodes dihydropyrimidine dehydrogenase, the rate-limiting enzyme that catabolises approximately 80% of 5-fluorouracil (5-FU)—one of the most widely used chemotherapy drugs worldwide, prescribed for colorectal, breast, head and neck, gastric, and pancreatic cancers. Without sufficient DPYD activity, 5-FU reaches poisonous levels.\n\nKey pathogenic alleles: *2A (IVS14+1G>A, most common in European populations, approximately 1% carrier frequency), c.2846A>T (HaplotypB3), c.1679T>G (*13). PM frequency approximately 0.2%; intermediate metabolisers 3-5%. Homozygous poor metabolisers receiving standard 5-FU doses face life-threatening mucositis, diarrhoea, neutropenia, and neurotoxicity—patients have died from what should have been routine chemotherapy. FDA Safety Communication 2022 and EMA recommendation mandate DPYD genotyping or DPD enzyme phenotyping before 5-FU or capecitabine administration."},
+  UGT1A1:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Conjugates bilirubin and the irinotecan metabolite SN-38. *28 homozygotes need dose reduction.",desc:"UGT1A1 glucuronidates both bilirubin (rendering it water-soluble for biliary excretion) and SN-38, the active and highly toxic metabolite of the chemotherapy drug irinotecan. The *28 variant introduces an extra TA repeat into the promoter region, reducing gene transcription by approximately 70%.\n\nThe *28/*28 genotype (TA7/TA7) causes Gilbert's syndrome—mild harmless jaundice—when bilirubin accumulates. But when irinotecan arrives, the same slow enzyme cannot clear SN-38 fast enough: patients develop severe grade 3-4 neutropenia and life-threatening diarrhoea at doses that are perfectly tolerated by *1/*1 patients. Frequency: approximately 10% of Caucasians and 2% of East Asians carry the *28/*28 genotype. CPIC Level A recommends considering 25-33% dose reduction in homozygotes receiving high-dose irinotecan (above 150 mg/m2)."},
+  SLCO1B1:{badge:"pgx",type:"Drug Metabolism PGx",teaser:"Hepatic statin transporter. The *5 variant dramatically elevates simvastatin myopathy risk.",desc:"SLCO1B1 encodes OATP1B1, a hepatic sinusoidal influx transporter that physically pulls statins from blood circulation into liver hepatocytes—where they are supposed to exert their cholesterol-lowering effect. The *5 allele (c.521T>C, Val174Ala) reduces transport function by approximately 40%.\n\nConsequences: Statins—particularly simvastatin—remain in the bloodstream at 2-fold higher concentrations and accumulate in skeletal muscle instead of the liver, causing myopathy. In the landmark SEARCH trial, homozygous *5 carriers faced an 18-fold increased myopathy risk with 80mg simvastatin compared to *1/*1 patients. CPIC Level A recommendations: *1/*5 heterozygotes should use alternatives (rosuvastatin, pravastatin) or a maximum 20mg simvastatin daily. *5/*5 homozygotes should avoid simvastatin altogether."},
+  APOE:{badge:"risk",type:"Disease Risk",teaser:"APOE e4: strongest common genetic risk factor for late-onset Alzheimer's disease.",desc:"APOE encodes apolipoprotein E, a biological delivery vehicle that transports cholesterol and lipids through the bloodstream and brain. It exists in three isoforms: e2 (mildly protective against Alzheimer's disease), e3 (neutral, most common at 77% European frequency), and e4 (increased risk).\n\nThe e4 isoform is less efficient at clearing amyloid-beta plaques from brain tissue, and it promotes tau hyperphosphorylation and neuroinflammation. Carrying one copy of e4 roughly triples lifetime Alzheimer's risk and advances onset by approximately 5 years; two copies (e4/e4) increases risk approximately 15-fold and advances onset by 10 years. APOE e4 is now critically relevant for the new anti-amyloid immunotherapies: lecanemab (Clarity AD trial) and donanemab (TRAILBLAZER-ALZ2) both show significantly higher ARIA-E and ARIA-H rates in e4/e4 homozygotes—35-40% vs approximately 9% in non-carriers."},
+  HER2:{badge:"cancer",type:"Oncogene / Biomarker",teaser:"ERBB2 amplification drives breast and gastric cancers. Multiple targeted agents are approved.",desc:"HER2 (ERBB2) encodes a receptor tyrosine kinase on the cell surface. In HER2-positive cancers, the gene is amplified—resulting in dozens or hundreds of protein antennas instead of the normal two. This causes constitutive activation of MAPK, PI3K/AKT, and STAT3 proliferation pathways without any external growth signal.\n\nAmplification is defined as IHC 3+ or FISH ratio above 2.0. Occurs in approximately 20% of breast and 15-20% of gastric cancers. Therapeutic escalation: Trastuzumab (anti-HER2 monoclonal antibody) blocks extracellular domain signalling; pertuzumab blocks dimerisation; T-DM1 (ado-trastuzumab emtansine) delivers cytotoxic payload directly into HER2-positive cells; T-DXd (trastuzumab deruxtecan) extends benefit even to HER2-low tumours (IHC 1+ or 2+)—a category that was previously considered non-actionable. DESTINY-Breast06 confirmed T-DXd benefit in HER2-low disease, transforming HER2 from a binary into a continuous biomarker."},
+  KRAS:{badge:"cancer",type:"Oncogene",teaser:"GTPase switch stuck permanently 'on'. Targetable G12C inhibitors approved for lung and colorectal cancers.",desc:"KRAS encodes a small GTPase that normally acts as a molecular relay switch: GTP-bound KRAS transmits growth signals downstream, then hydrolysis to GDP turns the switch off. Oncogenic mutations at codons 12, 13, or 61 impair GTPase activity, locking KRAS in its GTP-active state permanently—like a stuck accelerator pedal.\n\nMutation frequencies: PDAC 90%, NSCLC 30%, CRC 45%. Activated KRAS drives RAF-MEK-ERK, PI3K-AKT-mTOR, and RAL-GDS signalling simultaneously. For decades KRAS was considered undruggable. In 2021, sotorasib (AMG 510) became the first approved KRAS inhibitor, covalently targeting the cysteine of the G12C variant and trapping KRAS in its GDP-inactive state. Adagrasib (MRTX849) followed. Resistance emerges rapidly via KRAS amplification, secondary mutations (Y96D, R68S), and bypass through MET or EGFR."},
+  EGFR:{badge:"cancer",type:"Oncogene / TKI Target",teaser:"Sensitising mutations predict dramatic TKI response in NSCLC. T790M drives acquired resistance.",desc:"EGFR (epidermal growth factor receptor) encodes a transmembrane receptor tyrosine kinase. In approximately 40-50% of East Asian and 10-15% of Caucasian NSCLC patients, specific somatic mutations create a constitutively active kinase domain. The most common are exon 19 deletions (Del746-750) and L858R point mutation (exon 21).\n\nThese mutations make the kinase exquisitely sensitive to EGFR-TKI drugs. First-line osimertinib (3rd-generation, FLAURA2 data): 25-month median PFS vs 16.5 months with 1st-generation TKIs; superior CNS penetration—critical as 40% of patients develop brain metastases. T790M gatekeeper mutation emerges in approximately 60% of cases as acquired resistance to 1st/2nd-generation TKIs; osimertinib retains activity. C797S mutation (in cis with T790M) causes osimertinib resistance."},
+  TP53:{badge:"cancer",type:"Tumour Suppressor",teaser:"Guardian of the genome. Mutated in over 50% of all human cancers.",desc:"TP53 produces p53, a homotetrameric transcription factor that continuously monitors cells for DNA damage, chemical stress, or radiation. It functions as the cell's security guard: when damage is detected, ATM/ATR kinases phosphorylate and stabilise p53, which then transcriptionally activates CDKN1A (p21) for G1 arrest, PUMA and NOXA for apoptosis, and DDB2/XPC for nucleotide excision repair.\n\nLoss of TP53 removes the most critical anti-cancer checkpoint in the human genome. Gain-of-function TP53 mutations (R175H, R248W) actively promote invasion and resistance beyond simple loss of function. Germline TP53 mutations cause Li-Fraumeni syndrome—near-certain multi-organ cancer development. MDM2 amplification (approximately 7% of sarcomas) causes functional p53 loss without TP53 mutation and is targetable by MDM2 inhibitors (milademetan, idasanutlin) in ongoing phase I/II trials."},
+  NPM1:{badge:"cancer",type:"AML Oncogene",teaser:"Most frequently mutated gene in AML. NPM1 mutation marks Favourable ELN risk when FLT3-ITD is absent.",desc:"NPM1 (nucleophosmin) is normally a nuclear shuttle protein involved in ribosome biogenesis and the ARF-p53 tumour suppressor pathway. Exon 12 insertions (type A TCTG duplication in approximately 75% of cases) disrupt the C-terminal nucleolar localisation signal, causing aberrant cytoplasmic accumulation of NPM1 (NPM1c). This dysregulates HOX gene expression via PRC2 disruption and destabilises the ARF-p53 axis.\n\nNPM1 mutations occur in approximately 30% of all AML and 60% of normal-karyotype AML. ELN 2022 risk stratification: NPM1mut/FLT3-ITD-negative = Favourable risk (median OS over 5 years with intensive therapy); NPM1mut/FLT3-ITD-positive = Intermediate risk. NPM1 PCR-based MRD assessment at day-28 bone marrow and after consolidation cycle 1 are independent predictors of relapse-free survival and overall survival."},
+  FLT3:{badge:"cancer",type:"AML Oncogene / TKI Target",teaser:"FLT3-ITD drives approximately 25% of AML with adverse prognosis. Gilteritinib approved for relapsed/refractory disease.",desc:"FLT3 (FMS-related tyrosine kinase 3) encodes a class III receptor tyrosine kinase that normally regulates haematopoietic stem cell proliferation and survival. FLT3-ITD (internal tandem duplication) involves in-frame insertions in the juxtamembrane domain, causing constitutive kinase activation without ligand binding—like a stuck accelerator pedal driving continuous cell division.\n\nFLT3-ITD occurs in approximately 25% of AML; allelic ratio (ITD versus wild-type FLT3) is an independent prognostic marker—high ratio above 0.5 confers Adverse ELN 2022 risk. FLT3-TKD mutations (D835Y/H) also occur in approximately 7% of AML. Midostaurin added to 7+3 induction significantly improved overall survival in the RATIFY trial. Gilteritinib (ADMIRAL trial) is superior to salvage chemotherapy in relapsed/refractory FLT3-ITD/TKD AML, achieving 21% CR/CRh vs 10.5%; approved by FDA in 2018."},
+  MTHFR:{badge:"risk",type:"Metabolism Variant",teaser:"Folate pathway enzyme. C677T reduces activity and is relevant for methotrexate toxicity and folate supplementation.",desc:"MTHFR (methylenetetrahydrofolate reductase) converts 5,10-methylenetetrahydrofolate to 5-methyltetrahydrofolate—the primary circulating form of folate and the methyl donor for homocysteine remethylation to methionine. The C677T variant (Ala222Val) destabilises the FAD-binding domain of the enzyme, reducing activity by approximately 30% in heterozygotes and 70% in TT homozygotes at physiological temperature.\n\nTT genotype frequency: approximately 10% Caucasian, 8% African, 25% Mexican Hispanic. Elevated homocysteine is a moderate independent cardiovascular risk factor. The most clinically actionable context: methotrexate toxicity. C677T TT genotype is associated with higher hepatotoxicity risk during methotrexate therapy for cancer or rheumatoid arthritis; folic acid supplementation at 1-5mg/day partially mitigates this."},
+  CFTR:{badge:"risk",type:"Disease Gene / Drug Target",teaser:"Over 2,000 CFTR variants cause Cystic Fibrosis. CFTR modulators now restore function for approximately 90% of patients.",desc:"CFTR is an ATP-gated chloride channel embedded in epithelial cell membranes of the lungs, pancreas, and sweat glands. It controls the movement of chloride and bicarbonate, which in turn regulates the water content and viscosity of mucus. When CFTR is non-functional, mucus becomes thick and sticky, creating a breeding ground for chronic bacterial infection and progressive lung destruction.\n\nCFTR variants are classified by mechanism: Class I (no protein produced, e.g. G542X); Class II (misfolding and ER retention, e.g. F508del—present in approximately 90% of CF patients on at least one allele); Class III (gating defect, e.g. G551D); Class IV-VI (conductance, quantity, stability). The triple modulator elexacaftor/tezacaftor/ivacaftor (Trikafta/Kaftrio) corrects F508del misfolding and enhances channel gating simultaneously—achieving absolute FEV1 improvement of +14 percentage points. Median CF life expectancy has risen from approximately 5 years in 1960 to over 50 years today."},
+  LDLR:{badge:"risk",type:"Disease Risk / Drug Target",teaser:"LDL receptor. Loss-of-function variants cause Familial Hypercholesterolaemia with early cardiovascular events.",desc:"LDLR mediates hepatic uptake of LDL cholesterol through clathrin-coated pit endocytosis, binding apoB-100 on LDL particles and internalising them into the liver for processing. When LDLR carries loss-of-function variants, LDL cannot be cleared from circulation and deposits into artery walls, causing premature atherosclerosis.\n\nHeterozygous familial hypercholesterolaemia (HeFH) affects 1 in 250-500 people globally—LDL-C reaches 190-400 mg/dL untreated, and cardiovascular event risk is 5-10 times the general population. Homozygous FH (HoFH, 1 in 160,000-300,000) produces LDL-C often above 500 mg/dL; heart attacks in childhood or teenage years are not unusual without aggressive treatment. The therapeutic cascade: high-intensity statin plus ezetimibe, then PCSK9 inhibitors (evolocumab, alirocumab achieve 50-60% additional LDL reduction), then inclisiran (PCSK9 siRNA, dosed twice annually), then lipoprotein apheresis for severe HoFH."},
+  PCSK9:{badge:"risk",type:"Therapeutic Target",teaser:"Degrades LDL receptors. Gain-of-function causes FH; loss-of-function is cardioprotective. Inhibitors reduce LDL by 50-60%.",desc:"PCSK9 is secreted by hepatocytes and binds to the EGF-A domain of LDL receptors during LDL endocytosis. Instead of allowing the receptor to recycle back to the cell surface, PCSK9 directs it to lysosomal degradation—effectively functioning as a demolition crew for the very mechanism that clears dangerous LDL from blood.\n\nGain-of-function variants (D374Y, S127R, F216L) cause autosomal dominant hypercholesterolaemia clinically identical to LDLR mutations. Loss-of-function variants (R46L, Q152H) observed in African Americans with LDL-C 40% below average were associated with 88% reduction in coronary heart disease risk over a lifetime—the key insight that sparked the development of PCSK9 inhibitors. Monoclonal antibodies evolocumab (Repatha) and alirocumab (Praluent) achieve 50-60% additional LDL reduction on top of statins; FOURIER and ODYSSEY-OUTCOMES trials demonstrated significant MACE reduction."}
+};
+
+var CANCER = {
+  common:[
+    {name:"Breast Cancer",desc:"The most molecularly heterogeneous solid tumour. ER+/HER2- (luminal): approximately 70%, endocrine therapy backbone. HER2+ (approximately 20%): anti-HER2 antibody cascade from trastuzumab through T-DXd. Triple-negative (approximately 15%): PARP inhibitors for BRCA1/2-mutant, checkpoint inhibitors for PD-L1+, TROP2-ADC (sacituzumab govitecan) as standard second-line. Germline BRCA1/2 testing now recommended for all patients with metastatic breast cancer regardless of family history.",genes:["BRCA1","BRCA2","HER2","PIK3CA","TP53","ESR1"]},
+    {name:"Colorectal Cancer",desc:"Extended RAS testing (KRAS plus NRAS exons 2-4) is mandatory before prescribing anti-EGFR antibodies—any RAS mutation is a contraindication to panitumumab or cetuximab. BRAF V600E occurs in approximately 10% and predicts worse prognosis; the BEACON-CRC trial established encorafenib plus cetuximab as standard second-line therapy with significantly improved OS. MSI-H/dMMR (approximately 5% of metastatic CRC) achieves durable objective responses with pembrolizumab monotherapy, including complete responses.",genes:["KRAS","NRAS","BRAF","MSI/MMR","PIK3CA","TP53"]},
+    {name:"Lung Cancer (NSCLC)",desc:"The precision medicine prototype. A driver mutation is identified in approximately 70% of non-squamous NSCLC using comprehensive RNA plus DNA panel NGS. ALK and ROS1 fusions: alectinib (G-ALEX) and entrectinib (STARTRK) achieve over 60% ORR with multi-year PFS. KRAS G12C: sotorasib and adagrasib achieve approximately 40% ORR. STK11/KEAP1 co-mutations are negative predictive markers for immunotherapy benefit in KRAS-mutant disease.",genes:["EGFR","ALK","ROS1","KRAS G12C","BRAF V600E","MET","RET","NTRK"]},
+    {name:"Acute Myeloid Leukaemia",desc:"AML is now stratified into over 20 molecular subgroups. ELN 2022 integrates cytogenetics with 9 gene mutations to assign Favourable, Intermediate, or Adverse risk. FLT3-ITD high allelic ratio and biallelic TP53 mutations confer the worst prognosis. Venetoclax plus azacitidine achieved CR/CRi in 66% of older or unfit patients in VIALE-A, transforming treatment for a population previously managed with palliative intent.",genes:["NPM1","FLT3-ITD","IDH1","IDH2","TP53","DNMT3A"]},
+    {name:"Pancreatic Cancer",desc:"PDAC 5-year OS remains approximately 12%. Germline testing reveals actionable variants in 18% of patients (BRCA1/2, ATM, PALB2, MLH1/MSH2, CDKN2A). Somatic BRCA1/2 mutations occur in an additional 7%. Olaparib maintenance post-platinum extends PFS in BRCA-mutant metastatic PDAC (POLO trial). NTRK fusions (less than 1%): larotrectinib achieves 75% ORR.",genes:["KRAS","BRCA1","BRCA2","TP53","ATM","CDKN2A","SMAD4"]},
+    {name:"Ovarian Cancer",desc:"HRD testing (BRCA1/2 plus non-BRCA HR genes via myChoice CDx or FoundationOne CDx) now drives frontline maintenance strategy. BRCA1/2-mutant plus bevacizumab with olaparib achieves 37-month median PFS. BRCA wild-type HRD-positive: niraparib achieves 19.6-month PFS. BRCA wild-type HRD-negative: bevacizumab maintenance only, with limited PARP inhibitor benefit.",genes:["BRCA1","BRCA2","HRD","TP53","CCNE1","RAD51C/D"]},
+    {name:"Prostate Cancer",desc:"Germline DNA repair gene mutations are present in approximately 12% of metastatic prostate cancer, with BRCA2 the most common at approximately 7%. BRCA2-mutant mCRPC: rucaparib achieves 44% ORR (TRITON2); olaparib improves radiographic PFS 5.8 vs 3.5 months (PROfound). ATM mutations show lower but meaningful PARP response. MSI-H/dMMR (approximately 3%): pembrolizumab approved pan-tumour.",genes:["BRCA2","ATM","CDK12","PTEN","TP53","AR"]}
+  ],
+  targeted:[
+    {name:"Osimertinib (Tagrisso)",desc:"Third-generation irreversible EGFR-TKI. Active against sensitising mutations (exon 19 del, L858R) AND T790M acquired resistance. Superior CNS penetration—critical as 40% of EGFR-mutant patients develop brain metastases. FLAURA2: combination with chemotherapy extends PFS to 25.5 months. Adjuvant use post-resection reduces recurrence risk by 56% (ADAURA). Global standard-of-care first-line EGFR-mutant NSCLC.",target:"EGFR sensitising / T790M",cancer:"NSCLC"},
+    {name:"Alectinib (Alecensa)",desc:"Second-generation ALK inhibitor. ALEX trial: 38-month median PFS vs 11.1 months for crizotinib. CNS ORR 81% vs 50%. Dramatically transformed ALK-positive NSCLC from a short-survival disease to a multi-year manageable condition. Lorlatinib (3rd-generation) active after alectinib resistance via ALK compound mutations.",target:"ALK fusion",cancer:"NSCLC"},
+    {name:"Sotorasib (Lumakras)",desc:"First-in-class irreversible KRAS G12C inhibitor. Covalent modification of Cys12 locks KRAS in its GDP-bound inactive state. CodeBreaK 200: PFS 5.6 vs 4.5 months over docetaxel in pre-treated NSCLC G12C. Adagrasib (MRTX849) achieves similar ORR with additional CNS activity. Combination strategies (plus erlotinib or cetuximab) are under investigation to delay resistance.",target:"KRAS G12C",cancer:"NSCLC / CRC"},
+    {name:"Trastuzumab Deruxtecan (T-DXd)",desc:"Antibody-drug conjugate with 8:1 drug-to-antibody ratio, delivering topoisomerase I inhibitor payload. DESTINY-Breast04 established HER2-low (IHC 1+ or 2+) as a new actionable category, transforming HER2 from a binary into a continuous predictive biomarker. Approved for breast, gastric, HER2-mutant NSCLC, and HER2-positive CRC. Interstitial lung disease is an important class-specific adverse event requiring monitoring.",target:"HER2 (high and low expression)",cancer:"Breast / Gastric / NSCLC / CRC"},
+    {name:"Olaparib (Lynparza)",desc:"First PARP inhibitor approved. Traps PARP-1/2 at DNA damage sites, creating lethal double-strand breaks in BRCA-deficient (HR-defective) cells via synthetic lethality. Approved for germline BRCA1/2-mutant breast, ovarian, pancreatic, and prostate cancers. SOLO-1 5-year update: olaparib maintenance in BRCA2-mutant ovarian cancer achieves 5-year PFS of 33% vs 3% for placebo.",target:"BRCA1/2 (germline or somatic)",cancer:"Breast / Ovarian / Pancreatic / Prostate"},
+    {name:"Venetoclax + Azacitidine",desc:"BCL-2 selective inhibitor combined with hypomethylating agent. VIALE-A trial: CR/CRi 66% vs 22% and OS 14.7 vs 9.6 months in older AML patients unfit for intensive chemotherapy. Now standard-of-care regardless of molecular subtype for this population. TP53-mutant AML shows lower response rates; eprenetapopt (APR-246) combination trials are ongoing.",target:"BCL-2 overexpression",cancer:"AML (older or unfit patients)"},
+    {name:"Ivosidenib (Tibsovo)",desc:"Selective IDH1 mutant inhibitor (R132H/C/S). Reverses IDH1-driven 2-hydroxyglutarate oncometabolite accumulation, restoring normal myeloid differentiation. AGILE trial: frontline ivosidenib plus azacitidine in IDH1-mutant AML achieved OS 24 vs 7.9 months vs azacitidine alone. Also approved for IDH1-mutant cholangiocarcinoma (ClarIDHy trial).",target:"IDH1 R132 mutation",cancer:"AML / Cholangiocarcinoma"},
+    {name:"Pembrolizumab (Keytruda)",desc:"Humanised anti-PD-1 IgG4 monoclonal antibody. Blocks PD-1/PD-L1 interaction, restoring T-cell cytotoxicity against tumour cells. Pan-tumour approval for MSI-H/dMMR (tumour-agnostic, 2017) and TMB-H in NSCLC. Approved in over 20 tumour types with specific biomarker criteria. KEYNOTE-522: significant pathological complete response and event-free survival benefit as neoadjuvant plus adjuvant in early triple-negative breast cancer.",target:"PD-L1 / MSI-H / TMB-H",cancer:"Pan-tumour (biomarker-selected)"}
+  ],
+  biomarkers:[
+    {name:"Tumour Mutational Burden (TMB)",desc:"Total count of somatic coding mutations per megabase of sequenced genome, measured by comprehensive genomic profiling (Foundation Medicine, Tempus, Guardant). High TMB (10 mut/Mb or above) reflects defective DNA repair or carcinogen-induced hypermutation (tobacco, UV radiation, aristolochic acid). Hypermutated tumours generate more neoantigens, enhancing T-cell recognition and immunotherapy response. FDA approved pembrolizumab for TMB-H solid tumours in 2020.",sig:"TMB-H: Pembrolizumab approved pan-tumour"},
+    {name:"Microsatellite Instability (MSI-H)",desc:"MSI-H results from mismatch repair (MMR) system dysfunction involving MLH1, MSH2, MSH6, or PMS2. In Lynch syndrome (germline MMR mutation), MSI-H develops across multiple tumour types across a lifetime. Somatic MSI-H: approximately 15% of CRC (often MLH1 promoter hypermethylation), 3% of gastric, 1% of lung. MSI-H tumours generate hundreds of frameshift neoantigens—pembrolizumab achieves 40-50% ORR with durable complete responses.",sig:"MSI-H: Pembrolizumab first-line (CRC) and pan-tumour 2L+ approved"},
+    {name:"PD-L1 Expression (IHC)",desc:"PD-L1 protein expression is measured on tumour cells (TPS, Tumour Proportion Score) and immune cells (CPS, Combined Positive Score) using different companion diagnostic antibodies: 22C3 for pembrolizumab, 28-8 for nivolumab, SP263 for durvalumab. NSCLC: PD-L1 TPS 50% or above enables pembrolizumab monotherapy first-line (KEYNOTE-024). Gastric and oesophageal cancer: CPS 10 or above indicates pembrolizumab benefit.",sig:"PD-L1 TPS 50% or above: Pembrolizumab monotherapy first-line (NSCLC)"},
+    {name:"Homologous Recombination Deficiency (HRD)",desc:"HRD encompasses BRCA1/2-mutant and non-BRCA HR gene defects (RAD51C/D, PALB2, BRIP1, ATM). Measured by HRD score using the Myriad myChoice CDx platform, which combines loss of heterozygosity, telomeric allelic imbalance, and large-scale state transitions as surrogate markers of genomic scarring from prior HR dysfunction. HRD score 33 or above = HRD-positive. In ovarian cancer: niraparib benefit extends to BRCA wild-type HRD-positive patients.",sig:"HRD-positive: PARP inhibitor maintenance benefit in ovarian cancer"},
+    {name:"Claudin 18.2 (CLDN18.2)",desc:"Claudin 18.2 is a tight junction protein normally restricted to differentiated gastric mucosal cells. In cancer, it is aberrantly and broadly expressed: approximately 60% of gastric, 30-50% of pancreatic, and significant proportions of oesophageal and biliary tract cancers. Scored by IHC: 2+ or 3+ in 75% or more of tumour cells = CLDN18.2-high. Zolbetuximab combined with mFOLFOX6 demonstrated PFS 10.6 vs 8.7 months and OS 18.2 vs 15.5 months in CLDN18.2-high, RAS wild-type gastric and gastroesophageal junction cancer (SPOTLIGHT trial).",sig:"CLDN18.2-high: Zolbetuximab plus mFOLFOX6 in gastric / GEJ cancer"}
+  ]
+};
+
+/* ════════════════════════════
+   PDB VIEWER
+════════════════════════════ */
+function buildPdbUrl(pdbId) {
+  // RCSB 3D viewer - robust protein structure visualization
+  return 'https://www.rcsb.org/3d-view/' + pdbId.toUpperCase();
+}
+
+function openPdbModal(pdbId, title, note, sideInfoHtml) {
+  var modal = document.getElementById('pdbModalBg');
+  var frame = document.getElementById('pdbViewerFrame');
+  var loading = document.getElementById('pdbLoading');
+  var sideInfo = document.getElementById('pdbSideInfo');
+
+  document.getElementById('pdbModalTitle').textContent = title + '  —  PDB: ' + pdbId.toUpperCase();
+  document.getElementById('pdbModalSub').textContent = 'Interactive 3D structure · RCSB/PDBe Protein Data Bank · Rotate, zoom, select residues';
+  sideInfo.innerHTML = sideInfoHtml;
+
+  loading.classList.remove('hidden');
+  frame.src = '';
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(function() {
+    frame.src = buildPdbUrl(pdbId);
+    frame.onload = function() { loading.classList.add('hidden'); };
+    setTimeout(function() { loading.classList.add('hidden'); }, 12000);
+  }, 200);
+}
+
+function closePdbModal() {
+  document.getElementById('pdbModalBg').classList.remove('open');
+  document.getElementById('pdbViewerFrame').src = '';
+  document.body.style.overflow = '';
+}
+
+function openPdbFromModal() {
+  if (!currentGene) return;
+  var p = GENE_PDB[currentGene];
+  if (!p) return;
+  var sideHtml = buildGenePdbSideInfo(currentGene, p);
+  openPdbModal(p.id, currentGene + ' — ' + p.desc.split('—')[0].trim(), p.note, sideHtml);
+}
+
+function buildGenePdbSideInfo(gene, p) {
+  var d = VARIANTS[gene];
+  return '<div class="pdb-info-block"><div class="pdb-info-label">Gene</div><div class="pdb-info-highlight">' + gene + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">PDB ID</div><div class="pdb-info-highlight">' + p.id + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">Structure</div><div class="pdb-info-value">' + p.desc + '</div></div>' +
+    (p.drug ? '<div class="pdb-info-block"><div class="pdb-info-label">Drug / Ligand</div><div class="pdb-info-highlight" style="background:var(--amber-glow);color:var(--amber);border-color:rgba(245,166,35,0.3)">' + p.drug + '</div></div>' : '') +
+    '<div class="pdb-info-block"><div class="pdb-info-label">Clinical Type</div><div class="pdb-info-value">' + d.type + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">Open full entry</div><div class="pdb-info-value"><a href="https://www.rcsb.org/structure/' + p.id + '" target="_blank" style="color:var(--teal);text-decoration:none;font-family:var(--font-mono);font-size:0.72rem">rcsb.org/structure/' + p.id + ' ↗</a></div></div>';
+}
+
+function buildCancerPdbSideInfo(name, p) {
+  return '<div class="pdb-info-block"><div class="pdb-info-label">Cancer / Target</div><div class="pdb-info-highlight">' + name + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">PDB ID</div><div class="pdb-info-highlight">' + p.id + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">Structure shown</div><div class="pdb-info-value">' + p.title + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">Clinical context</div><div class="pdb-info-value">' + p.note + '</div></div>' +
+    '<div class="pdb-info-block"><div class="pdb-info-label">Open full entry</div><div class="pdb-info-value"><a href="https://www.rcsb.org/structure/' + p.id + '" target="_blank" style="color:var(--teal);text-decoration:none;font-family:var(--font-mono);font-size:0.72rem">rcsb.org/structure/' + p.id + ' ↗</a></div></div>';
+}
+
+/* ════════════════════════════
+   RENDER GENE VARIANTS
+════════════════════════════ */
+var cardVizStops = {};
+
+function renderVariants(filter) {
+  filter = filter || 'all';
+  // stop old animations
+  Object.values(cardVizStops).forEach(function(s) { if (s) s(); });
+  cardVizStops = {};
+
+  var grid = document.getElementById('variantGrid');
+  grid.innerHTML = '';
+
+  Object.keys(VARIANTS).forEach(function(gene) {
+    var d = VARIANTS[gene];
+    if (filter !== 'all' && d.badge !== filter) return;
+    var pdb = GENE_PDB[gene];
+
+    var card = document.createElement('div');
+    card.className = 'gene-card ' + d.badge;
+
+    var stripId = 'viz-' + gene;
+    card.innerHTML =
+      '<div class="gene-viz-strip">' +
+        '<canvas class="gene-viz-canvas" id="' + stripId + '"></canvas>' +
+        '<div class="gene-viz-label">' + (pdb ? 'PDB: ' + pdb.id : 'Structure') + '</div>' +
+      '</div>' +
+      '<div class="card-body">' +
+        '<div class="card-top">' +
+          '<div class="gene-symbol">' + gene + '</div>' +
+          '<div class="badge ' + d.badge + '">' + d.type + '</div>' +
+        '</div>' +
+        '<div class="card-teaser">' + d.teaser + '</div>' +
+        '<button class="card-cta" onclick="openModal(\'' + gene + '\')">Deep Dive &rarr;</button>' +
+      '</div>';
+
+    grid.appendChild(card);
+
+    // Start animation after DOM insertion
+    requestAnimationFrame(function() {
+      var canvas = document.getElementById(stripId);
+      if (canvas) {
+        cardVizStops[gene] = createMolecularViz(canvas, d.badge, gene);
+      }
+    });
+  });
+}
+
+function filterVariants(f, btn) {
+  document.querySelectorAll('.filter-chip').forEach(function(c) { c.classList.remove('active'); });
+  btn.classList.add('active');
+  renderVariants(f);
+}
+
+/* ════════════════════════════
+   RENDER CANCER
+════════════════════════════ */
+function renderCancer() {
+  var cg = document.getElementById('cCommonGrid');
+  CANCER.common.forEach(function(c) {
+    var genes = c.genes.map(function(g) {
+      return '<span class="purple-tag">' + g + '</span>';
+    }).join('');
+    var pdb = CANCER_PDB[c.name];
+    var pdbStrip = pdb ? makePdbStrip(pdb, c.name, false) : '';
+    cg.innerHTML += '<div class="glass-card">' + pdbStrip +
+      '<div class="glass-card-inner"><div class="glass-card-name">' + c.name + '</div>' +
+      '<div class="glass-card-desc">' + c.desc + '</div>' +
+      '<div style="margin-top:auto;display:flex;flex-wrap:wrap;gap:0.35rem">' + genes + '</div></div></div>';
+  });
+
+  var tg = document.getElementById('cTargetedGrid');
+  CANCER.targeted.forEach(function(t) {
+    var pdb = CANCER_PDB[t.name];
+    var pdbStrip = pdb ? makePdbStrip(pdb, t.name, true) : '';
+    tg.innerHTML += '<div class="glass-card drug-stripe">' + pdbStrip +
+      '<div class="glass-card-inner"><div class="drug-meta">Targeted Agent &middot; ' + t.cancer + '</div>' +
+      '<div class="glass-card-name">' + t.name + '</div>' +
+      '<div class="glass-card-desc">' + t.desc + '</div>' +
+      '<div style="margin-top:auto"><span class="teal-tag">' + t.target + '</span></div></div></div>';
+  });
+
+  var bg = document.getElementById('cBioGrid');
+  CANCER.biomarkers.forEach(function(b) {
+    var pdb = CANCER_PDB[b.name];
+    var pdbStrip = pdb ? makePdbStrip(pdb, b.name, false) : '';
+    bg.innerHTML += '<div class="glass-card">' + pdbStrip +
+      '<div class="glass-card-inner"><div class="glass-card-name">' + b.name + '</div>' +
+      '<div class="glass-card-desc">' + b.desc + '</div>' +
+      '<div class="glass-card-sig">' + b.sig + '</div></div></div>';
+  });
+}
+
+function makePdbStrip(pdb, name, isDrug) {
+  // Static Sketchfab-style thumbnail via RCSB image API (no JS needed, just img)
+  var imgUrl = 'https://cdn.rcsb.org/images/structures/' +
+    pdb.id.toLowerCase().substr(1,2) + '/' +
+    pdb.id.toLowerCase() + '/' +
+    pdb.id.toLowerCase() + '_assembly-1.jpeg';
+
+  var safeId = pdb.id;
+  var safeName = name.replace(/'/g,'\\\'');
+
+  return '<div class="cancer-pdb-strip">' +
+    '<img src="' + imgUrl + '" style="width:100%;height:100%;object-fit:cover;display:block;filter:saturate(0.7) brightness(0.6)" ' +
+      'onerror="this.style.display=\'none\';this.parentElement.style.background=\'#0a0d1a\'">' +
+    '<div class="pdb-overlay">' +
+      '<div class="pdb-label">PDB ' + safeId + ' · ' + pdb.title + '</div>' +
+      '<button class="pdb-open-btn" onclick="openCancerPdb(\'' + safeId + '\',\'' + safeName + '\')">View Protein Structure ⚛</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function openCancerPdb(pdbId, name) {
+  var p = CANCER_PDB[name];
+  if (!p) return;
+  openPdbModal(pdbId, p.title, p.note, buildCancerPdbSideInfo(name, p));
+}
+
+/* ════════════════════════════
+   ORGAN VIEWER
+════════════════════════════ */
+function loadOrgan(id, btn) {
+  document.querySelectorAll('.organ-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+  var modelId = ORGAN_MODELS[id];
+  var canvasRegion = document.getElementById('canvasRegion');
+  var welcome = document.getElementById('viewerWelcome');
+  if (welcome) welcome.style.display = 'none';
+  var loading = document.getElementById('iframeLoading');
+  loading.classList.remove('hidden');
+  if (currentIframe) { currentIframe.remove(); currentIframe = null; }
+  var src = 'https://sketchfab.com/models/' + modelId + '/embed?autostart=1&ui_theme=dark&camera=0&ui_infos=0&ui_watermark=0&ui_controls=1&preload=1&dnt=1';
+  var iframe = document.createElement('iframe');
+  iframe.className = 'organ-iframe';
+  iframe.title = id + ' 3D model';
+  iframe.setAttribute('frameborder', '0');
+  iframe.setAttribute('allowfullscreen', '');
+  iframe.setAttribute('mozallowfullscreen', 'true');
+  iframe.setAttribute('webkitallowfullscreen', 'true');
+  iframe.setAttribute('allow', 'autoplay; fullscreen; xr-spatial-tracking');
+  iframe.src = src;
+  iframe.onload = function() { loading.classList.add('hidden'); };
+  setTimeout(function() { loading.classList.add('hidden'); }, 8000);
+  canvasRegion.appendChild(iframe);
+  currentIframe = iframe;
+  showOrganPanel(id);
+}
+
+function showOrganPanel(id) {
+  var d = ORGANS[id];
+  if (!d) return;
+  document.getElementById('panelPlaceholder').style.display = 'none';
+  document.getElementById('panelDetails').style.display = 'block';
+  document.getElementById('oName').textContent = d.name;
+  document.getElementById('oRole').textContent = d.role;
+  document.getElementById('oGenes').innerHTML = d.genes.map(function(g) {
+    return '<span class="gene-chip">' + g + '</span>';
+  }).join('');
+  var html = d.desc.split('\n\n').map(function(p) {
+    return p.trim() ? '<p style="margin-bottom:1rem;font-size:0.88rem;line-height:1.75;color:var(--text-muted)">' + p.trim() + '</p>' : '';
+  }).join('');
+  document.getElementById('oText').innerHTML = html;
+}
+
+/* ════════════════════════════
+   TAB SYSTEM
+════════════════════════════ */
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('sec-' + id).classList.add('active');
+}
+
+function showCancerTab(id, btn) {
+  document.querySelectorAll('.subtab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  document.querySelectorAll('.cancer-content').forEach(function(c) { c.classList.remove('active'); });
+  document.getElementById('cc-' + id).classList.add('active');
+}
+
+/* ════════════════════════════
+   GENE DETAIL MODAL
+════════════════════════════ */
+function openModal(gene) {
+  currentGene = gene;
+  var d = VARIANTS[gene];
+  var geneEl = document.getElementById('mGene');
+  geneEl.textContent = gene;
+  geneEl.className = 'modal-gene ' + d.badge;
+  var badgeEl = document.getElementById('mBadge');
+  badgeEl.className = 'badge ' + d.badge;
+  badgeEl.textContent = d.type;
+  var html = d.desc.split('\n\n').map(function(p) {
+    return p.trim() ? '<p>' + p.trim() + '</p>' : '';
+  }).join('');
+  document.getElementById('mExplanation').innerHTML = html;
+  document.getElementById('aiResponse').style.display = 'none';
+  document.getElementById('aiResponse').innerHTML = '';
+  document.getElementById('askInput').value = '';
+
+  // PDB button label
+  var pdb = GENE_PDB[gene];
+  var pdbBtn = document.getElementById('modalPdbBtn');
+  if (pdb) {
+    pdbBtn.style.display = 'flex';
+    pdbBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;flex-shrink:0"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg> View 3D Structure · PDB ' + pdb.id + (pdb.drug ? ' · ' + pdb.drug + ' bound' : '');
+  } else {
+    pdbBtn.style.display = 'none';
+  }
+
+  document.getElementById('modalBg').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Start modal canvas animation
+  requestAnimationFrame(function() { startModalViz(d.badge); });
+}
+
+function closeModal() {
+  if (modalVizStop) { modalVizStop(); modalVizStop = null; }
+  document.getElementById('modalBg').classList.remove('open');
+  document.body.style.overflow = '';
+  currentGene = null;
+}
+
+document.getElementById('modalBg').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+document.getElementById('pdbModalBg').addEventListener('click', function(e) {
+  if (e.target === this) closePdbModal();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') { closeModal(); closePdbModal(); }
+});
+
+
+
+/* ════════════════════════════
+   INIT
+════════════════════════════ */
+document.addEventListener('DOMContentLoaded', function() {
+  renderVariants();
+  renderCancer();
+});
+</script>
+</body>
+</html>
