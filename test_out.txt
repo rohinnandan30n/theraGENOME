@@ -1,0 +1,125 @@
+﻿.FFFF.FFF.FFFF..F.....................FF..FF...                          [100%]
+================================== FAILURES ===================================
+_______________ TestDrugAnalysis.test_full_pipeline_doctor_mode _______________
+backend\tests\test_chatbot.py:68: in test_full_pipeline_doctor_mode
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...ds': ['drug', 'toxicity'], 'mode': 'doctor', 'processing_time_ms': 0.05, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+______________ TestDrugAnalysis.test_full_pipeline_patient_mode _______________
+backend\tests\test_chatbot.py:89: in test_full_pipeline_patient_mode
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...ched_keywords': ['drug'], 'mode': 'patient', 'processing_time_ms': 0.06, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+________________ TestDrugAnalysis.test_confidence_score_range _________________
+backend\tests\test_chatbot.py:102: in test_confidence_score_range
+    assert 0.0 <= score <= 1.0
+E   assert 0.0 <= -1
+_________________ TestDrugAnalysis.test_reason_codes_present __________________
+backend\tests\test_chatbot.py:112: in test_reason_codes_present
+    assert len(codes) > 0
+E   assert 0 > 0
+E    +  where 0 = len([])
+___________________ TestCompareDrugs.test_comparison_result ___________________
+backend\tests\test_chatbot.py:134: in test_comparison_result
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...d_keywords': ['\\bvs\\b'], 'mode': 'doctor', 'processing_time_ms': 0.06, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+________________ TestCompareDrugs.test_comparison_patient_mode ________________
+backend\tests\test_chatbot.py:148: in test_comparison_patient_mode
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...d_keywords': ['compare'], 'mode': 'patient', 'processing_time_ms': 0.06, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+_________________ TestMissingData.test_compare_without_drugs __________________
+backend\tests\test_chatbot.py:167: in test_compare_without_drugs
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...ed_keywords': ['compare'], 'mode': 'doctor', 'processing_time_ms': 0.06, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+______________________ TestMissingData.test_empty_input _______________________
+backend\tests\test_chatbot.py:185: in test_empty_input
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...1, 'matched_keywords': [], 'mode': 'doctor', 'processing_time_ms': 0.01, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+_____________________ TestMissingData.test_unknown_query ______________________
+backend\tests\test_chatbot.py:195: in test_unknown_query
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...4, 'matched_keywords': [], 'mode': 'doctor', 'processing_time_ms': 0.04, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+___________________ TestEdgeCases.test_genetic_data_intent ____________________
+backend\tests\test_chatbot.py:213: in test_genetic_data_intent
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'infection_data', 'question_code': 'ASK_INFECTION_TYPE'}], 'intent': 'input_guidance', 'metada...words': ['genome', 'dna'], 'mode': 'doctor', 'processing_time_ms': 0.03, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+__________________ TestEdgeCases.test_infection_data_intent ___________________
+backend\tests\test_chatbot.py:223: in test_infection_data_intent
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}], 'intent': 'input_guidance', 'metadata':...lture\\s*result', 'mrsa'], 'mode': 'doctor', 'processing_time_ms': 0.04, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+_____________________ TestEdgeCases.test_mode_consistency _____________________
+backend\tests\test_chatbot.py:253: in test_mode_consistency
+    _assert_envelope(resp_doc)
+backend\tests\test_chatbot.py:35: in _assert_envelope
+    assert key in resp, f"Missing key: {key}"
+E   AssertionError: Missing key: explanation
+E   assert 'explanation' in {'guidance': [{'field': 'genetic_data', 'question_code': 'ASK_GENETIC_DATA'}, {'field': 'infection_data', 'question_co...ds': ['drug', 'toxicity'], 'mode': 'doctor', 'processing_time_ms': 0.03, ...}, 'template': 'REQUEST_MISSING_INFO', ...}
+______ TestSafetyGuardrails.test_guardrails_integration_with_controller _______
+backend\tests\test_chatbot.py:710: in test_guardrails_integration_with_controller
+    assert resp["intent"] == "safety_guardrail"
+E   AssertionError: assert 'input_guidance' == 'safety_guardrail'
+E     
+E     - safety_guardrail
+E     + input_guidance
+_________ TestSafetyGuardrails.test_guardrails_blocks_before_pipeline _________
+backend\tests\test_chatbot.py:724: in test_guardrails_blocks_before_pipeline
+    assert resp["intent"] == "safety_guardrail"
+E   AssertionError: assert 'input_guidance' == 'safety_guardrail'
+E     
+E     - safety_guardrail
+E     + input_guidance
+______ TestSafetyGuardrails.test_no_natural_language_in_safety_response _______
+backend\tests\test_chatbot.py:771: in test_no_natural_language_in_safety_response
+    action_code = resp["safety"]["action_code"]
+                  ^^^^^^^^^^^^^^
+E   KeyError: 'safety'
+____________ TestSafetyGuardrails.test_guardrails_mode_independent ____________
+backend\tests\test_chatbot.py:783: in test_guardrails_mode_independent
+    assert resp_doc["intent"] == "safety_guardrail"
+E   AssertionError: assert 'input_guidance' == 'safety_guardrail'
+E     
+E     - safety_guardrail
+E     + input_guidance
+=========================== short test summary info ===========================
+FAILED backend/tests/test_chatbot.py::TestDrugAnalysis::test_full_pipeline_doctor_mode
+FAILED backend/tests/test_chatbot.py::TestDrugAnalysis::test_full_pipeline_patient_mode
+FAILED backend/tests/test_chatbot.py::TestDrugAnalysis::test_confidence_score_range
+FAILED backend/tests/test_chatbot.py::TestDrugAnalysis::test_reason_codes_present
+FAILED backend/tests/test_chatbot.py::TestCompareDrugs::test_comparison_result
+FAILED backend/tests/test_chatbot.py::TestCompareDrugs::test_comparison_patient_mode
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_compare_without_drugs
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_empty_input - Ass...
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_unknown_query - A...
+FAILED backend/tests/test_chatbot.py::TestEdgeCases::test_genetic_data_intent
+FAILED backend/tests/test_chatbot.py::TestEdgeCases::test_infection_data_intent
+FAILED backend/tests/test_chatbot.py::TestEdgeCases::test_mode_consistency - ...
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_guardrails_integration_with_controller
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_guardrails_blocks_before_pipeline
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_no_natural_language_in_safety_response
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_guardrails_mode_independent
+16 failed, 31 passed in 0.58s

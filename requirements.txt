@@ -1,0 +1,13 @@
+# TheraGenome AI — Backend Dependencies
+# ======================================
+# Core (always required)
+# (none — the engine runs on pure Python 3.10+)
+
+# Optional: HTTP server
+fastapi>=0.110.0,<1.0
+uvicorn[standard]>=0.29.0,<1.0
+pydantic>=2.6.0,<3.0
+
+# Testing
+pytest>=8.0.0,<9.0
+httpx>=0.27.0,<1.0          # async test client for FastAPI

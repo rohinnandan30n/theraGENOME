@@ -1,0 +1,46 @@
+﻿============================= test session starts =============================
+platform win32 -- Python 3.14.0, pytest-9.0.3, pluggy-1.6.0
+rootdir: C:\Stuff\VSC\Repos\cmrit\chatbot
+plugins: anyio-4.13.0
+collected 21 items
+
+backend\tests\test_chatbot.py .........F.......FFFF                      [100%]
+
+================================== FAILURES ===================================
+_______________ TestMissingData.test_explain_without_reference ________________
+backend\tests\test_chatbot.py:177: in test_explain_without_reference
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:39: in _assert_envelope
+    assert "linked_response_id" in resp["metadata"]
+E   AssertionError: assert 'linked_response_id' in {'intent_confidence': 0.78, 'matched_keywords': ['explain'], 'mode': 'doctor', 'processing_time_ms': 0.03, ...}
+______________ TestExplainer.test_explainer_with_context_doctor _______________
+backend\tests\test_chatbot.py:291: in test_explainer_with_context_doctor
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:39: in _assert_envelope
+    assert "linked_response_id" in resp["metadata"]
+E   AssertionError: assert 'linked_response_id' in {'intent_confidence': 0.78, 'matched_keywords': ['why'], 'mode': 'doctor', 'processing_time_ms': 0.12, ...}
+______________ TestExplainer.test_explainer_with_context_patient ______________
+backend\tests\test_chatbot.py:315: in test_explainer_with_context_patient
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:39: in _assert_envelope
+    assert "linked_response_id" in resp["metadata"]
+E   AssertionError: assert 'linked_response_id' in {'intent_confidence': 0.81, 'matched_keywords': ['explain', 'why'], 'mode': 'patient', 'processing_time_ms': 0.1, ...}
+___________________ TestExplainer.test_explainer_with_scope ___________________
+backend\tests\test_chatbot.py:342: in test_explainer_with_scope
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:39: in _assert_envelope
+    assert "linked_response_id" in resp["metadata"]
+E   AssertionError: assert 'linked_response_id' in {'intent_confidence': 0.78, 'matched_keywords': ['why'], 'mode': 'doctor', 'processing_time_ms': 0.07, ...}
+________________ TestExplainer.test_explainer_missing_context _________________
+backend\tests\test_chatbot.py:354: in test_explainer_missing_context
+    _assert_envelope(resp)
+backend\tests\test_chatbot.py:39: in _assert_envelope
+    assert "linked_response_id" in resp["metadata"]
+E   AssertionError: assert 'linked_response_id' in {'intent_confidence': 0.78, 'matched_keywords': ['why'], 'mode': 'doctor', 'processing_time_ms': 0.03, ...}
+=========================== short test summary info ===========================
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_explain_without_reference
+FAILED backend/tests/test_chatbot.py::TestExplainer::test_explainer_with_context_doctor
+FAILED backend/tests/test_chatbot.py::TestExplainer::test_explainer_with_context_patient
+FAILED backend/tests/test_chatbot.py::TestExplainer::test_explainer_with_scope
+FAILED backend/tests/test_chatbot.py::TestExplainer::test_explainer_missing_context
+======================== 5 failed, 16 passed in 0.46s =========================
