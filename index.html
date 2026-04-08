@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheraGenome 3D Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .container-wrapper {
+            width: 100%;
+            max-width: 1000px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        #three-container {
+            width: 100%;
+            height: 600px;
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            position: relative;
+        }
+
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls-panel {
+            padding: 20px;
+            background: white;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .control-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-input {
+            padding: 10px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .control-input:hover {
+            border-color: #667eea;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-high {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-high:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-low {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-low:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn-reset {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+
+        .info-text {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .status {
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .status.high {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .status.low {
+            background: #e8f5e9;
+            color: #1b5e20;
+        }
+
+        .status.neutral {
+            background: #f5f5f5;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 TheraGenome</h1>
+        <p>AI-Powered 3D Molecular Viewer</p>
+    </div>
+
+    <div class="container-wrapper">
+        <div id="three-container">
+            <div class="loader">
+                <div class="spinner"></div>
+                <p>Loading 3D Model...</p>
+            </div>
+        </div>
+
+        <div class="controls-panel">
+            <!-- Organ Selection -->
+            <div class="control-group" style="flex-basis: 100%; margin-bottom: 10px;">
+                <label>Select Organ:</label>
+                <select id="organSelector" class="control-input" style="width: auto; flex: 1; max-width: 300px;">
+                    <option value="">-- Choose an Organ --</option>
+                </select>
+            </div>
+
+            <!-- Quick Access Buttons -->
+            <div class="control-group" style="flex-basis: 100%; margin-bottom: 15px; gap: 5px;">
+                <label style="width: 100%; margin-bottom: 8px;">Quick Access:</label>
+                <button class="btn btn-reset btn-small" onclick="window.switchOrgan('human_body')" title="Full human anatomy">
+                    👤 Full Body
+                </button>
+                <button class="btn btn-reset btn-small" onclick="window.switchOrgan('heart')" title="Heart model">
+                    ❤️ Heart
+                </button>
+                <button class="btn btn-reset btn-small" onclick="window.switchOrgan('kidneys')" title="Kidneys model">
+                    🫘 Kidneys
+                </button>
+            </div>
+
+            <!-- Toxicity Controls -->
+            <div class="control-group" style="flex-basis: 100%; border-top: 1px solid #eee; padding-top: 15px;">
+                <label style="width: 100%; margin-bottom: 8px;">Toxicity Level:</label>
+                <button class="btn btn-high" onclick="window.updateModel('high')">
+                    🔴 High (Toxic)
+                </button>
+                <button class="btn btn-low" onclick="window.updateModel('low')">
+                    🟢 Low (Safe)
+                </button>
+                <button class="btn btn-reset" onclick="window.updateModel('reset')">
+                    Reset
+                </button>
+            </div>
+        </div>
+
+        <div class="info-text">
+            <p><strong>Current Organ:</strong> <span id="organ-name" class="status neutral">Not loaded</span></p>
+            <p id="organ-info" style="font-size: 0.85rem; margin-top: 8px; color: #666;"></p>
+            <p style="font-size: 0.85rem; margin-top: 10px; color: #999;">
+                💡 Use mouse to rotate • Scroll to zoom • Right-click to pan
+            </p>
+        </div>
+    </div>
+
+    <!-- Three.js and required libraries (local for reliability) -->
+    <script src="node_modules/three/build/three.min.js"></script>
+    <script src="node_modules/three/examples/js/controls/OrbitControls.js"></script>
+    <script src="node_modules/three/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="node_modules/three/examples/js/loaders/DRACOLoader.js"></script>
+
+    <!-- TheraGenome 3D Viewer -->
+    <script src="js/theragenome-viewer.js"></script>
+</body>
+</html>
