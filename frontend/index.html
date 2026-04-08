@@ -3,323 +3,488 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheraGENOME AI — Demo Control Panel with Chatbot</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link rel="stylesheet" href="assets/css/chatbot-styles.css">
+    <title>theraGENOME | AI Chatbot</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #06080f;
+            --bg1: #0c0f1a;
+            --bg2: #111524;
+            --bg3: #181d2e;
+            --surface: #1e2438;
+            --surface2: #252b3d;
+            --border: rgba(255,255,255,0.07);
+            --border2: rgba(255,255,255,0.13);
+            --teal: #00d4aa;
+            --teal-dim: #007a63;
+            --teal-glow: rgba(0,212,170,0.15);
+            --purple: #9b59f5;
+            --purple-dim: #5c2fb8;
+            --purple-glow: rgba(155,89,245,0.15);
+            --rose: #f0567a;
+            --rose-glow: rgba(240,86,122,0.15);
+            --amber: #f5a623;
+            --amber-glow: rgba(245,166,35,0.12);
+            --text: #e8ecf4;
+            --text-muted: #7a82a0;
+            --text-dim: #4a5068;
+            --font-display: 'DM Serif Display', serif;
+            --font-body: 'Space Grotesk', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+            opacity: 0.4;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,212,170,0.07) 0%, transparent 70%), 
+                        radial-gradient(ellipse 50% 50% at 85% 90%, rgba(155,89,245,0.07) 0%, transparent 70%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--surface2);
+            border-radius: 3px;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            background: rgba(6, 8, 15, 0.88);
+            backdrop-filter: blur(20px) saturate(1.5);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2.5rem;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--teal) 0%, var(--purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 20px rgba(0, 212, 170, 0.3));
+        }
+
+        .logo-tag {
+            font-family: var(--font-body);
+            font-size: 0.78rem;
+            font-weight: 400;
+            -webkit-text-fill-color: var(--text-muted);
+            margin-left: 0.5rem;
+        }
+
+        main {
+            padding: 3rem 2.5rem 5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .section-eyebrow {
+            font-family: var(--font-mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            color: var(--teal);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 1px;
+            background: var(--teal);
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: clamp(2rem, 3.5vw, 2.8rem);
+            font-weight: 400;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.6rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.65;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+
+        /* Chatbot Container */
+        .chatbot-wrapper {
+            background: rgba(30, 36, 56, 0.5);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border2);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 650px;
+            box-shadow: 0 12px 40px rgba(0, 212, 170, 0.08);
+        }
+
+        .chatbot-header {
+            padding: 1.75rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, var(--bg3) 0%, transparent 100%);
+        }
+
+        .chatbot-title {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            margin-bottom: 0.25rem;
+            color: var(--text);
+        }
+
+        .chatbot-subtitle {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            color: var(--teal);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Chat Messages */
+        .chat-history {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-message {
+            display: flex;
+            gap: 1rem;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .user-avatar {
+            background: var(--purple-glow);
+            border: 1px solid rgba(155, 89, 245, 0.3);
+        }
+
+        .bot-avatar {
+            background: var(--teal-glow);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+        }
+
+        .message-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .message-sender {
+            font-family: var(--font-mono);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+        }
+
+        .message-user .message-sender {
+            color: var(--purple);
+        }
+
+        .message-bot .message-sender {
+            color: var(--teal);
+        }
+
+        .message-text {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--text-muted);
+        }
+
+        .message-user .message-text {
+            background: var(--purple-glow);
+            border-color: rgba(155, 89, 245, 0.3);
+            color: var(--text);
+        }
+
+        .message-bot .message-text {
+            background: var(--surface);
+            border-color: var(--border);
+        }
+
+        .chat-welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+        }
+
+        .welcome-title {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            color: var(--text);
+        }
+
+        .welcome-text {
+            color: var(--text-dim);
+            font-size: 0.9rem;
+            max-width: 300px;
+        }
+
+        /* Input Area */
+        .chatbot-footer {
+            padding: 1.5rem 2rem;
+            border-top: 1px solid var(--border);
+            background: linear-gradient(180deg, transparent 0%, var(--bg3) 100%);
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.75rem 1.1rem;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            color: var(--text);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .chat-input:focus {
+            border-color: var(--teal);
+        }
+
+        .chat-input::placeholder {
+            color: var(--text-dim);
+        }
+
+        .send-button {
+            background: linear-gradient(135deg, var(--teal-dim), var(--teal));
+            border: none;
+            border-radius: var(--radius);
+            padding: 0.75rem 1.5rem;
+            color: #000;
+            font-family: var(--font-body);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            white-space: nowrap;
+        }
+
+        .send-button:hover {
+            opacity: 0.9;
+        }
+
+        .send-button:active {
+            transform: scale(0.97);
+        }
+
+        .send-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Filters & AI Models */
+        .ai-models-section {
+            margin-top: 2rem;
+        }
+
+        .models-label {
+            font-family: var(--font-mono);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+
+        .model-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .model-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.4rem 1rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: var(--font-body);
+        }
+
+        .model-btn:hover {
+            border-color: var(--teal);
+            color: var(--teal);
+        }
+
+        .model-btn.genetic {
+            border-color: rgba(0, 212, 170, 0.3);
+            color: var(--teal);
+        }
+
+        .model-btn.resistance {
+            border-color: rgba(245, 166, 35, 0.3);
+            color: var(--amber);
+        }
+
+        .model-btn.toxicity {
+            border-color: rgba(240, 86, 122, 0.3);
+            color: var(--rose);
+        }
+    </style>
 </head>
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="container">
-            <h1 class="logo">TheraGENOME AI</h1>
-            <p class="tagline">Interactive Demo Control Panel</p>
-        </div>
+    <header>
+        <div class="logo">theraGENOME<span class="logo-tag">| AI Chatbot</span></div>
     </header>
 
-    <main class="container">
-        <!-- Demo Control Panel Section -->
-        <section class="control-panel">
-            <div class="panel-header">
-                <h2>🎯 Demo Scenarios</h2>
-                <p>Select a scenario to demonstrate the system's capabilities</p>
-            </div>
-
-            <div class="button-group">
-                <button class="demo-button safe-case" data-case-id="safe_case">
-                    <span class="icon">✓</span>
-                    <span class="label">Safe Case</span>
-                    <span class="description">No drug interactions</span>
-                </button>
-
-                <button class="demo-button high-risk-case" data-case-id="high_risk_case">
-                    <span class="icon">⚠</span>
-                    <span class="label">High Risk Case</span>
-                    <span class="description">Genetic contraindications</span>
-                </button>
-
-                <button class="demo-button comparison-case" data-case-id="comparison_case">
-                    <span class="icon">⚖</span>
-                    <span class="label">Compare Drugs</span>
-                    <span class="description">Multi-drug comparison</span>
-                </button>
-            </div>
-
-            <div class="mode-selector">
-                <label>Display Mode:</label>
-                <select id="modeSelect" class="mode-dropdown">
-                    <option value="doctor">Doctor Mode (Full Details)</option>
-                    <option value="patient">Patient Mode (Simplified)</option>
-                </select>
-            </div>
-
-            <!-- Voice Input Controls -->
-            <div class="voice-input-controls">
-                <h3>🎤 Voice Input</h3>
-                
-                <!-- Language Selector -->
-                <div class="language-selector">
-                    <label for="voiceLanguage">Language:</label>
-                    <select id="voiceLanguage" class="language-dropdown">
-                        <option value="en-US">🇬🇧 English</option>
-                        <option value="hi-IN">🇮🇳 हिंदी (Hindi)</option>
-                        <option value="ta-IN">🇮🇳 தமிழ் (Tamil)</option>
-                        <option value="te-IN">🇮🇳 తెలుగు (Telugu)</option>
-                        <option value="kn-IN">🇮🇳 ಕನ್ನಡ (Kannada)</option>
-                    </select>
-                </div>
-
-                <div class="voice-button-group">
-                    <button class="voice-button" id="startListeningBtn" title="Start listening for voice commands">
-                        <span class="icon">🎤</span>
-                        <span class="label">Start Listening</span>
-                    </button>
-                    <button class="voice-button stop-button hidden" id="stopListeningBtn" title="Stop listening">
-                        <span class="icon">⏹</span>
-                        <span class="label">Stop Listening</span>
-                    </button>
-                </div>
-                <div class="voice-transcript" id="voiceTranscript" class="hidden">
-                    <div class="interim-text" id="interimTranscript"></div>
-                    <div class="final-text" id="finalTranscript"></div>
-                </div>
-                <div class="voice-status" id="voiceStatus"></div>
-            </div>
+    <main>
+        <!-- Introduction -->
+        <section>
+            <div class="section-eyebrow">Clinical Decision Support</div>
+            <h1 class="section-title">Intelligent Healthcare Advisor</h1>
+            <p class="section-subtitle">Ask questions about drug safety, genetic risks, antibiotic resistance, and clinical decisions. Our AI analyzes multiple domains to provide comprehensive medical insights.</p>
         </section>
 
-        <!-- Chatbot Interface Section -->
-        <section class="chatbot-panel">
-            <div class="panel-header">
-                <h2>💬 Chatbot Interface</h2>
-                <p>Ask questions about drug analysis, patient safety, and clinical decisions</p>
+        <!-- Chatbot -->
+        <div class="chatbot-wrapper">
+            <div class="chatbot-header">
+                <div class="chatbot-title">theraGENOME AI</div>
+                <div class="chatbot-subtitle">Multi-Domain Clinical Analysis</div>
             </div>
 
-            <div class="chatbot-container">
-                <!-- Chat History -->
-                <div class="chat-history" id="chatHistory">
-                    <div class="chat-welcome">
-                        <h3>Welcome to TheraGenome AI Chatbot</h3>
-                        <p>Ask me anything about:</p>
-                        <ul>
-                            <li>💊 Drug interactions and safety</li>
-                            <li>🧬 Genetic contraindications</li>
-                            <li>⚠️ Side effects and toxicity</li>
-                            <li>📊 Clinical decision support</li>
-                            <li>🔍 Treatment comparisons</li>
-                        </ul>
-                        <p class="mode-note"><strong>Tip:</strong> Switch between Doctor and Patient mode for different levels of detail.</p>
-                    </div>
+            <div class="chat-history" id="chatHistory">
+                <div class="chat-welcome">
+                    <div class="welcome-icon">🤖</div>
+                    <div class="welcome-title">Welcome to theraGENOME</div>
+                    <p class="welcome-text">Ask me about drug interactions, genetic variants, infection resistance, or clinical safety. I'll analyze your query across all three medical domains.</p>
                 </div>
+            </div>
 
-                <!-- Chat Input Area -->
-                <div class="chat-input-area">
-                    <div class="input-controls">
-                        <input 
-                            type="text" 
-                            id="chatInput" 
-                            class="chat-input" 
-                            placeholder="Ask a medical question (e.g., 'Is amoxicillin safe for a patient with penicillin allergy?')"
-                            autocomplete="off"
-                        >
-                        <button id="sendButton" class="send-button" title="Send message">
-                            <span>📤 Send</span>
-                        </button>
-                    </div>
-
-                    <!-- Chatbot Mode & Context Selector -->
-                    <div class="chatbot-options">
-                        <label>Chatbot Mode:</label>
-                        <select id="chatbotModeSelect" class="chatbot-mode-dropdown">
-                            <option value="doctor">👨‍⚕️ Doctor Mode (Full Clinical Details)</option>
-                            <option value="patient">👤 Patient Mode (Simplified Language)</option>
-                        </select>
-                    </div>
-
-                    <!-- Loading indicator for chat -->
-                    <div id="chatLoading" class="chat-loading hidden">
-                        <span class="loading-spinner"></span>
-                        <span>TheraGenome is analyzing...</span>
-                    </div>
+            <div class="chatbot-footer">
+                <div class="input-group">
+                    <input type="text" class="chat-input" id="userInput" placeholder="Ask about drugs, genes, infections, or clinical safety...">
+                    <button class="send-button" id="sendButton">Send</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- Model Selection -->
+        <section class="ai-models-section">
+            <div class="models-label">Or select a specific AI model:</div>
+            <div class="model-buttons">
+                <button class="model-btn genetic">🧬 Genetic Analysis</button>
+                <button class="model-btn resistance">🦠 Antibiotic Resistance</button>
+                <button class="model-btn toxicity">⚠️ Drug Toxicity</button>
             </div>
         </section>
-
-        <!-- Loading State -->
-        <div id="loadingState" class="loading-state hidden">
-            <div class="spinner"></div>
-            <p>Analyzing scenario...</p>
-        </div>
-
-        <!-- Results Container -->
-        <div id="resultsContainer" class="results-container hidden">
-
-            <!-- Input Summary -->
-            <section class="result-section input-summary">
-                <h3>📋 Input Summary</h3>
-                <div class="summary-card">
-                    <div class="summary-item">
-                        <span class="label">Scenario:</span>
-                        <span class="value" id="scenarioName">—</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Description:</span>
-                        <span class="value" id="scenarioDescription">—</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Intent Detected:</span>
-                        <span class="value badge" id="intentDetected">—</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Processing Time:</span>
-                        <span class="value" id="processingTime">—</span>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Decision Result Card -->
-            <section class="result-section decision-result">
-                <h3>🔍 Decision Result</h3>
-                <div class="decision-card" id="decisionCard">
-                    <div class="decision-header">
-                        <h4 id="decisionTemplate" class="template-badge">—</h4>
-                        <span class="confidence" id="confidenceScore">—</span>
-                    </div>
-
-                    <div class="decision-body">
-                        <div class="risk-indicator">
-                            <span class="label">Risk Level:</span>
-                            <span class="risk-badge" id="riskLevel">—</span>
-                        </div>
-
-                        <div class="drug-info">
-                            <span class="label">Drug:</span>
-                            <span class="value" id="drugName">—</span>
-                        </div>
-
-                        <div class="reason-codes">
-                            <span class="label">Reason Codes:</span>
-                            <div class="codes-list" id="reasonCodes">
-                                <!-- populated by JS -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="decision-footer">
-                        <button class="secondary-button" id="toggleExplanation">
-                            💡 Show Explanation
-                        </button>
-                        <button class="secondary-button" id="speakResultBtn" title="Read decision aloud">
-                            🔊 Speak Result
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Voice Output Controls -->
-            <section class="result-section voice-output-controls hidden" id="voiceOutputControls">
-                <h3>🔊 Voice Output</h3>
-                <div class="voice-button-group">
-                    <button class="voice-button hidden" id="pauseSpeakBtn" title="Pause speech">
-                        <span class="icon">⏸</span>
-                        <span class="label">Pause</span>
-                    </button>
-                    <button class="voice-button hidden" id="resumeSpeakBtn" title="Resume speech">
-                        <span class="icon">▶</span>
-                        <span class="label">Resume</span>
-                    </button>
-                    <button class="voice-button stop-button hidden" id="stopSpeakBtn" title="Stop speaking">
-                        <span class="icon">⏹</span>
-                        <span class="label">Stop</span>
-                    </button>
-                </div>
-                <div class="speech-status" id="speechStatus"></div>
-            </section>
-
-            <!-- Explanation Panel (Collapsible) -->
-            <section class="result-section explanation-panel hidden" id="explanationPanel">
-                <h3>🧠 Detailed Explanation</h3>
-                <div class="explanation-content">
-                    <div class="explanation-section">
-                        <h4>Clinical Rationale</h4>
-                        <div class="reason-details" id="reasonDetails">
-                            <!-- populated by JS -->
-                        </div>
-                    </div>
-
-                    <div class="explanation-section" id="modulesSection" class="hidden">
-                        <h4>Model Details (Doctor Mode)</h4>
-                        <div class="modules-data" id="modulesData">
-                            <!-- populated by JS -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Comparison View (Conditional) -->
-            <section class="result-section comparison-view hidden" id="comparisonView">
-                <h3>⚖ Drug Comparison</h3>
-                <div class="comparison-table" id="comparisonTable">
-                    <!-- populated by JS -->
-                </div>
-            </section>
-
-            <!-- Report View (Conditional) -->
-            <section class="result-section report-view hidden" id="reportView">
-                <h3>📄 Analysis Report</h3>
-                <div class="report-content" id="reportContent">
-                    <!-- populated by JS -->
-                </div>
-            </section>
-
-            <!-- Safety Warning (Conditional) -->
-            <section class="result-section safety-warning hidden" id="safetyWarning">
-                <div class="warning-banner">
-                    <span class="warning-icon">⚠️</span>
-                    <div class="warning-content">
-                        <h3>Safety Alert</h3>
-                        <p id="warningMessage">—</p>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Raw Response Toggle (Dev Mode) -->
-            <section class="result-section raw-response">
-                <button class="secondary-button" id="toggleRawResponse">
-                    📊 View Raw Response
-                </button>
-                <div class="raw-response-container hidden" id="rawResponseContainer">
-                    <pre id="rawResponseContent"></pre>
-                </div>
-            </section>
-
-            <!-- Reset Button -->
-            <div class="action-buttons">
-                <button class="secondary-button" id="resetButton">
-                    ↻ Run Another Demo
-                </button>
-            </div>
-
-        </div>
-
-        <!-- Error State -->
-        <div id="errorState" class="error-state hidden">
-            <div class="error-icon">❌</div>
-            <h3>Something went wrong</h3>
-            <p id="errorMessage">—</p>
-            <button class="secondary-button" id="errorRetryButton">Try Again</button>
-        </div>
-
     </main>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <p>TheraGENOME AI © 2025 | Demo Control Panel v1.0</p>
-    </footer>
-
-    <!-- Scripts -->
-    <script src="assets/js/voice-service.js"></script>
-    <script src="assets/js/api-client.js"></script>
-    <script src="assets/js/ui-renderer.js"></script>
     <script src="assets/js/chatbot-controller.js"></script>
-    <script src="assets/js/app.js"></script>
+    <script>
+        // Initialize chatbot on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            window.chatbotController = new ChatbotController();
+        });
+    </script>
 </body>
 </html>
