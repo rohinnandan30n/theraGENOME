@@ -50,6 +50,39 @@
                     <option value="patient">Patient Mode (Simplified)</option>
                 </select>
             </div>
+
+            <!-- Voice Input Controls -->
+            <div class="voice-input-controls">
+                <h3>🎤 Voice Input</h3>
+                
+                <!-- Language Selector -->
+                <div class="language-selector">
+                    <label for="voiceLanguage">Language:</label>
+                    <select id="voiceLanguage" class="language-dropdown">
+                        <option value="en-US">🇬🇧 English</option>
+                        <option value="hi-IN">🇮🇳 हिंदी (Hindi)</option>
+                        <option value="ta-IN">🇮🇳 தமிழ் (Tamil)</option>
+                        <option value="te-IN">🇮🇳 తెలుగు (Telugu)</option>
+                        <option value="kn-IN">🇮🇳 ಕನ್ನಡ (Kannada)</option>
+                    </select>
+                </div>
+
+                <div class="voice-button-group">
+                    <button class="voice-button" id="startListeningBtn" title="Start listening for voice commands">
+                        <span class="icon">🎤</span>
+                        <span class="label">Start Listening</span>
+                    </button>
+                    <button class="voice-button stop-button hidden" id="stopListeningBtn" title="Stop listening">
+                        <span class="icon">⏹</span>
+                        <span class="label">Stop Listening</span>
+                    </button>
+                </div>
+                <div class="voice-transcript" id="voiceTranscript" class="hidden">
+                    <div class="interim-text" id="interimTranscript"></div>
+                    <div class="final-text" id="finalTranscript"></div>
+                </div>
+                <div class="voice-status" id="voiceStatus"></div>
+            </div>
         </section>
 
         <!-- Loading State -->
@@ -116,8 +149,31 @@
                         <button class="secondary-button" id="toggleExplanation">
                             💡 Show Explanation
                         </button>
+                        <button class="secondary-button" id="speakResultBtn" title="Read decision aloud">
+                            🔊 Speak Result
+                        </button>
                     </div>
                 </div>
+            </section>
+
+            <!-- Voice Output Controls -->
+            <section class="result-section voice-output-controls hidden" id="voiceOutputControls">
+                <h3>🔊 Voice Output</h3>
+                <div class="voice-button-group">
+                    <button class="voice-button hidden" id="pauseSpeakBtn" title="Pause speech">
+                        <span class="icon">⏸</span>
+                        <span class="label">Pause</span>
+                    </button>
+                    <button class="voice-button hidden" id="resumeSpeakBtn" title="Resume speech">
+                        <span class="icon">▶</span>
+                        <span class="label">Resume</span>
+                    </button>
+                    <button class="voice-button stop-button hidden" id="stopSpeakBtn" title="Stop speaking">
+                        <span class="icon">⏹</span>
+                        <span class="label">Stop</span>
+                    </button>
+                </div>
+                <div class="speech-status" id="speechStatus"></div>
             </section>
 
             <!-- Explanation Panel (Collapsible) -->
@@ -202,6 +258,7 @@
     </footer>
 
     <!-- Scripts -->
+    <script src="assets/js/voice-service.js"></script>
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/ui-renderer.js"></script>
     <script src="assets/js/app.js"></script>
