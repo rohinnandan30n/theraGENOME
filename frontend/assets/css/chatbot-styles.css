@@ -1,0 +1,693 @@
+/* ═════════════════════════════════════════════════════════════════════════════
+   TheraGENOME AI — Chatbot Interface Styles
+   CSS for the integrated chatbot panel
+   ═════════════════════════════════════════════════════════════════════════════ */
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chatbot Panel */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chatbot-panel {
+    background-color: var(--light-gray);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-xl);
+    margin: var(--spacing-xl) 0;
+    border: 1px solid var(--border-gray);
+    box-shadow: var(--shadow-sm);
+}
+
+.chatbot-panel .panel-header {
+    text-align: center;
+    margin-bottom: var(--spacing-lg);
+}
+
+.chatbot-panel .panel-header h2 {
+    color: var(--dark-blue);
+    font-size: var(--font-size-xl);
+}
+
+.chatbot-panel .panel-header p {
+    color: var(--neutral-gray);
+    margin-top: var(--spacing-sm);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chat Container */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chatbot-container {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: var(--border-radius-md);
+    border: 1px solid var(--border-gray);
+    height: 600px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.chat-history {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-lg);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    background-color: white;
+}
+
+.chat-history::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-history::-webkit-scrollbar-track {
+    background: var(--light-gray);
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+    background: var(--border-gray);
+    border-radius: 4px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+    background: var(--neutral-gray);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chat Welcome Message */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chat-welcome {
+    text-align: center;
+    padding: var(--spacing-lg);
+    color: var(--neutral-gray);
+}
+
+.chat-welcome h3 {
+    color: var(--dark-blue);
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-lg);
+}
+
+.chat-welcome p {
+    margin-bottom: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+.chat-welcome ul {
+    list-style: none;
+    text-align: left;
+    display: inline-block;
+    margin-bottom: var(--spacing-md);
+}
+
+.chat-welcome li {
+    padding: var(--spacing-xs) 0;
+    color: var(--neutral-gray);
+    font-size: var(--font-size-sm);
+}
+
+.chat-welcome .mode-note {
+    background-color: var(--light-blue);
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    color: var(--dark-blue);
+    margin-top: var(--spacing-md);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chat Messages */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chat-message {
+    display: flex;
+    animation: slideIn 0.3s ease-in-out;
+    word-wrap: break-word;
+}
+
+.chat-message.user-message {
+    justify-content: flex-end;
+}
+
+.chat-message.user-message .message-content {
+    background-color: var(--primary-blue);
+    color: white;
+    border-radius: 12px 0 12px 12px;
+    max-width: 70%;
+}
+
+.chat-message.bot-message {
+    justify-content: flex-start;
+}
+
+.chat-message.bot-message .message-content {
+    background-color: var(--light-gray);
+    color: #333;
+    border-radius: 0 12px 12px 12px;
+    border: 1px solid var(--border-gray);
+    max-width: 85%;
+}
+
+.chat-message.error-message {
+    justify-content: flex-start;
+}
+
+.chat-message.error-message .message-content {
+    background-color: var(--danger-light);
+    color: var(--danger-red);
+    border: 1px solid var(--danger-red);
+    border-radius: 0 12px 12px 12px;
+    max-width: 85%;
+}
+
+.message-content {
+    padding: var(--spacing-md);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+.message-text {
+    line-height: 1.5;
+    word-wrap: break-word;
+}
+
+.message-time {
+    font-size: var(--font-size-sm);
+    opacity: 0.7;
+    font-weight: 400;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Bot Response Styling */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.response-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.response-header {
+    display: flex;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.template-badge,
+.intent-label {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-md);
+    background-color: white;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+}
+
+.intent-label {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Response Status Variations */
+.response-safe {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.response-safe .status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.response-caution {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.response-caution .status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.response-danger {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.response-danger .status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.response-comparison {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.response-comparison .status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.response-info {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.response-info .status-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.response-generic {
+    padding: var(--spacing-sm);
+}
+
+.response-generic .response-text {
+    color: var(--dark-blue);
+    line-height: 1.5;
+}
+
+.response-safe,
+.response-caution,
+.response-danger,
+.response-comparison,
+.response-info,
+.response-generic {
+    padding: var(--spacing-md);
+    border-radius: var(--border-radius-sm);
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.small-text {
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+    margin-top: var(--spacing-xs);
+}
+
+.explanation-section {
+    padding: var(--spacing-md);
+    background-color: rgba(0, 0, 0, 0.02);
+    border-left: 3px solid var(--primary-blue);
+    border-radius: var(--border-radius-sm);
+}
+
+.explanation-section.doctor-only h4 {
+    margin-bottom: var(--spacing-sm);
+    font-size: var(--font-size-sm);
+}
+
+.explanation-section.doctor-only ul {
+    list-style-position: inside;
+    padding-left: var(--spacing-sm);
+}
+
+.explanation-section.doctor-only li {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Error Message Styling */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.error-box {
+    display: flex;
+    gap: var(--spacing-md);
+    align-items: flex-start;
+}
+
+.error-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.error-box p {
+    margin: 0;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chat Input Area */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chat-input-area {
+    border-top: 1px solid var(--border-gray);
+    padding: var(--spacing-md);
+    background-color: var(--light-gray);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.input-controls {
+    display: flex;
+    gap: var(--spacing-sm);
+}
+
+.chat-input {
+    flex: 1;
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    transition: border-color var(--transition-fast);
+}
+
+.chat-input:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.chat-input::placeholder {
+    color: var(--neutral-gray);
+}
+
+.send-button {
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--primary-blue);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-sm);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all var(--transition-fast);
+    white-space: nowrap;
+}
+
+.send-button:hover:not(:disabled) {
+    background-color: var(--dark-blue);
+    box-shadow: var(--shadow-md);
+}
+
+.send-button:active:not(:disabled) {
+    transform: scale(0.98);
+}
+
+.send-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chatbot Options */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chatbot-options {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    font-size: var(--font-size-sm);
+}
+
+.chatbot-options label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.chatbot-mode-dropdown {
+    flex: 1;
+    padding: var(--spacing-sm) var(--spacing-md);
+    border: 1px solid var(--border-gray);
+    border-radius: var(--border-radius-sm);
+    font-family: var(--font-family);
+    font-size: var(--font-size-sm);
+    background-color: white;
+    cursor: pointer;
+}
+
+.chatbot-mode-dropdown:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Chat Loading State */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chat-loading {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: #f0f0f0;
+    border-radius: var(--border-radius-sm);
+    color: var(--neutral-gray);
+    font-size: var(--font-size-sm);
+}
+
+.chat-loading.hidden {
+    display: none;
+}
+
+.loading-spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid var(--border-gray);
+    border-top: 2px solid var(--primary-blue);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Utility Classes for Chatbot */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.chatbot-panel .hidden {
+    display: none !important;
+}
+
+.chatbot-panel .visible {
+    display: flex !important;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Domain-Specific Response Styles (Genetic, Infection, Drug) */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+.response-genetic {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    color: #1a472a;
+}
+
+.response-genetic .status-icon {
+    font-size: 24px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.genetic-variants,
+.drug-interactions,
+.recommended-meds,
+.avoid-meds,
+.resistance-markers,
+.toxicity-details,
+.contraindications,
+.comparison-table,
+.comparison-details {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: rgba(26, 71, 42, 0.05);
+    border-left: 4px solid #2d6a3e;
+    border-radius: var(--border-radius-sm);
+}
+
+.genetic-variants h5,
+.drug-interactions h5,
+.recommended-meds h5,
+.avoid-meds h5,
+.resistance-markers h5,
+.toxicity-details h5,
+.contraindications h5,
+.comparison-table h5,
+.comparison-details h5 {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: #1a472a;
+}
+
+.genetic-variants ul,
+.drug-interactions ul,
+.recommended-meds ul,
+.avoid-meds ul,
+.resistance-markers ul,
+.toxicity-details ul,
+.contraindications ul,
+.comparison-table ul,
+.comparison-details ul {
+    list-style-position: inside;
+    margin: 0;
+    padding: 0;
+}
+
+.genetic-variants li,
+.drug-interactions li,
+.recommended-meds li,
+.avoid-meds li,
+.resistance-markers li,
+.toxicity-details li,
+.contraindications li,
+.comparison-table li,
+.comparison-details li {
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-xs);
+    padding: var(--spacing-xs) 0;
+}
+
+.response-infection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    color: #4a235a;
+}
+
+.response-infection .status-icon {
+    font-size: 24px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.recommended-meds {
+    border-left-color: #2d6a3e;
+    background-color: rgba(45, 106, 62, 0.05);
+}
+
+.avoid-meds {
+    border-left-color: #d32f2f;
+    background-color: rgba(211, 47, 47, 0.05);
+}
+
+.resistance-markers {
+    border-left-color: #7b1fa2;
+    background-color: rgba(123, 31, 162, 0.05);
+}
+
+.response-drug-safety {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    color: #6f2c3d;
+}
+
+.response-drug-safety .status-icon {
+    font-size: 24px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.risk-low {
+    color: #2d6a3e;
+    font-weight: 600;
+}
+
+.risk-medium {
+    color: #f57c00;
+    font-weight: 600;
+}
+
+.risk-high {
+    color: #d32f2f;
+    font-weight: 600;
+}
+
+.toxicity-details {
+    border-left-color: #f57c00;
+    background-color: rgba(245, 124, 0, 0.05);
+}
+
+.contraindications {
+    border-left-color: #d32f2f;
+    background-color: rgba(211, 47, 47, 0.05);
+}
+
+.response-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+    color: #1565c0;
+}
+
+.response-comparison .status-icon {
+    font-size: 24px;
+    margin-bottom: var(--spacing-sm);
+}
+
+.comparison-table {
+    border-left-color: #1565c0;
+    background-color: rgba(21, 101, 192, 0.05);
+}
+
+.comparison-details {
+    border-left-color: #1565c0;
+    background-color: rgba(21, 101, 192, 0.05);
+}
+
+/* ─────────────────────────────────────────────────────────────────────────── */
+/* Responsive Design for Chatbot */
+/* ─────────────────────────────────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+    .chatbot-panel {
+        padding: var(--spacing-lg);
+    }
+
+    .chatbot-container {
+        height: 400px;
+    }
+
+    .chat-history {
+        padding: var(--spacing-md);
+    }
+
+    .chat-message.user-message .message-content {
+        max-width: 85%;
+    }
+
+    .chat-message.bot-message .message-content {
+        max-width: 95%;
+    }
+
+    .input-controls {
+        flex-direction: column;
+    }
+
+    .send-button {
+        width: 100%;
+    }
+
+    .chatbot-options {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .chatbot-mode-dropdown {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .chatbot-container {
+        height: 300px;
+    }
+
+    .message-text {
+        font-size: var(--font-size-sm);
+    }
+
+    .response-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

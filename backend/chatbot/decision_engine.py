@@ -171,8 +171,12 @@ class DecisionEngine:
         )
 
         variables: dict[str, Any] = {
-            "metabolizer_status": gen.get("patient_metabolizer_status"),
+            "metabolizer_status": gen.get("patient_metabolizer_status", "unknown"),
+            "overall_genetic_risk": gen.get("overall_genetic_risk", "unknown"),
+            "risk_alleles": gen.get("risk_alleles", []),
             "risk_alleles_count": len(gen.get("risk_alleles", [])),
+            "variants_detected": gen.get("variants_detected", []),
+            "gene_drug_interactions": gen.get("gene_drug_interactions", []),
             "risk_level": decision.risk_level,
             "reason_codes": decision.reason_codes,
         }

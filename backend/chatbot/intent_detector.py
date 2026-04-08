@@ -124,18 +124,42 @@ _INTENT_PATTERNS: list[tuple[Intent, list[str], float]] = [
     (
         Intent.DRUG_ANALYSIS,
         [
-            r"drug",
-            r"medication",
-            r"medicine",
-            r"toxicity",
-            r"side\s*effect",
-            r"adverse",
-            r"dosage",
-            r"dose",
-            r"pharma",
-            r"prescri",
-            r"interaction",
+            # Core drug/medication mentions
+            r"\bdrug\b",
+            r"\bmedication\b",
+            r"\bmedicine\b",
+            r"\bmedicines\b",
+            # Drug name patterns (common suffixes: -illin, -ol, -ine, -ate, -ide, -um, -pril, -cin)
+            r"\b\w+(illin|mycin|pril|ol|ine|ate|ide|um|cin|stat|tropine)\b",
+            # Specific known drugs
+            r"\b(amoxicillin|warfarin|metformin|ibuprofen|aspirin|clopidogrel|metoprolol|simvastatin|omeprazole|escitalopram)\b",
+            # Safety & tolerance
+            r"\bsafe\b(?:\s+\w+){0,3}\s+(for|with|to)",
+            r"(good|bad|ok)\s+(?:for|with).*allerg",
+            r"allerg[^y]*to\b",
+            r"is\s+\w+\s+safe",
+            r"is\s+it\s+safe",
+            r"\bsafe\b",
+            r"\btoxicity\b",
+            r"\btoxic\b",
+            r"\bpoison\b",
+            r"\beffects?\b.*\b(safe|good|bad|harm|damage)",
+            # Health effects
+            r"side[\s\-]*effect",
+            r"\badverse",
+            r"\ballerg",
             r"contraindic",
+            r"reaction",
+            r"interact",
+            # Dosing & administration
+            r"dosage\b",
+            r"\bdose\b",
+            r"prescri",
+            # Drug properties/interactions
+            r"pharma",
+            r"efficacy",
+            # Healthcare context - if someone mentions a drug name in our medical chatbot, likely drug analysis
+            r"^\s*[a-z]+(illin|ol|ine|ate|ide|um|pril|mycin)\s*\??$",  # Just a drug name as query
         ],
         0.82,
     ),

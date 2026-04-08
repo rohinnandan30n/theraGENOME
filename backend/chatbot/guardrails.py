@@ -149,16 +149,22 @@ def _check_insufficient_critical_context(
     text = user_input.lower()
     context = context or {}
     
-    # Check for high-risk drugs without genetic data
+    # Only flag if asking for PERSONALIZED medical advice, not just general information
+    is_personalized_query = re.search(
+        r"\b(should\s+i|can\s+i|can\s+i\s+take|am\s+i|suitable|for\s+me|do\s+i|safe\s+for\s+me)\b",
+        text
+    )
+    
+    # Check for high-risk drugs WITH personalized queries and without genetic data
     pharmacogenomic_drugs = ["tramadol", "codeine", "warfarin", "clopidogrel", "citalopram"]
-    if any(drug in text for drug in pharmacogenomic_drugs):
+    if is_personalized_query and any(drug in text for drug in pharmacogenomic_drugs):
         if "genetic_data" not in context:
             return True, 0.80
     
-    # Check for antibiotic choice without infection info
+    # Check for antibiotic choice without infection info (only for treatment queries)
     antibiotics = ["antibiotic", "amoxicillin", "ciprofloxacin", "azithromycin"]
-    if any(antibiotic in text for antibiotic in antibiotics):
-        if re.search(r"\b(treat|infection|bacteria|pathogen)\b", text):
+    if re.search(r"\b(treat|prescription|prescribe)\b", text):
+        if any(antibiotic in text for antibiotic in antibiotics):
             if "infection_data" not in context:
                 return True, 0.75
     
@@ -309,6 +315,11 @@ class SafetyGuardrails:
             "template": "SAFETY_WARNING",
             "variables": {
                 "type": flag.trigger_type,
+            },
+            "explanation": {
+                "reason_codes": [flag.action_code],
+                "reason_details": [{"code": flag.action_code, "module": "guardrails", "severity": flag.severity}],
+                "modules": {},
             },
             "safety": {
                 "severity": flag.severity,

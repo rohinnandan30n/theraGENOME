@@ -13,7 +13,8 @@ def get_missing_fields(context: dict[str, Any], intent: str | None = None) -> li
     """
     Check if critical fields are missing for drug analysis intents.
     
-    Only triggers guidance for medical decision intents (drug_analysis, compare_drugs).
+    Only triggers guidance for complex medical decision intents (compare_drugs).
+    Basic drug_analysis queries (safety/contraindication) don't need genetic/infection data.
     
     Parameters
     ----------
@@ -27,11 +28,12 @@ def get_missing_fields(context: dict[str, Any], intent: str | None = None) -> li
     list[str]
         Missing field keys, or empty list if guidance not needed.
     """
-    # Only trigger guidance for intents that need genetic/infection data
-    medical_intents = {"drug_analysis", "compare_drugs"}
+    # Only require fields for compare_drugs (drug comparison needs patient data)
+    # Basic drug_analysis (safety, toxicity, allergies) can proceed without genetic/infection data
+    complex_intents = {"compare_drugs"}
     
-    # If intent is provided, check if it's a medical decision intent
-    if intent and intent not in medical_intents:
+    # If intent is provided, check if it's a complex intent
+    if intent and intent not in complex_intents:
         return []
     
     # Check for missing required fields
@@ -60,6 +62,11 @@ def build_guidance_response(missing_fields: list[str]) -> dict[str, Any]:
         "template": "REQUEST_MISSING_INFO",
         "variables": {
             "missing_fields": missing_fields
+        },
+        "explanation": {
+            "reason_codes": ["missing_required_fields"],
+            "reason_details": [],
+            "modules": {}
         },
         "guidance": guidance_questions,
         "metadata": {

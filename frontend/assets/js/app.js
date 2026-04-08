@@ -638,4 +638,8 @@ class DemoControlPanel {
 document.addEventListener('DOMContentLoaded', () => {
     window.demoPanel = new DemoControlPanel();
     console.log('Demo Control Panel initialized');
+    
+    // Initialize ChatbotController for the chatbot interface
+    window.chatbotController = new ChatbotController();
+    console.log('Chatbot Controller initialized');
 });

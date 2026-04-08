@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TheraGENOME AI — Demo Control Panel</title>
+    <title>TheraGENOME AI — Demo Control Panel with Chatbot</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/chatbot-styles.css">
 </head>
 <body>
     <!-- Header -->
@@ -82,6 +83,63 @@
                     <div class="final-text" id="finalTranscript"></div>
                 </div>
                 <div class="voice-status" id="voiceStatus"></div>
+            </div>
+        </section>
+
+        <!-- Chatbot Interface Section -->
+        <section class="chatbot-panel">
+            <div class="panel-header">
+                <h2>💬 Chatbot Interface</h2>
+                <p>Ask questions about drug analysis, patient safety, and clinical decisions</p>
+            </div>
+
+            <div class="chatbot-container">
+                <!-- Chat History -->
+                <div class="chat-history" id="chatHistory">
+                    <div class="chat-welcome">
+                        <h3>Welcome to TheraGenome AI Chatbot</h3>
+                        <p>Ask me anything about:</p>
+                        <ul>
+                            <li>💊 Drug interactions and safety</li>
+                            <li>🧬 Genetic contraindications</li>
+                            <li>⚠️ Side effects and toxicity</li>
+                            <li>📊 Clinical decision support</li>
+                            <li>🔍 Treatment comparisons</li>
+                        </ul>
+                        <p class="mode-note"><strong>Tip:</strong> Switch between Doctor and Patient mode for different levels of detail.</p>
+                    </div>
+                </div>
+
+                <!-- Chat Input Area -->
+                <div class="chat-input-area">
+                    <div class="input-controls">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            class="chat-input" 
+                            placeholder="Ask a medical question (e.g., 'Is amoxicillin safe for a patient with penicillin allergy?')"
+                            autocomplete="off"
+                        >
+                        <button id="sendButton" class="send-button" title="Send message">
+                            <span>📤 Send</span>
+                        </button>
+                    </div>
+
+                    <!-- Chatbot Mode & Context Selector -->
+                    <div class="chatbot-options">
+                        <label>Chatbot Mode:</label>
+                        <select id="chatbotModeSelect" class="chatbot-mode-dropdown">
+                            <option value="doctor">👨‍⚕️ Doctor Mode (Full Clinical Details)</option>
+                            <option value="patient">👤 Patient Mode (Simplified Language)</option>
+                        </select>
+                    </div>
+
+                    <!-- Loading indicator for chat -->
+                    <div id="chatLoading" class="chat-loading hidden">
+                        <span class="loading-spinner"></span>
+                        <span>TheraGenome is analyzing...</span>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -261,6 +319,7 @@
     <script src="assets/js/voice-service.js"></script>
     <script src="assets/js/api-client.js"></script>
     <script src="assets/js/ui-renderer.js"></script>
+    <script src="assets/js/chatbot-controller.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>

@@ -105,6 +105,9 @@ def process_query(
             context_to_use = cached_full if cached_full else valid_response.model_dump()
             response = _explainer.explain({"last_response": context_to_use, "scope": scope}, scope=scope)
     else:
+        # 4. Add user_input to context for model extraction (gene names, drug names, pathogens)
+        context.setdefault("user_input", user_input)
+        
         # 4. Route to models (catches domain-specific errors like missing "drugs" for compare_drugs)
         route_result = _router.route(intent_result.intent, context)
         
