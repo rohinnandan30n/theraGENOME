@@ -172,6 +172,17 @@ try:
         context: dict[str, Any] = Field(default_factory=dict)
         scope: str = Field("full", description="Explanation scope filter")
 
+    class DrugInteractionRequest(BaseModel):
+        drug: str = Field(..., min_length=1, description="Drug name")
+        organ: str = Field(..., min_length=1, description="Organ or system name")
+
+    class DrugInteractionResponse(BaseModel):
+        drug: str
+        organ: str
+        toxicity: str
+        description: str
+        reversible: bool
+
     from backend.chatbot.schemas import ChatbotResponse
 
     api_router = APIRouter(prefix="/api/v1/chatbot", tags=["chatbot"])
@@ -191,6 +202,64 @@ try:
                 scope=req.scope,
             )
             return ChatbotResponse(**result)
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+    @api_router.post(
+        "/drug-interactions",
+        response_model=DrugInteractionResponse,
+        summary="Get drug-organ interaction data",
+        description="Queries the database for drug safety and toxicity information for a specific organ.",
+    )
+    async def get_drug_interaction(req: DrugInteractionRequest) -> DrugInteractionResponse:
+        try:
+            from backend.database import query_drug_safety
+            
+            # Query database for drug safety data
+            results = query_drug_safety(drug_name=req.drug)
+            
+            # Filter by organ system
+            organ_lower = req.organ.lower()
+            organ_map = {
+                'heart': 'cardiac', 'cardiac': 'cardiac',
+                'kidney': 'renal', 'renal': 'renal', 'kidneys': 'renal',
+                'liver': 'hepatic', 'hepatic': 'hepatic',
+                'lung': 'respiratory', 'lungs': 'respiratory', 'respiratory': 'respiratory',
+                'digestive': 'gastrointestinal', 'gastrointestinal': 'gastrointestinal', 'gi': 'gastrointestinal',
+                'brain': 'nervous', 'nervous': 'nervous',
+                'stomach': 'gastrointestinal',
+                'pancreas': 'endocrine', 'endocrine': 'endocrine',
+            }
+            
+            target_organ = organ_map.get(organ_lower, organ_lower)
+            
+            # Find matching interaction
+            matching_result = None
+            for result in results:
+                if result.get('organ_system', '').lower() == target_organ:
+                    matching_result = result
+                    break
+            
+            if not matching_result and results:
+                # Use first available result if no exact match
+                matching_result = results[0]
+            
+            if not matching_result:
+                return DrugInteractionResponse(
+                    drug=req.drug,
+                    organ=req.organ,
+                    toxicity="low",
+                    description=f"No specific interaction data found for {req.drug} in {req.organ}.",
+                    reversible=True
+                )
+            
+            return DrugInteractionResponse(
+                drug=req.drug,
+                organ=req.organ,
+                toxicity=matching_result.get("toxicity_level", "low").lower(),
+                description=matching_result.get("description", ""),
+                reversible=matching_result.get("reversible", True)
+            )
         except Exception as exc:
             raise HTTPException(status_code=500, detail=str(exc)) from exc
 

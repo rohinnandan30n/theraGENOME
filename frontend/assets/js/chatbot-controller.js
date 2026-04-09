@@ -360,9 +360,10 @@ class ChatbotController {
             `;
         } else if (template === 'GENERAL_RESPONSE') {
             // Handle general responses from the backend
+            const summary = explanation.summary || explanation.description || variables.summary || 'Analysis complete.';
             html += `
                 <div class="response-generic">
-                    <p class="response-text">${explanation.description || 'Analysis complete.'}</p>
+                    <p class="response-text">${this.escapeHtml(String(summary))}</p>
                 </div>
             `;
         } else {
@@ -410,12 +411,15 @@ class ChatbotController {
                         try {
                             displayValue = JSON.stringify(value, null, 2);
                         } catch (e) {
-                            displayValue = String(value);
+                            displayValue = String(value) !== '[object Object]' ? String(value) : 'Complex data structure';
                         }
                     } else {
                         displayValue = String(value);
                     }
-                    html += `<li><strong>${this.sanitize(key)}:</strong> ${this.escapeHtml(displayValue)}</li>`;
+                    // Only add if we have actual content
+                    if (displayValue) {
+                        html += `<li><strong>${this.sanitize(key)}:</strong> ${this.escapeHtml(displayValue)}</li>`;
+                    }
                 }
                 html += '</ul></div>';
             }

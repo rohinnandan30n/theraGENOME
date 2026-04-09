@@ -378,7 +378,27 @@
             cursor: not-allowed;
         }
 
-        /* Filters & AI Models */
+        .mode-selector {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 0.5rem 0.9rem;
+            font-family: var(--font-body);
+            font-size: 0.85rem;
+            color: var(--text);
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .mode-selector:focus {
+            border-color: var(--teal);
+        }
+
+        .mode-selector option {
+            background: var(--bg1);
+            color: var(--text);
+        }
         .ai-models-section {
             margin-top: 2rem;
         }
@@ -435,6 +455,11 @@
 <body>
     <header>
         <div class="logo">theraGENOME<span class="logo-tag">| AI Chatbot</span></div>
+        <nav style="display:flex;gap:0.5rem;">
+            <a href="index.html" style="text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--teal);padding:0.5rem 1rem;border-radius:8px;background:var(--teal-glow);border:1px solid rgba(0,212,170,0.3);">💬 Chatbot</a>
+            <a href="reports.html" style="text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--text-muted);padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;" onmouseover="this.style.color='var(--teal)';this.style.background='var(--teal-glow)'" onmouseout="this.style.color='var(--text-muted)';this.style.background=''">📊 Reports</a>
+            <a href="education.html" style="text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--text-muted);padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;" onmouseover="this.style.color='var(--teal)';this.style.background='var(--teal-glow)'" onmouseout="this.style.color='var(--text-muted)';this.style.background=''">📚 Education</a>
+        </nav>
     </header>
 
     <main>
@@ -462,7 +487,11 @@
 
             <div class="chatbot-footer">
                 <div class="input-group">
-                    <input type="text" class="chat-input" id="userInput" placeholder="Ask about drugs, genes, infections, or clinical safety...">
+                    <select class="mode-selector" id="chatbotModeSelect">
+                        <option value="doctor">Doctor Mode</option>
+                        <option value="patient">Patient Mode</option>
+                    </select>
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask about drugs, genes, infections, or clinical safety...">
                     <button class="send-button" id="sendButton">Send</button>
                 </div>
             </div>

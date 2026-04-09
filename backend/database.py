@@ -131,11 +131,58 @@ def init_sqlite_db():
     
     # Load sample drug safety data
     sample_drugs = [
+        # Amoxicillin (Antibiotic)
         ("amoxicillin", "hepatic", "mild", "Elevated liver enzymes with prolonged use", True),
         ("amoxicillin", "renal", "mild", "Creatinine elevation in CKD patients", True),
-        ("warfarin", "gastrointestinal", "high", "GI bleeding risk", False),
-        ("metformin", "renal", "moderate", "Lactic acidosis risk in renal failure", False),
+        ("amoxicillin", "cardiac", "low", "Minimal cardiac effects. Generally safe for cardiac patients.", True),
+        ("amoxicillin", "respiratory", "low", "No respiratory effects", True),
+        
+        # Warfarin (Anticoagulant)
+        ("warfarin", "cardiac", "high", "Therapeutic anticoagulant for cardiac conditions. Requires INR monitoring.", True),
+        ("warfarin", "gastrointestinal", "high", "GI bleeding risk. Monitor for signs of bleeding.", False),
+        ("warfarin", "renal", "mild", "Clearance affected by renal function. Adjust dosing as needed.", True),
+        ("warfarin", "hepatic", "high", "Metabolism dependent on hepatic function. Critical dosing adjustments needed.", True),
+        
+        # Metformin (Antidiabetic)
+        ("metformin", "renal", "high", "Lactic acidosis risk in renal impairment. Contraindicated if eGFR <30.", True),
+        ("metformin", "cardiac", "low", "No direct cardiac effects. Cardiovascular benefits in diabetes.", True),
+        ("metformin", "hepatic", "low", "Not metabolized hepatically. Safe in liver disease.", True),
+        ("metformin", "gastrointestinal", "mild", "GI upset common initially. Use extended-release formulation.", True),
+        
+        # Ciprofloxacin (Fluoroquinolone)
+        ("ciprofloxacin", "cardiac", "low", "Low cardiac risk. Safe for most cardiac patients.", True),
+        ("ciprofloxacin", "renal", "mild", "Renal excretion significant. Reduce dose in severe renal impairment.", True),
+        ("ciprofloxacin", "hepatic", "low", "Minimal hepatic metabolism. Safe in liver disease.", True),
+        ("ciprofloxacin", "gastrointestinal", "mild", "GI tolerability varies. Take with water, avoid dairy products.", True),
+        
+        # Lisinopril (ACE Inhibitor)
+        ("lisinopril", "cardiac", "low", "Beneficial for heart failure and hypertension management.", True),
+        ("lisinopril", "renal", "mild", "May cause initial creatinine elevation. Monitor K+ and renal function.", True),
+        ("lisinopril", "hepatic", "low", "No hepatic metabolism. Safe in liver disease.", True),
+        ("lisinopril", "gastrointestinal", "low", "Generally well-tolerated. Cough is common side effect.", True),
+        
+        # Aspirin (NSAID)
+        ("aspirin", "cardiac", "low", "Cardioprotective at low doses. Prevents thrombotic events.", True),
+        ("aspirin", "gastrointestinal", "high", "GI bleeding and ulcer risk, especially long-term use.", False),
+        ("aspirin", "renal", "mild", "May affect renal function. Use cautiously in CKD.", True),
+        ("aspirin", "hepatic", "mild", "Hepatotoxicity possible at high doses. Monitor LFTs.", True),
+        
+        # Vancomycin (Glycopeptide)
+        ("vancomycin", "cardiac", "low", "Suitable for cardiac patients. Monitor vital signs during infusion.", True),
+        ("vancomycin", "renal", "high", "Nephrotoxicity risk. Monitor trough levels and serum creatinine.", True),
+        ("vancomycin", "hepatic", "low", "No hepatic metabolism. Safe in liver disease.", True),
+        ("vancomycin", "gastrointestinal", "low", "IV formulation. Minimal GI effects.", True),
+        
+        # Linezolid (Oxazolidinone)
+        ("linezolid", "cardiac", "low", "Generally safe. Monitor QT interval if prolongation risk.", True),
+        ("linezolid", "renal", "low", "Not renally cleared significantly. Safe in renal impairment.", True),
+        ("linezolid", "hepatic", "mild", "Hepatic metabolism occurs. Use caution in severe liver disease.", True),
+        ("linezolid", "gastrointestinal", "mild", "GI upset possible. Take with or without food.", True),
+        
+        # Ibuprofen (NSAID)
         ("ibuprofen", "renal", "moderate", "Acute kidney injury with chronic use", True),
+        ("ibuprofen", "cardiac", "mild", "Minor effects. Safe in most cardiac conditions.", True),
+        ("ibuprofen", "gastrointestinal", "moderate", "Increased GI bleeding risk with chronic use.", False),
     ]
     
     for drug_name, organ_system, toxicity_level, description, reversible in sample_drugs:

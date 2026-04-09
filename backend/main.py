@@ -21,6 +21,7 @@ try:
 
     from backend.chatbot.controller import api_router
     from backend.chatbot.demo_api import demo_router
+    from backend.chatbot.report_api import report_router
 
     app = FastAPI(
         title="TheraGenome AI",
@@ -44,6 +45,9 @@ try:
 
     if demo_router is not None:
         app.include_router(demo_router)
+
+    if report_router is not None:
+        app.include_router(report_router)
 
     @app.get("/health", tags=["system"])
     async def health_check() -> dict[str, str]:
