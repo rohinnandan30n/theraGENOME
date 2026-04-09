@@ -105,12 +105,47 @@
 
         .content-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 30px;
             margin-bottom: 40px;
         }
 
-        @media (max-width: 1024px) {
+        .results-container {
+            grid-column: 1 / -1;
+        }
+
+        .dna-visualization {
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.7), rgba(26, 35, 50, 0.5));
+            border: 2px solid rgba(20, 184, 166, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 480px;
+            max-width: 100%;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .dna-visualization h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            color: #14b8a6;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+        }
+
+        #dnaCanvas {
+            width: 100%;
+            flex: 1;
+            min-height: 400px;
+            display: block;
+            background: rgba(15, 20, 25, 0.3);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
             .content-grid {
                 grid-template-columns: 1fr;
             }
@@ -124,6 +159,7 @@
             border-radius: 16px;
             padding: 30px;
             transition: all 0.3s ease;
+            min-width: 0;
         }
 
         .card:hover {
@@ -579,6 +615,12 @@
                     <button class="mode-btn active" data-mode="doctor">👨‍⚕️ Doctor</button>
                     <button class="mode-btn" data-mode="patient">👤 Patient</button>
                 </div>
+                <button onclick="window.location.href='chatbot.html'" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
+                    🧠 Chatbot Interface
+                </button>
+                <button onclick="window.location.href='education.html'" style="padding: 10px 20px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
+                    📚 Learning Hub
+                </button>
                 <button class="logout-btn" style="padding: 10px 20px; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
                     Logout
                 </button>
@@ -619,7 +661,7 @@
                     <button class="btn btn-secondary" id="clearBtn">🔄 Clear</button>
                 </div>
 
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(168, 85, 247, 0.05); border-radius: 8px; border-left: 3px solid var(--secondary); grid-column: 1 / -1;">
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(168, 85, 247, 0.05); border-radius: 8px; border-left: 3px solid var(--secondary);">
                         <p style="font-size: 0.9rem; color: var(--text-secondary);">
                             💡 <strong>Tip:</strong> Choose your input method:
                         </p>
@@ -699,8 +741,8 @@
         </div>
 
         <!-- Navigation Back -->
-        <div style="text-align: center; margin-top: 40px;">
-            <button class="btn btn-secondary" onclick="window.location.href='index.html'" style="opacity: 0.7;">
+        <div style="text-align: center; margin-top: 40px; display: none;">
+            <button class="btn btn-secondary" onclick="window.location.href='reports.html'" style="opacity: 0.7;">
                 ← Back to Chatbot
             </button>
         </div>
@@ -1175,6 +1217,7 @@
             new ReportAnalyzerUI();
             setupInputModeSwitcher();
         });
+
     </script>
 </body>
 </html>
