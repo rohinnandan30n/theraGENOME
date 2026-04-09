@@ -3,220 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>theraGENOME | AI Chatbot</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <title>TheraGENOME - Login</title>
     <style>
-        :root {
-            --bg: #06080f;
-            --bg1: #0c0f1a;
-            --bg2: #111524;
-            --bg3: #181d2e;
-            --surface: #1e2438;
-            --surface2: #252b3d;
-            --border: rgba(255,255,255,0.07);
-            --border2: rgba(255,255,255,0.13);
-            --teal: #00d4aa;
-            --teal-dim: #007a63;
-            --teal-glow: rgba(0,212,170,0.15);
-            --purple: #9b59f5;
-            --purple-dim: #5c2fb8;
-            --purple-glow: rgba(155,89,245,0.15);
-            --rose: #f0567a;
-            --rose-glow: rgba(240,86,122,0.15);
-            --amber: #f5a623;
-            --amber-glow: rgba(245,166,35,0.12);
-            --text: #e8ecf4;
-            --text-muted: #7a82a0;
-            --text-dim: #4a5068;
-            --font-display: 'DM Serif Display', serif;
-            --font-body: 'Space Grotesk', sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --radius: 14px;
-            --radius-lg: 20px;
-            --radius-xl: 28px;
-        }
-
         * {
-            box-sizing: border-box;
             margin: 0;
             padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: var(--font-body);
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 1;
-            pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
-            opacity: 0.4;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            z-index: 0;
-            pointer-events: none;
-            background: radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,212,170,0.07) 0%, transparent 70%), 
-                        radial-gradient(ellipse 50% 50% at 85% 90%, rgba(155,89,245,0.07) 0%, transparent 70%);
-        }
-
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--surface2);
-            border-radius: 3px;
-        }
-
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 500;
-            background: rgba(6, 8, 15, 0.88);
-            backdrop-filter: blur(20px) saturate(1.5);
-            border-bottom: 1px solid var(--border);
-            padding: 0 2.5rem;
-            height: 64px;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            padding: 20px;
         }
 
-        .logo {
-            font-family: var(--font-display);
-            font-size: 1.5rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--teal) 0%, var(--purple) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 20px rgba(0, 212, 170, 0.3));
-        }
-
-        .logo-tag {
-            font-family: var(--font-body);
-            font-size: 0.78rem;
-            font-weight: 400;
-            -webkit-text-fill-color: var(--text-muted);
-            margin-left: 0.5rem;
-        }
-
-        main {
-            padding: 3rem 2.5rem 5rem;
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .section-eyebrow {
-            font-family: var(--font-mono);
-            font-size: 0.72rem;
-            font-weight: 500;
-            color: var(--teal);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .section-eyebrow::before {
-            content: '';
-            display: inline-block;
-            width: 20px;
-            height: 1px;
-            background: var(--teal);
-        }
-
-        .section-title {
-            font-family: var(--font-display);
-            font-size: clamp(2rem, 3.5vw, 2.8rem);
-            font-weight: 400;
-            line-height: 1.15;
-            letter-spacing: -0.02em;
-            margin-bottom: 0.6rem;
-        }
-
-        .section-subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            line-height: 1.65;
-            max-width: 600px;
-            margin-bottom: 2rem;
-        }
-
-        /* Chatbot Container */
-        .chatbot-wrapper {
-            background: rgba(30, 36, 56, 0.5);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--border2);
-            border-radius: var(--radius-xl);
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
             overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            height: 650px;
-            box-shadow: 0 12px 40px rgba(0, 212, 170, 0.08);
-        }
-
-        .chatbot-header {
-            padding: 1.75rem 2rem;
-            border-bottom: 1px solid var(--border);
-            background: linear-gradient(180deg, var(--bg3) 0%, transparent 100%);
-        }
-
-        .chatbot-title {
-            font-family: var(--font-display);
-            font-size: 1.4rem;
-            margin-bottom: 0.25rem;
-            color: var(--text);
-        }
-
-        .chatbot-subtitle {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            color: var(--teal);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Chat Messages */
-        .chat-history {
-            flex: 1;
-            overflow-y: auto;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-
-        .chat-message {
-            display: flex;
-            gap: 1rem;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.5s ease-out;
         }
 
         @keyframes slideIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
             to {
                 opacity: 1;
@@ -224,295 +42,882 @@
             }
         }
 
-        .message-avatar {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        .branding {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-            font-size: 0.9rem;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .branding h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .branding p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .feature {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            font-size: 20px;
             flex-shrink: 0;
         }
 
-        .user-avatar {
-            background: var(--purple-glow);
-            border: 1px solid rgba(155, 89, 245, 0.3);
+        .feature-text {
+            font-size: 14px;
         }
 
-        .bot-avatar {
-            background: var(--teal-glow);
-            border: 1px solid rgba(0, 212, 170, 0.3);
+        .form-section {
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
-        .message-content {
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .mode-btn {
             flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-content {
+            display: none;
+        }
+
+        .mode-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .submit-btn.loading {
             display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
-        }
-
-        .message-sender {
-            font-family: var(--font-mono);
-            font-size: 0.65rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-dim);
-        }
-
-        .message-user .message-sender {
-            color: var(--purple);
-        }
-
-        .message-bot .message-sender {
-            color: var(--teal);
-        }
-
-        .message-text {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 0.85rem 1.1rem;
-            border-radius: var(--radius);
-            font-size: 0.9rem;
-            line-height: 1.6;
-            color: var(--text-muted);
-        }
-
-        .message-user .message-text {
-            background: var(--purple-glow);
-            border-color: rgba(155, 89, 245, 0.3);
-            color: var(--text);
-        }
-
-        .message-bot .message-text {
-            background: var(--surface);
-            border-color: var(--border);
-        }
-
-        .chat-welcome {
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
-            text-align: center;
-            padding: 2rem;
+            gap: 8px;
         }
 
-        .welcome-icon {
-            font-size: 3rem;
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
         }
 
-        .welcome-title {
-            font-family: var(--font-display);
-            font-size: 1.8rem;
-            color: var(--text);
+        .success-message.show {
+            display: block;
         }
 
-        .welcome-text {
-            color: var(--text-dim);
-            font-size: 0.9rem;
-            max-width: 300px;
-        }
-
-        /* Input Area */
-        .chatbot-footer {
-            padding: 1.5rem 2rem;
-            border-top: 1px solid var(--border);
-            background: linear-gradient(180deg, transparent 0%, var(--bg3) 100%);
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .input-group {
-            display: flex;
-            gap: 0.75rem;
-            flex: 1;
-        }
-
-        .chat-input {
-            flex: 1;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.75rem 1.1rem;
-            font-family: var(--font-body);
-            font-size: 0.9rem;
-            color: var(--text);
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .chat-input:focus {
-            border-color: var(--teal);
-        }
-
-        .chat-input::placeholder {
-            color: var(--text-dim);
-        }
-
-        .send-button {
-            background: linear-gradient(135deg, var(--teal-dim), var(--teal));
-            border: none;
-            border-radius: var(--radius);
-            padding: 0.75rem 1.5rem;
-            color: #000;
-            font-family: var(--font-body);
-            font-size: 0.9rem;
+        .form-title {
+            font-size: 24px;
             font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s, transform 0.1s;
-            white-space: nowrap;
+            color: #333;
+            margin-bottom: 10px;
         }
 
-        .send-button:hover {
-            opacity: 0.9;
+        .form-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
         }
 
-        .send-button:active {
-            transform: scale(0.97);
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .branding {
+                padding: 30px 20px;
+                min-height: 300px;
+            }
+
+            .form-section {
+                padding: 30px 20px;
+            }
+
+            .features {
+                display: none;
+            }
         }
 
-        .send-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .doctor-fields {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
         }
 
-        .mode-selector {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 0.5rem 0.9rem;
-            font-family: var(--font-body);
-            font-size: 0.85rem;
-            color: var(--text);
-            outline: none;
-            cursor: pointer;
-            transition: border-color 0.2s;
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
         }
 
-        .mode-selector:focus {
-            border-color: var(--teal);
-        }
-
-        .mode-selector option {
-            background: var(--bg1);
-            color: var(--text);
-        }
-        .ai-models-section {
-            margin-top: 2rem;
-        }
-
-        .models-label {
-            font-family: var(--font-mono);
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-dim);
-            margin-bottom: 1rem;
-        }
-
-        .model-buttons {
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .model-btn {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 999px;
-            padding: 0.4rem 1rem;
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: var(--font-body);
-        }
-
-        .model-btn:hover {
-            border-color: var(--teal);
-            color: var(--teal);
-        }
-
-        .model-btn.genetic {
-            border-color: rgba(0, 212, 170, 0.3);
-            color: var(--teal);
-        }
-
-        .model-btn.resistance {
-            border-color: rgba(245, 166, 35, 0.3);
-            color: var(--amber);
-        }
-
-        .model-btn.toxicity {
-            border-color: rgba(240, 86, 122, 0.3);
-            color: var(--rose);
+        @media (max-width: 600px) {
+            .field-group {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo">theraGENOME<span class="logo-tag">| AI Chatbot</span></div>
-        <nav style="display:flex;gap:0.5rem;">
-            <a href="index.html" style="text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--teal);padding:0.5rem 1rem;border-radius:8px;background:var(--teal-glow);border:1px solid rgba(0,212,170,0.3);">💬 Chatbot</a>
-            <a href="reports.html" style="text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--text-muted);padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;" onmouseover="this.style.color='var(--teal)';this.style.background='var(--teal-glow)'" onmouseout="this.style.color='var(--text-muted)';this.style.background=''">📊 Reports</a>
-            <a href="education.html" style="text-decoration:none;font-family:var(--font-body);font-size:0.85rem;font-weight:600;color:var(--text-muted);padding:0.5rem 1rem;border-radius:8px;transition:all 0.2s;" onmouseover="this.style.color='var(--teal)';this.style.background='var(--teal-glow)'" onmouseout="this.style.color='var(--text-muted)';this.style.background=''">📚 Education</a>
-        </nav>
-    </header>
-
-    <main>
-        <!-- Introduction -->
-        <section>
-            <div class="section-eyebrow">Clinical Decision Support</div>
-            <h1 class="section-title">Intelligent Healthcare Advisor</h1>
-            <p class="section-subtitle">Ask questions about drug safety, genetic risks, antibiotic resistance, and clinical decisions. Our AI analyzes multiple domains to provide comprehensive medical insights.</p>
-        </section>
-
-        <!-- Chatbot -->
-        <div class="chatbot-wrapper">
-            <div class="chatbot-header">
-                <div class="chatbot-title">theraGENOME AI</div>
-                <div class="chatbot-subtitle">Multi-Domain Clinical Analysis</div>
-            </div>
-
-            <div class="chat-history" id="chatHistory">
-                <div class="chat-welcome">
-                    <div class="welcome-icon">🤖</div>
-                    <div class="welcome-title">Welcome to theraGENOME</div>
-                    <p class="welcome-text">Ask me about drug interactions, genetic variants, infection resistance, or clinical safety. I'll analyze your query across all three medical domains.</p>
+    <div class="container">
+        <div class="content">
+            <!-- Branding Section -->
+            <div class="branding">
+                <div class="logo">🧬</div>
+                <h2>TheraGENOME</h2>
+                <p>Advanced Medical Report Analysis Powered by Genomic Intelligence</p>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">AI-Powered Analysis</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">Secure Patient Data</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">Clinical Insights</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">Real-time Monitoring</div>
+                    </div>
                 </div>
             </div>
 
-            <div class="chatbot-footer">
-                <div class="input-group">
-                    <select class="mode-selector" id="chatbotModeSelect">
-                        <option value="doctor">Doctor Mode</option>
-                        <option value="patient">Patient Mode</option>
-                    </select>
-                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask about drugs, genes, infections, or clinical safety...">
-                    <button class="send-button" id="sendButton">Send</button>
+            <!-- Form Section -->
+            <div class="form-section">
+                <!-- Mode Toggle -->
+                <div class="mode-toggle">
+                    <button class="mode-btn active" data-mode="patient-login">Patient Login</button>
+                    <button class="mode-btn" data-mode="patient-register">Patient Sign Up</button>
+                    <button class="mode-btn" data-mode="doctor-login">Doctor Login</button>
+                    <button class="mode-btn" data-mode="doctor-register">Doctor Sign Up</button>
+                </div>
+
+                <!-- Patient Login -->
+                <div class="mode-content active" data-mode="patient-login">
+                    <div class="form-title">Welcome Back</div>
+                    <div class="form-subtitle">Access your medical reports and analysis</div>
+                    <form id="patientLoginForm">
+                        <div class="success-message" id="patientLoginSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="patientLoginEmail">Email Address</label>
+                            <input type="email" id="patientLoginEmail" name="email" placeholder="your@email.com" required>
+                            <span class="error-message" id="patientLoginEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientLoginPassword">Password</label>
+                            <input type="password" id="patientLoginPassword" name="password" placeholder="••••••••" required>
+                            <span class="error-message" id="patientLoginPasswordError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="patientLoginSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Login as Patient</span>
+                        </button>
+
+                        <span class="error-message" id="patientLoginFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+
+                <!-- Patient Registration -->
+                <div class="mode-content" data-mode="patient-register">
+                    <div class="form-title">Create Patient Account</div>
+                    <div class="form-subtitle">Sign up to access your medical reports</div>
+                    <form id="patientRegistrationForm">
+                        <div class="success-message" id="patientRegisterSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="patientRegEmail">Email Address</label>
+                            <input type="email" id="patientRegEmail" name="email" placeholder="your@email.com" required>
+                            <span class="error-message" id="patientRegEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientRegPassword">Password</label>
+                            <input type="password" id="patientRegPassword" name="password" placeholder="••••••••" required>
+                            <span class="help-text">At least 8 characters recommended</span>
+                            <span class="error-message" id="patientRegPasswordError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientRegConfirm">Confirm Password</label>
+                            <input type="password" id="patientRegConfirm" name="confirm_password" placeholder="••••••••" required>
+                            <span class="error-message" id="patientRegConfirmError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="patientRegisterSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Create Account</span>
+                        </button>
+
+                        <span class="error-message" id="patientRegisterFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+
+                <!-- Doctor Login -->
+                <div class="mode-content" data-mode="doctor-login">
+                    <div class="form-title">Doctor Login</div>
+                    <div class="form-subtitle">Access the doctor dashboard and patient files</div>
+                    <form id="doctorLoginForm">
+                        <div class="success-message" id="doctorLoginSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="doctorLoginEmail">Hospital/Medical Email</label>
+                            <input type="email" id="doctorLoginEmail" name="email" placeholder="doctor@hospital.com" required>
+                            <span class="error-message" id="doctorLoginEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctorLoginPassword">Password</label>
+                            <input type="password" id="doctorLoginPassword" name="password" placeholder="••••••••" required>
+                            <span class="error-message" id="doctorLoginPasswordError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="doctorLoginSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Login as Doctor</span>
+                        </button>
+
+                        <span class="error-message" id="doctorLoginFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+
+                <!-- Doctor Registration -->
+                <div class="mode-content" data-mode="doctor-register">
+                    <div class="form-title">Doctor Registration</div>
+                    <div class="form-subtitle">Register as a medical professional to access advanced features</div>
+                    <form id="doctorRegistrationForm">
+                        <div class="success-message" id="doctorRegisterSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="doctorRegEmail">Hospital/Medical Email</label>
+                            <input type="email" id="doctorRegEmail" name="email" placeholder="doctor@hospital.com" required>
+                            <span class="help-text">Use your official medical institution email (e.g., @hospital.com, @clinic.org)</span>
+                            <span class="error-message" id="doctorRegEmailError"></span>
+                        </div>
+
+                        <div class="doctor-fields">
+                            <div class="field-group">
+                                <div class="form-group">
+                                    <label for="licenseNumber">Medical License Number</label>
+                                    <input type="text" id="licenseNumber" name="license_number" placeholder="e.g., MD-1234567" required>
+                                    <span class="help-text">Your official medical license number</span>
+                                    <span class="error-message" id="licenseNumberError"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="specialization">Specialization</label>
+                                    <select id="specialization" name="specialization" required>
+                                        <option value="">Select specialization</option>
+                                        <option value="General Practice">General Practice</option>
+                                        <option value="Cardiology">Cardiology</option>
+                                        <option value="Oncology">Oncology</option>
+                                        <option value="Neurology">Neurology</option>
+                                        <option value="Pathology">Pathology</option>
+                                        <option value="Genetics">Genetics</option>
+                                        <option value="Internal Medicine">Internal Medicine</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="error-message" id="specializationError"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="full_name" placeholder="Dr. John Doe" required>
+                            <span class="error-message" id="fullNameError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctorRegPassword">Set Password</label>
+                            <input type="password" id="doctorRegPassword" name="password" placeholder="••••••••" required>
+                            <span class="help-text">At least 8 characters recommended</span>
+                            <span class="error-message" id="doctorRegPasswordError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirm_password" placeholder="••••••••" required>
+                            <span class="error-message" id="confirmPasswordError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="doctorRegisterSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Register as Doctor</span>
+                        </button>
+
+                        <span class="error-message" id="doctorRegisterFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
                 </div>
             </div>
         </div>
+    </div>
+                        </div>
 
-        <!-- Model Selection -->
-        <section class="ai-models-section">
-            <div class="models-label">Or select a specific AI model:</div>
-            <div class="model-buttons">
-                <button class="model-btn genetic">🧬 Genetic Analysis</button>
-                <button class="model-btn resistance">🦠 Antibiotic Resistance</button>
-                <button class="model-btn toxicity">⚠️ Drug Toxicity</button>
+                        <button type="submit" class="submit-btn" id="doctorSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Register as Doctor</span>
+                        </button>
+
+                        <span class="error-message" id="doctorFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
-    <script src="assets/js/chatbot-controller.js"></script>
     <script>
-        // Initialize chatbot on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            window.chatbotController = new ChatbotController();
+        class AuthManager {
+            constructor() {
+                this.apiBase = 'http://localhost:8000/api/v1';
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Mode toggle buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchMode(btn.dataset.mode));
+                });
+
+                // Patient login form
+                document.getElementById('patientLoginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handlePatientLogin();
+                });
+
+                // Patient registration form
+                document.getElementById('patientRegistrationForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handlePatientRegistration();
+                });
+
+                // Doctor login form
+                document.getElementById('doctorLoginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleDoctorLogin();
+                });
+
+                // Doctor registration form
+                document.getElementById('doctorRegistrationForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleDoctorRegistration();
+                });
+            }
+
+            switchMode(mode) {
+                // Update buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+
+                // Update content
+                document.querySelectorAll('.mode-content').forEach(content => {
+                    content.classList.toggle('active', content.dataset.mode === mode);
+                });
+            }
+
+            async handlePatientLogin() {
+                const email = document.getElementById('patientLoginEmail').value.trim();
+                const password = document.getElementById('patientLoginPassword').value;
+
+                // Clear previous errors
+                document.getElementById('patientLoginEmailError').textContent = '';
+                document.getElementById('patientLoginPasswordError').textContent = '';
+                document.getElementById('patientLoginFormError').textContent = '';
+
+                // Validation
+                if (!this.validateEmail(email)) {
+                    this.showError('patientLoginEmailError', 'Please enter a valid email address');
+                    return;
+                }
+
+                if (password.length === 0) {
+                    this.showError('patientLoginPasswordError', 'Password is required');
+                    return;
+                }
+
+                this.showLoading('patientLoginSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            role: 'patient'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        sessionStorage.setItem('userRole', 'patient');
+                        sessionStorage.setItem('userEmail', email);
+                        this.showSuccess('patientLoginSuccess', 'Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 1500);
+                    } else {
+                        this.showError('patientLoginFormError', data.detail || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('patientLoginFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('patientLoginSubmit', false);
+                }
+            }
+
+            async handlePatientRegistration() {
+                const email = document.getElementById('patientRegEmail').value.trim();
+                const password = document.getElementById('patientRegPassword').value;
+                const confirmPassword = document.getElementById('patientRegConfirm').value;
+
+                // Clear previous errors
+                document.getElementById('patientRegEmailError').textContent = '';
+                document.getElementById('patientRegPasswordError').textContent = '';
+                document.getElementById('patientRegConfirmError').textContent = '';
+                document.getElementById('patientRegisterFormError').textContent = '';
+
+                // Validation
+                let hasError = false;
+
+                if (!this.validateEmail(email)) {
+                    this.showError('patientRegEmailError', 'Please enter a valid email address');
+                    hasError = true;
+                }
+
+                if (password.length < 8) {
+                    this.showError('patientRegPasswordError', 'Password must be at least 8 characters');
+                    hasError = true;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('patientRegConfirmError', 'Passwords do not match');
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                this.showLoading('patientRegisterSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/register-patient`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            role: 'patient'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        sessionStorage.setItem('userRole', 'patient');
+                        sessionStorage.setItem('userEmail', email);
+                        this.showSuccess('patientRegisterSuccess', 'Registration successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 1500);
+                    } else {
+                        this.showError('patientRegisterFormError', data.detail || 'Registration failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.showError('patientRegisterFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('patientRegisterSubmit', false);
+                }
+            }
+
+            async handleDoctorLogin() {
+                const email = document.getElementById('doctorLoginEmail').value.trim();
+                const password = document.getElementById('doctorLoginPassword').value;
+
+                // Clear previous errors
+                document.getElementById('doctorLoginEmailError').textContent = '';
+                document.getElementById('doctorLoginPasswordError').textContent = '';
+                document.getElementById('doctorLoginFormError').textContent = '';
+
+                // Validation
+                if (!this.validateEmail(email)) {
+                    this.showError('doctorLoginEmailError', 'Please enter a valid email address');
+                    return;
+                }
+
+                if (password.length === 0) {
+                    this.showError('doctorLoginPasswordError', 'Password is required');
+                    return;
+                }
+
+                this.showLoading('doctorLoginSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            role: 'doctor'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        sessionStorage.setItem('userRole', 'doctor');
+                        sessionStorage.setItem('userEmail', email);
+                        this.showSuccess('doctorLoginSuccess', 'Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 1500);
+                    } else {
+                        this.showError('doctorLoginFormError', data.detail || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('doctorLoginFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('doctorLoginSubmit', false);
+                }
+            }
+
+            async handleDoctorRegistration() {
+                const email = document.getElementById('doctorRegEmail').value.trim();
+                const licenseNumber = document.getElementById('licenseNumber').value.trim();
+                const specialization = document.getElementById('specialization').value;
+                const fullName = document.getElementById('fullName').value.trim();
+                const password = document.getElementById('doctorRegPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Clear previous errors
+                document.getElementById('doctorRegEmailError').textContent = '';
+                document.getElementById('licenseNumberError').textContent = '';
+                document.getElementById('specializationError').textContent = '';
+                document.getElementById('fullNameError').textContent = '';
+                document.getElementById('doctorRegPasswordError').textContent = '';
+                document.getElementById('confirmPasswordError').textContent = '';
+                document.getElementById('doctorRegisterFormError').textContent = '';
+
+                // Validation
+                let hasError = false;
+
+                if (!this.validateEmail(email)) {
+                    this.showError('doctorRegEmailError', 'Please enter a valid email address');
+                    hasError = true;
+                }
+
+                if (!this.validateMedicalEmail(email)) {
+                    this.showError('doctorRegEmailError', 'Please use an official medical institution email');
+                    hasError = true;
+                }
+
+                if (!licenseNumber || licenseNumber.length < 5) {
+                    this.showError('licenseNumberError', 'Please enter a valid license number');
+                    hasError = true;
+                }
+
+                if (!specialization) {
+                    this.showError('specializationError', 'Please select a specialization');
+                    hasError = true;
+                }
+
+                if (!fullName || fullName.length < 3) {
+                    this.showError('fullNameError', 'Please enter your full name');
+                    hasError = true;
+                }
+
+                if (password.length < 8) {
+                    this.showError('doctorRegPasswordError', 'Password must be at least 8 characters');
+                    hasError = true;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('confirmPasswordError', 'Passwords do not match');
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                this.showLoading('doctorRegisterSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/register-doctor`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            full_name: fullName,
+                            license_number: licenseNumber,
+                            specialization,
+                            role: 'doctor'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        sessionStorage.setItem('userRole', 'doctor');
+                        sessionStorage.setItem('userEmail', email);
+                        this.showSuccess('doctorRegisterSuccess', 'Registration successful! Your account is pending verification. Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 2000);
+                    } else {
+                        this.showError('doctorRegisterFormError', data.detail || 'Registration failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.showError('doctorRegisterFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('doctorRegisterSubmit', false);
+                }
+            }
+
+            validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            validateMedicalEmail(email) {
+                // List of medical domain patterns (can be expanded)
+                const medicalDomains = ['hospital', 'clinic', 'medical', 'health', 'healthcare', 'med', 'dr', 'doctor', '.edu', 'university'];
+                const domain = email.toLowerCase().split('@')[1];
+                return medicalDomains.some(d => domain.includes(d));
+            }
+
+            showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.classList.add('show');
+                }
+            }
+
+            showSuccess(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.classList.add('show');
+                }
+            }
+
+            showLoading(buttonId, show) {
+                const btn = document.getElementById(buttonId);
+                if (btn) {
+                    btn.disabled = show;
+                    if (show) {
+                        btn.classList.add('loading');
+                        btn.querySelector('.loading-spinner').style.display = 'block';
+                    } else {
+                        btn.classList.remove('loading');
+                        btn.querySelector('.loading-spinner').style.display = 'none';
+                    }
+                }
+            }
+
+            clearErrors(mode) {
+                document.querySelectorAll(`#${mode}FormError, .error-message`).forEach(el => {
+                    el.classList.remove('show');
+                    el.textContent = '';
+                });
+            }
+        }
+
+        // Initialize auth manager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AuthManager();
         });
     </script>
 </body>

@@ -36,9 +36,11 @@ try:
     # CORS — tighten origins in production
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=["http://localhost:8001", "http://127.0.0.1:8001", "http://localhost", "http://127.0.0.1"],
         allow_methods=["*"],
         allow_headers=["*"],
+        allow_credentials=True,
+        expose_headers=["*"],
     )
 
     # Include routers
@@ -57,7 +59,10 @@ try:
     async def health_check() -> dict[str, str]:
         return {"status": "ok", "service": "theragenome-ai"}
 
-except ImportError:
+except Exception as e:
+    import traceback
+    print(f"ERROR: Failed to initialize FastAPI app: {e}")
+    traceback.print_exc()
     app = None  # type: ignore[assignment]
 
 

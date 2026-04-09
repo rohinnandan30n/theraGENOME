@@ -842,8 +842,9 @@
             }
 
             restoreSavedMode() {
-                const saved = localStorage.getItem('reportMode') || 'doctor';
-                this.setMode(saved);
+                // Use the actual user role, not saved report mode
+                const userRole = sessionStorage.getItem('userRole') || 'patient';
+                this.setMode(userRole);
             }
 
             handleFiles(files) {

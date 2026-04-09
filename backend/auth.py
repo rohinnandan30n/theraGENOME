@@ -142,6 +142,17 @@ def authenticate_user(email: str, password: str) -> Optional[User]:
         user.last_login = datetime.utcnow()
         db.commit()
         
+        # Make sure attributes are loaded before detaching from session
+        # Access all attributes to eagerly load them
+        _ = user.id
+        _ = user.email
+        _ = user.role
+        _ = user.full_name
+        _ = user.last_login
+        
+        # Detach from session
+        db.expunge(user)
+        
         return user
     except Exception as e:
         print(f"Authentication error: {e}")

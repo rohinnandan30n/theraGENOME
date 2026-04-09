@@ -26,7 +26,7 @@ sessions = {}
 @auth_router.post("/login", response_model=LoginResponse)
 async def login(request: PatientLoginRequest, response: Response) -> LoginResponse:
     """
-    Patient login endpoint
+    Login endpoint for both patients and doctors
     
     Args:
         request: Contains email, password, and role
@@ -44,12 +44,6 @@ async def login(request: PatientLoginRequest, response: Response) -> LoginRespon
         raise HTTPException(
             status_code=401,
             detail="Invalid email or password"
-        )
-    
-    if user.role != "patient":
-        raise HTTPException(
-            status_code=403,
-            detail="This login is for patients only. Doctors should use the registration endpoint."
         )
     
     # Generate session token
@@ -79,6 +73,79 @@ async def login(request: PatientLoginRequest, response: Response) -> LoginRespon
             full_name=user.full_name
         )
     )
+
+
+@auth_router.post("/register-patient", response_model=LoginResponse)
+async def register_patient(request: PatientLoginRequest, response: Response) -> LoginResponse:
+    """
+    Patient registration endpoint
+    
+    Args:
+        request: Contains email, password, and role
+        
+    Returns:
+        LoginResponse with user info if successful
+        
+    Raises:
+        HTTPException 400 if user already exists or data is invalid
+    """
+    # Validate password
+    if len(request.password) < 8:
+        raise HTTPException(
+            status_code=400,
+            detail="Password must be at least 8 characters"
+        )
+    
+    # Check if user already exists
+    existing_user = get_user_by_email(request.email)
+    if existing_user:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already registered"
+        )
+    
+    try:
+        # Create patient user
+        user = create_user(
+            email=request.email,
+            password=request.password,
+            role="patient",
+            full_name=None
+        )
+        
+        # Generate session token
+        session_token = generate_session_token()
+        sessions[session_token] = {
+            "user_id": user.id,
+            "email": user.email,
+            "role": user.role
+        }
+        
+        # Set secure cookie
+        response.set_cookie(
+            key="session_token",
+            value=session_token,
+            httponly=True,
+            secure=False,  # Set to True in production with HTTPS
+            samesite="lax",
+            max_age=86400  # 24 hours
+        )
+        
+        return LoginResponse(
+            success=True,
+            message="Patient registration successful",
+            user=UserInfoResponse(
+                email=user.email,
+                role=user.role,
+                full_name=user.full_name
+            )
+        )
+    
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
 
 @auth_router.post("/register-doctor", response_model=LoginResponse)
