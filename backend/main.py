@@ -22,6 +22,7 @@ try:
     from backend.chatbot.controller import api_router
     from backend.chatbot.demo_api import demo_router
     from backend.chatbot.report_api import report_router
+    from backend.auth_api import auth_router
 
     app = FastAPI(
         title="TheraGenome AI",
@@ -40,6 +41,9 @@ try:
         allow_headers=["*"],
     )
 
+    # Include routers
+    app.include_router(auth_router)
+    
     if api_router is not None:
         app.include_router(api_router)
 

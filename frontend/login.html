@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheraGENOME - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 600px;
+        }
+
+        .branding {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .branding h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .branding p {
+            font-size: 16px;
+            opacity: 0.9;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .features {
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .feature {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .feature-text {
+            font-size: 14px;
+        }
+
+        .form-section {
+            padding: 50px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 8px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .mode-btn.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .mode-content {
+            display: none;
+        }
+
+        .mode-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #999;
+        }
+
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: block;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 13px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .submit-btn.loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .form-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-subtitle {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .branding {
+                padding: 30px 20px;
+                min-height: 300px;
+            }
+
+            .form-section {
+                padding: 30px 20px;
+            }
+
+            .features {
+                display: none;
+            }
+        }
+
+        .doctor-fields {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .field-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .field-group {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <!-- Branding Section -->
+            <div class="branding">
+                <div class="logo">🧬</div>
+                <h2>TheraGENOME</h2>
+                <p>Advanced Medical Report Analysis Powered by Genomic Intelligence</p>
+                <div class="features">
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">AI-Powered Analysis</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">Secure Patient Data</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">Clinical Insights</div>
+                    </div>
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div class="feature-text">Real-time Monitoring</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Section -->
+            <div class="form-section">
+                <!-- Mode Toggle -->
+                <div class="mode-toggle">
+                    <button class="mode-btn active" data-mode="patient">Patient Login</button>
+                    <button class="mode-btn" data-mode="doctor">Doctor Register</button>
+                </div>
+
+                <!-- Patient Login -->
+                <div class="mode-content active" data-mode="patient">
+                    <div class="form-title">Welcome Back</div>
+                    <div class="form-subtitle">Access your medical reports and analysis</div>
+                    <form id="patientLoginForm">
+                        <div class="success-message" id="patientSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="patientEmail">Email Address</label>
+                            <input type="email" id="patientEmail" name="email" placeholder="your@email.com" required>
+                            <span class="error-message" id="patientEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientPassword">Password</label>
+                            <input type="password" id="patientPassword" name="password" placeholder="••••••••" required>
+                            <span class="error-message" id="patientPasswordError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="patientSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Login as Patient</span>
+                        </button>
+
+                        <span class="error-message" id="patientFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+
+                <!-- Doctor Registration -->
+                <div class="mode-content" data-mode="doctor">
+                    <div class="form-title">Doctor Registration</div>
+                    <div class="form-subtitle">Register as a medical professional to access advanced features</div>
+                    <form id="doctorRegistrationForm">
+                        <div class="success-message" id="doctorSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="doctorEmail">Hospital/Medical Email</label>
+                            <input type="email" id="doctorEmail" name="email" placeholder="doctor@hospital.com" required>
+                            <span class="help-text">Use your official medical institution email (e.g., @hospital.com, @clinic.org)</span>
+                            <span class="error-message" id="doctorEmailError"></span>
+                        </div>
+
+                        <div class="doctor-fields">
+                            <div class="field-group">
+                                <div class="form-group">
+                                    <label for="licenseNumber">Medical License Number</label>
+                                    <input type="text" id="licenseNumber" name="license_number" placeholder="e.g., MD-1234567" required>
+                                    <span class="help-text">Your official medical license number</span>
+                                    <span class="error-message" id="licenseNumberError"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="specialization">Specialization</label>
+                                    <select id="specialization" name="specialization" required>
+                                        <option value="">Select specialization</option>
+                                        <option value="General Practice">General Practice</option>
+                                        <option value="Cardiology">Cardiology</option>
+                                        <option value="Oncology">Oncology</option>
+                                        <option value="Neurology">Neurology</option>
+                                        <option value="Pathology">Pathology</option>
+                                        <option value="Genetics">Genetics</option>
+                                        <option value="Internal Medicine">Internal Medicine</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                    <span class="error-message" id="specializationError"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" name="full_name" placeholder="Dr. John Doe" required>
+                            <span class="error-message" id="fullNameError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctorPassword">Set Password</label>
+                            <input type="password" id="doctorPassword" name="password" placeholder="••••••••" required>
+                            <span class="help-text">At least 8 characters recommended</span>
+                            <span class="error-message" id="doctorPasswordError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm Password</label>
+                            <input type="password" id="confirmPassword" name="confirm_password" placeholder="••••••••" required>
+                            <span class="error-message" id="confirmPasswordError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="doctorSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Register as Doctor</span>
+                        </button>
+
+                        <span class="error-message" id="doctorFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class AuthManager {
+            constructor() {
+                this.apiBase = 'http://localhost:8000/api/v1';
+                this.setupEventListeners();
+            }
+
+            setupEventListeners() {
+                // Mode toggle buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => this.switchMode(btn.dataset.mode));
+                });
+
+                // Patient login form
+                document.getElementById('patientLoginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handlePatientLogin();
+                });
+
+                // Doctor registration form
+                document.getElementById('doctorRegistrationForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleDoctorRegistration();
+                });
+            }
+
+            switchMode(mode) {
+                // Update buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+
+                // Update content
+                document.querySelectorAll('.mode-content').forEach(content => {
+                    content.classList.toggle('active', content.dataset.mode === mode);
+                });
+            }
+
+            async handlePatientLogin() {
+                const email = document.getElementById('patientEmail').value.trim();
+                const password = document.getElementById('patientPassword').value;
+
+                // Clear previous errors
+                this.clearErrors('patient');
+
+                // Validation
+                if (!this.validateEmail(email)) {
+                    this.showError('patientEmailError', 'Please enter a valid email address');
+                    return;
+                }
+
+                if (password.length === 0) {
+                    this.showError('patientPasswordError', 'Password is required');
+                    return;
+                }
+
+                this.showLoading('patientSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            role: 'patient'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store role in session
+                        sessionStorage.setItem('userRole', 'patient');
+                        sessionStorage.setItem('userEmail', email);
+                        
+                        // Show success and redirect
+                        this.showSuccess('patientSuccess', 'Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 1500);
+                    } else {
+                        this.showError('patientFormError', data.detail || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('patientFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('patientSubmit', false);
+                }
+            }
+
+            async handleDoctorRegistration() {
+                const email = document.getElementById('doctorEmail').value.trim();
+                const licenseNumber = document.getElementById('licenseNumber').value.trim();
+                const specialization = document.getElementById('specialization').value;
+                const fullName = document.getElementById('fullName').value.trim();
+                const password = document.getElementById('doctorPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Clear previous errors
+                this.clearErrors('doctor');
+
+                // Validation
+                let hasError = false;
+
+                if (!this.validateEmail(email)) {
+                    this.showError('doctorEmailError', 'Please enter a valid email address');
+                    hasError = true;
+                }
+
+                if (!this.validateMedicalEmail(email)) {
+                    this.showError('doctorEmailError', 'Please use an official medical institution email');
+                    hasError = true;
+                }
+
+                if (!licenseNumber || licenseNumber.length < 5) {
+                    this.showError('licenseNumberError', 'Please enter a valid license number');
+                    hasError = true;
+                }
+
+                if (!specialization) {
+                    this.showError('specializationError', 'Please select a specialization');
+                    hasError = true;
+                }
+
+                if (!fullName || fullName.length < 3) {
+                    this.showError('fullNameError', 'Please enter your full name');
+                    hasError = true;
+                }
+
+                if (password.length < 8) {
+                    this.showError('doctorPasswordError', 'Password must be at least 8 characters');
+                    hasError = true;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('confirmPasswordError', 'Passwords do not match');
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                this.showLoading('doctorSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/register-doctor`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            full_name: fullName,
+                            license_number: licenseNumber,
+                            specialization,
+                            role: 'doctor'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store role in session
+                        sessionStorage.setItem('userRole', 'doctor');
+                        sessionStorage.setItem('userEmail', email);
+                        
+                        // Show success and redirect
+                        this.showSuccess('doctorSuccess', 'Registration successful! Your account is pending verification. Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 2000);
+                    } else {
+                        this.showError('doctorFormError', data.detail || 'Registration failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.showError('doctorFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('doctorSubmit', false);
+                }
+            }
+
+            validateEmail(email) {
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return re.test(email);
+            }
+
+            validateMedicalEmail(email) {
+                // List of medical domain patterns (can be expanded)
+                const medicalDomains = ['hospital', 'clinic', 'medical', 'health', 'healthcare', 'med', 'dr', 'doctor', '.edu', 'university'];
+                const domain = email.toLowerCase().split('@')[1];
+                return medicalDomains.some(d => domain.includes(d));
+            }
+
+            showError(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.classList.add('show');
+                }
+            }
+
+            showSuccess(elementId, message) {
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = message;
+                    element.classList.add('show');
+                }
+            }
+
+            showLoading(buttonId, show) {
+                const btn = document.getElementById(buttonId);
+                if (btn) {
+                    btn.disabled = show;
+                    if (show) {
+                        btn.classList.add('loading');
+                        btn.querySelector('.loading-spinner').style.display = 'block';
+                    } else {
+                        btn.classList.remove('loading');
+                        btn.querySelector('.loading-spinner').style.display = 'none';
+                    }
+                }
+            }
+
+            clearErrors(mode) {
+                document.querySelectorAll(`#${mode}FormError, .error-message`).forEach(el => {
+                    el.classList.remove('show');
+                    el.textContent = '';
+                });
+            }
+        }
+
+        // Initialize auth manager when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new AuthManager();
+        });
+    </script>
+</body>
+</html>

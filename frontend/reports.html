@@ -574,9 +574,14 @@
                 <h1>📊 Report Analyzer</h1>
                 <p style="color: var(--text-secondary); margin-top: 5px;">AI-powered medical report analysis</p>
             </div>
-            <div class="mode-selector">
-                <button class="mode-btn active" data-mode="doctor">👨‍⚕️ Doctor</button>
-                <button class="mode-btn" data-mode="patient">👤 Patient</button>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="doctor">👨‍⚕️ Doctor</button>
+                    <button class="mode-btn" data-mode="patient">👤 Patient</button>
+                </div>
+                <button class="logout-btn" style="padding: 10px 20px; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
+                    Logout
+                </button>
             </div>
         </div>
 
@@ -706,9 +711,41 @@
 
     <!-- Report Handler -->
     <script>
+        // ===== AUTHENTICATION GUARD =====
+        async function checkAuthentication() {
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/auth/verify-session', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    // Redirect to login if not authenticated
+                    window.location.href = '/login.html';
+                    return;
+                }
+                
+                // Store user info in session
+                sessionStorage.setItem('userRole', data.role);
+                sessionStorage.setItem('userEmail', data.email);
+                
+                console.log(`✓ Authenticated as ${data.role}: ${data.email}`);
+            } catch (error) {
+                console.error('Auth check error:', error);
+                // Redirect to login on error
+                window.location.href = '/login.html';
+            }
+        }
+
+        // Check authentication before initializing the app
+        document.addEventListener('DOMContentLoaded', checkAuthentication);
+
         class ReportAnalyzerUI {
             constructor() {
-                this.mode = 'doctor';
+                this.mode = sessionStorage.getItem('userRole') || 'doctor';
+                this.userEmail = sessionStorage.getItem('userEmail');
                 this.currentReport = null;
                 this.selectedFile = null;
                 this.init();
@@ -717,6 +754,30 @@
             init() {
                 this.setupEventListeners();
                 this.restoreSavedMode();
+                this.setupLogout();
+            }
+
+            setupLogout() {
+                // Add logout button functionality
+                const logoutButtons = document.querySelectorAll('.logout-btn');
+                logoutButtons.forEach(btn => {
+                    btn.addEventListener('click', () => this.logout());
+                });
+            }
+
+            async logout() {
+                try {
+                    await fetch('http://localhost:8000/api/v1/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+                
+                // Clear session and redirect
+                sessionStorage.clear();
+                window.location.href = '/login.html';
             }
 
             setupEventListeners() {
