@@ -44,7 +44,7 @@
 
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             min-height: 600px;
         }
 
@@ -52,7 +52,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 40px;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -358,12 +358,14 @@
             <div class="form-section">
                 <!-- Mode Toggle -->
                 <div class="mode-toggle">
-                    <button class="mode-btn active" data-mode="patient">Patient Login</button>
-                    <button class="mode-btn" data-mode="doctor">Doctor Register</button>
+                    <button class="mode-btn active" data-mode="patientLogin">Patient Login</button>
+                    <button class="mode-btn" data-mode="patientSignup">Patient Sign Up</button>
+                    <button class="mode-btn" data-mode="doctorLogin">Doctor Login</button>
+                    <button class="mode-btn" data-mode="doctorSignup">Doctor Sign Up</button>
                 </div>
 
                 <!-- Patient Login -->
-                <div class="mode-content active" data-mode="patient">
+                <div class="mode-content active" data-mode="patientLogin">
                     <div class="form-title">Welcome Back</div>
                     <div class="form-subtitle">Access your medical reports and analysis</div>
                     <form id="patientLoginForm">
@@ -390,8 +392,83 @@
                     </form>
                 </div>
 
+                <!-- Doctor Login -->
+                <div class="mode-content" data-mode="doctorLogin">
+                    <div class="form-title">Doctor Login</div>
+                    <div class="form-subtitle">Access your patient records and analysis tools</div>
+                    <form id="doctorLoginForm">
+                        <div class="success-message" id="doctorLoginSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="doctorLoginEmail">Email Address</label>
+                            <input type="email" id="doctorLoginEmail" name="email" placeholder="doctor@hospital.com" required>
+                            <span class="error-message" id="doctorLoginEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="doctorLoginPassword">Password</label>
+                            <input type="password" id="doctorLoginPassword" name="password" placeholder="••••••••" required>
+                            <span class="error-message" id="doctorLoginPasswordError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="doctorLoginSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Login as Doctor</span>
+                        </button>
+
+                        <span class="error-message" id="doctorLoginFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+
+                <!-- Patient Sign Up -->
+                <div class="mode-content" data-mode="patientSignup">
+                    <div class="form-title">Create Patient Account</div>
+                    <div class="form-subtitle">Sign up to access your medical reports</div>
+                    <form id="patientSignupForm">
+                        <div class="success-message" id="patientSignupSuccess"></div>
+
+                        <div class="form-group">
+                            <label for="patientSignupName">Full Name</label>
+                            <input type="text" id="patientSignupName" name="full_name" placeholder="John Doe" required>
+                            <span class="error-message" id="patientSignupNameError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientSignupEmail">Email Address</label>
+                            <input type="email" id="patientSignupEmail" name="email" placeholder="your@email.com" required>
+                            <span class="error-message" id="patientSignupEmailError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientSignupPhone">Phone Number</label>
+                            <input type="tel" id="patientSignupPhone" name="phone" placeholder="+1 (555) 123-4567" required>
+                            <span class="error-message" id="patientSignupPhoneError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientSignupPassword">Password</label>
+                            <input type="password" id="patientSignupPassword" name="password" placeholder="••••••••" required>
+                            <span class="help-text">At least 8 characters recommended</span>
+                            <span class="error-message" id="patientSignupPasswordError"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="patientSignupConfirm">Confirm Password</label>
+                            <input type="password" id="patientSignupConfirm" name="confirm_password" placeholder="••••••••" required>
+                            <span class="error-message" id="patientSignupConfirmError"></span>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="patientSignupSubmit">
+                            <span class="loading-spinner"></span>
+                            <span>Create Account</span>
+                        </button>
+
+                        <span class="error-message" id="patientSignupFormError" style="display: block; text-align: center; margin-top: 15px;"></span>
+                    </form>
+                </div>
+
                 <!-- Doctor Registration -->
-                <div class="mode-content" data-mode="doctor">
+                <div class="mode-content" data-mode="doctorSignup">
                     <div class="form-title">Doctor Registration</div>
                     <div class="form-subtitle">Register as a medical professional to access advanced features</div>
                     <form id="doctorRegistrationForm">
@@ -481,10 +558,22 @@
                     this.handlePatientLogin();
                 });
 
-                // Doctor registration form
-                document.getElementById('doctorRegistrationForm').addEventListener('submit', (e) => {
+                // Patient signup form
+                document.getElementById('patientSignupForm').addEventListener('submit', (e) => {
                     e.preventDefault();
-                    this.handleDoctorRegistration();
+                    this.handlePatientSignup();
+                });
+
+                // Doctor login form
+                document.getElementById('doctorLoginForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleDoctorLogin();
+                });
+
+                // Doctor registration form
+                document.getElementById('doctorSignupForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.handleDoctorSignup();
                 });
             }
 
@@ -557,7 +646,7 @@
                 }
             }
 
-            async handleDoctorRegistration() {
+            async handleDoctorSignup() {
                 const email = document.getElementById('doctorEmail').value.trim();
                 const licenseNumber = document.getElementById('licenseNumber').value.trim();
                 const specialization = document.getElementById('specialization').value;
@@ -566,7 +655,7 @@
                 const confirmPassword = document.getElementById('confirmPassword').value;
 
                 // Clear previous errors
-                this.clearErrors('doctor');
+                this.clearErrors('doctorSignup');
 
                 // Validation
                 let hasError = false;
@@ -598,6 +687,57 @@
 
                 if (password.length < 8) {
                     this.showError('doctorPasswordError', 'Password must be at least 8 characters');
+                    hasError = true;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('confirmPasswordError', 'Passwords do not match');
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                this.showLoading('doctorSignupSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/register-doctor`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            full_name: fullName,
+                            license_number: licenseNumber,
+                            specialization,
+                            role: 'doctor'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store role in session
+                        sessionStorage.setItem('userRole', 'doctor');
+                        sessionStorage.setItem('userEmail', email);
+                        
+                        // Show success and redirect
+                        this.showSuccess('doctorSignupSuccess', 'Registration successful! Your account is pending verification. Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 2000);
+                    } else {
+                        this.showError('doctorSignupFormError', data.detail || 'Registration failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.showError('doctorSignupFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('doctorSignupSubmit', false);
+                }
+            }
                     hasError = true;
                 }
 
@@ -650,7 +790,145 @@
                 }
             }
 
-            validateEmail(email) {
+            async handlePatientSignup() {
+                const fullName = document.getElementById('patientSignupName').value.trim();
+                const email = document.getElementById('patientSignupEmail').value.trim();
+                const phone = document.getElementById('patientSignupPhone').value.trim();
+                const password = document.getElementById('patientSignupPassword').value;
+                const confirmPassword = document.getElementById('patientSignupConfirm').value;
+
+                // Clear previous errors
+                this.clearErrors('patientSignup');
+
+                // Validation
+                let hasError = false;
+
+                if (!fullName || fullName.length < 3) {
+                    this.showError('patientSignupNameError', 'Please enter your full name');
+                    hasError = true;
+                }
+
+                if (!this.validateEmail(email)) {
+                    this.showError('patientSignupEmailError', 'Please enter a valid email address');
+                    hasError = true;
+                }
+
+                if (!phone || phone.length < 10) {
+                    this.showError('patientSignupPhoneError', 'Please enter a valid phone number');
+                    hasError = true;
+                }
+
+                if (password.length < 8) {
+                    this.showError('patientSignupPasswordError', 'Password must be at least 8 characters');
+                    hasError = true;
+                }
+
+                if (password !== confirmPassword) {
+                    this.showError('patientSignupConfirmError', 'Passwords do not match');
+                    hasError = true;
+                }
+
+                if (hasError) return;
+
+                this.showLoading('patientSignupSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/register`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            full_name: fullName,
+                            phone,
+                            role: 'patient'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store role in session
+                        sessionStorage.setItem('userRole', 'patient');
+                        sessionStorage.setItem('userEmail', email);
+                        
+                        // Show success and redirect
+                        this.showSuccess('patientSignupSuccess', 'Account created successfully! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 1500);
+                    } else {
+                        this.showError('patientSignupFormError', data.detail || 'Registration failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Registration error:', error);
+                    this.showError('patientSignupFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('patientSignupSubmit', false);
+                }
+            }
+
+            async handleDoctorLogin() {
+                const email = document.getElementById('doctorLoginEmail').value.trim();
+                const password = document.getElementById('doctorLoginPassword').value;
+
+                // Clear previous errors
+                this.clearErrors('doctorLogin');
+
+                // Validation
+                if (!this.validateEmail(email)) {
+                    this.showError('doctorLoginEmailError', 'Please enter a valid email address');
+                    return;
+                }
+
+                if (password.length === 0) {
+                    this.showError('doctorLoginPasswordError', 'Password is required');
+                    return;
+                }
+
+                this.showLoading('doctorLoginSubmit', true);
+
+                try {
+                    const response = await fetch(`${this.apiBase}/auth/login`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'include',
+                        body: JSON.stringify({
+                            email,
+                            password,
+                            role: 'doctor'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Store role in session
+                        sessionStorage.setItem('userRole', 'doctor');
+                        sessionStorage.setItem('userEmail', email);
+                        
+                        // Show success and redirect
+                        this.showSuccess('doctorLoginSuccess', 'Login successful! Redirecting...');
+                        setTimeout(() => {
+                            window.location.href = '/reports.html';
+                        }, 1500);
+                    } else {
+                        this.showError('doctorLoginFormError', data.detail || 'Login failed. Please check your credentials.');
+                    }
+                } catch (error) {
+                    console.error('Login error:', error);
+                    this.showError('doctorLoginFormError', 'Connection error. Please try again.');
+                } finally {
+                    this.showLoading('doctorLoginSubmit', false);
+                }
+            }
+
+            
                 const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 return re.test(email);
             }

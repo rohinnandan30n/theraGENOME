@@ -23,9 +23,11 @@ import logging
 try:
     from backend.database import query_variants, query_drug_safety
     from backend.model_loader import get_pathogenicity_prediction
+    from backend.models.drug_recommendations import generate_genetic_drug_recommendations
 except ImportError:
     from database import query_variants, query_drug_safety
     from model_loader import get_pathogenicity_prediction
+    from drug_recommendations import generate_genetic_drug_recommendations
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +56,7 @@ class GeneticAnalysisResult:
     variants_detected: list[dict[str, Any]] = field(default_factory=list)
     risk_alleles: list[str] = field(default_factory=list)
     overall_genetic_risk: str = "unknown"  # low | medium | high | unknown
+    recommended_drugs: list[dict[str, Any]] = field(default_factory=list)  # ✨ NEW: Ranked drug recommendations
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -240,13 +243,27 @@ def genetic_analysis_model(context: dict[str, Any] | None = None) -> GeneticAnal
         else:
             metabolizer_status = "normal_metabolizer"
     
+    # ✨ NEW: Generate ranked drug recommendations based on metabolizer status
+    try:
+        detected_genes = [v["gene"] for v in detected_variants]
+        recommended_drugs = generate_genetic_drug_recommendations(
+            metabolizer_status=metabolizer_status,
+            detected_genes=list(set(detected_genes)),  # Deduplicate
+            detected_conditions=context.get("conditions", [])
+        )
+        logger.info(f"💊 Generated {len(recommended_drugs)} drug recommendations for {metabolizer_status}")
+    except Exception as e:
+        logger.error(f"⚠️ Error generating drug recommendations: {e}")
+        recommended_drugs = []
+    
     result = GeneticAnalysisResult(
         patient_metabolizer_status=metabolizer_status,
         gene_drug_interactions=gene_drug_interactions,
         variants_detected=detected_variants,
         risk_alleles=list(set(risk_alleles)),  # Deduplicate
         overall_genetic_risk=overall_risk,
+        recommended_drugs=recommended_drugs,  # ✨ NEW: Add ranked drug recommendations
     )
 
-    logger.info(f"✅ Genetic analysis complete for patient {patient_id}: {overall_risk} risk, metabolizer={metabolizer_status}, {len(detected_variants)} variants detected")
+    logger.info(f"✅ Genetic analysis complete for patient {patient_id}: {overall_risk} risk, metabolizer={metabolizer_status}, {len(detected_variants)} variants, {len(recommended_drugs)} drugs recommended")
     return result

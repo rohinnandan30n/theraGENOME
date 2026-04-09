@@ -20,8 +20,10 @@ import logging
 # Import real data sources
 try:
     from backend.database import query_drug_safety
+    from backend.models.drug_recommendations import generate_safer_alternatives
 except ImportError:
     from database import query_drug_safety
+    from drug_recommendations import generate_safer_alternatives
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,7 @@ class ToxicityAnalysisResult:
     max_safe_dose: dict[str, Any] = field(default_factory=dict)
     contraindications: list[str] = field(default_factory=list)
     therapeutic_index: float = 0.0           # higher = safer
+    safer_alternatives: list[dict[str, Any]] = field(default_factory=list)  # ✨ NEW: Ranked safer drug alternatives
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -231,6 +234,19 @@ def drug_toxicity_model(
         # Log this critical finding
         logger.warning(f"⚠️ CRITICAL: {drug_name} contraindicated in penicillin allergy (patient {patient_id})")
     
+    # ✨ NEW: Generate safer drug alternatives if toxicity risk detected
+    safer_alternatives = []
+    if overall_risk in ["high", "medium"] or len(contraindications) > 0:
+        try:
+            contraindication_reason = "; ".join(contraindications) if contraindications else "toxicity risk"
+            safer_alternatives = generate_safer_alternatives(
+                original_drug=drug_name or drug_key,
+                contraindication_reason=contraindication_reason
+            )
+            logger.info(f"💊 Generated {len(safer_alternatives)} safer alternatives to {drug_name}")
+        except Exception as e:
+            logger.error(f"⚠️ Error generating safer alternatives: {e}")
+    
     result = ToxicityAnalysisResult(
         drug_name=drug_name if drug_name else "unknown",
         overall_toxicity_risk=overall_risk,
@@ -239,7 +255,8 @@ def drug_toxicity_model(
         max_safe_dose=max_safe_dose,
         contraindications=contraindications,
         therapeutic_index=therapeutic_index,
+        safer_alternatives=safer_alternatives,  # ✨ NEW: Add safer alternatives
     )
 
-    logger.info(f"✅ Toxicity analysis complete for {drug_name or 'unknown'} (patient {patient_id}): {overall_risk} risk, {len(contraindications)} contraindications")
+    logger.info(f"✅ Toxicity analysis complete for {drug_name or 'unknown'} (patient {patient_id}): {overall_risk} risk, {len(contraindications)} contraindications, {len(safer_alternatives)} alternatives")
     return result

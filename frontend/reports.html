@@ -1081,6 +1081,133 @@
                     html += `</div>`;
                 }
 
+                // Detected Conditions (Diseases)
+                if (analysis.detected_conditions && analysis.detected_conditions.length > 0) {
+                    html += `<div class="analysis-section"><h3>🔍 Detected Medical Conditions</h3>`;
+                    analysis.detected_conditions.forEach(condition => {
+                        html += `
+                            <div class="analysis-item">
+                                <strong>${condition.disease}</strong> 
+                                <span style="color: var(--${condition.severity === 'critical' ? 'danger' : condition.severity === 'high' ? 'accent' : 'warning'});">
+                                    [${condition.severity.toUpperCase()}]
+                                </span>
+                                <br/><small>Risk Score: ${(condition.risk_score * 100).toFixed(1)}%</small>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // Drug Recommendations
+                if (analysis.drug_recommendations && analysis.drug_recommendations.length > 0) {
+                    html += `<div class="analysis-section"><h3>💊 Disease-Specific Drug Recommendations</h3>`;
+                    
+                    // Group by disease
+                    const groupedByDisease = {};
+                    analysis.drug_recommendations.forEach(rec => {
+                        if (!groupedByDisease[rec.disease]) {
+                            groupedByDisease[rec.disease] = [];
+                        }
+                        groupedByDisease[rec.disease].push(rec);
+                    });
+                    
+                    Object.entries(groupedByDisease).forEach(([disease, drugs]) => {
+                        html += `<div style="margin-bottom: 15px; padding: 12px; background: rgba(20, 184, 166, 0.05); border-left: 3px solid var(--primary); border-radius: 4px;">
+                            <strong style="color: var(--primary);">${disease}</strong>
+                            <table style="width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 0.9rem;">
+                                <tr style="border-bottom: 1px solid rgba(20, 184, 166, 0.2);">
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Drug</th>
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Class</th>
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Dosage</th>
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Note</th>
+                                </tr>`;
+                        
+                        drugs.forEach(drug => {
+                            html += `<tr style="border-bottom: 1px solid rgba(20, 184, 166, 0.1);">
+                                <td style="padding: 6px;"><strong>${drug.drug}</strong></td>
+                                <td style="padding: 6px;">${drug.class}</td>
+                                <td style="padding: 6px; color: var(--primary);">${drug.dosage}</td>
+                                <td style="padding: 6px; font-size: 0.85rem; color: var(--text-secondary);">${drug.note}</td>
+                            </tr>`;
+                        });
+                        
+                        html += `</table></div>`;
+                    });
+                    
+                    html += `</div>`;
+                }
+
+                // Resistance Analysis (NEW)
+                if (analysis.infection_analysis && analysis.infection_analysis.infection_detected) {
+                    const infectionData = analysis.infection_analysis.details;
+                    const resistanceData = analysis.infection_analysis.resistance_analysis;
+                    
+                    html += `<div class="analysis-section"><h3>🦠 Infection & Antibiotic Resistance Analysis</h3>`;
+                    
+                    if (infectionData) {
+                        html += `<div class="analysis-item" style="margin-bottom: 15px;">
+                            <strong style="color: var(--danger);">Infection Detected</strong><br/>
+                            <strong>Suspected Organism:</strong> ${infectionData.pathogen}<br/>
+                            <strong>WBC Count:</strong> ${infectionData.wbc_count} k/uL (${infectionData.wbc_severity.toUpperCase()} elevation)<br/>
+                            <strong>Source:</strong> ${infectionData.source}
+                        </div>`;
+                    }
+                    
+                    // Resistance Model Analysis
+                    if (resistanceData) {
+                        const overallRisk = resistanceData.overall_risk || 'MEDIUM';
+                        const riskColor = overallRisk === 'HIGH' ? 'var(--danger)' : overallRisk === 'MEDIUM' ? 'var(--accent)' : 'var(--success)';
+                        const riskScore = resistanceData.risk_score !== undefined ? (resistanceData.risk_score * 100).toFixed(1) : 'N/A';
+                        
+                        html += `<div style="margin-bottom: 15px; padding: 12px; background: rgba(168, 85, 247, 0.05); border-left: 3px solid var(--secondary); border-radius: 4px;">
+                            <strong style="color: var(--secondary);">Resistance Model Analysis</strong><br/>
+                            <strong>Overall Risk:</strong> <span style="color: ${riskColor}; font-weight: bold;">${overallRisk}</span><br/>
+                            <strong>Risk Score:</strong> ${riskScore}%
+                        </div>`;
+                        
+                        // Resistance Mechanisms
+                        if (resistanceData.resistance_mechanisms && Object.keys(resistanceData.resistance_mechanisms).length > 0) {
+                            html += `<div style="padding: 12px; background: rgba(168, 85, 247, 0.02); border: 1px solid var(--border-light); border-radius: 4px; margin-bottom: 15px;">
+                                <strong style="color: var(--secondary);">Detected Resistance Mechanisms:</strong>
+                                <ul style="margin-top: 8px; margin-left: 20px;">`;
+                            
+                            Object.entries(resistanceData.resistance_mechanisms).forEach(([gene, confidence]) => {
+                                html += `<li><strong>${gene}:</strong> ${confidence}</li>`;
+                            });
+                            
+                            html += `</ul></div>`;
+                        }
+                        
+                        // Susceptibilities / Antibiotic Recommendations
+                        if (resistanceData.susceptibilities && Object.keys(resistanceData.susceptibilities).length > 0) {
+                            html += `<div style="padding: 12px; background: rgba(34, 197, 94, 0.02); border: 1px solid var(--border-light); border-radius: 4px;">
+                                <strong style="color: var(--success);">Antibiotic Susceptibilities:</strong>
+                                <table style="width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 0.9rem;">
+                                    <tr style="border-bottom: 1px solid var(--border-light);">
+                                        <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Antibiotic</th>
+                                        <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Susceptible</th>
+                                        <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Mechanism</th>
+                                    </tr>`;
+                            
+                            Object.entries(resistanceData.susceptibilities).forEach(([drug, status]) => {
+                                const susceptible = status.susceptible || false;
+                                const statusColor = susceptible ? 'var(--success)' : 'var(--danger)';
+                                const statusText = susceptible ? '✅ Susceptible' : '❌ Resistant';
+                                
+                                html += `<tr style="border-bottom: 1px solid var(--border-light);">
+                                    <td style="padding: 6px;"><strong>${drug}</strong></td>
+                                    <td style="padding: 6px; color: ${statusColor};">${statusText}</td>
+                                    <td style="padding: 6px; font-size: 0.85rem; color: var(--text-secondary);">${status.resistance_mechanism || 'None'}</td>
+                                </tr>`;
+                            });
+                            
+                            html += `</table></div>`;
+                        }
+                    }
+                    
+                    html += `</div>`;
+                }
+
                 // Organ Involvement
                 if (analysis.organ_involvement && Object.keys(analysis.organ_involvement).length > 0) {
                     html += `<div class="analysis-section"><h3>🏥 Organ Involvement</h3>`;
@@ -1091,6 +1218,42 @@
                             </div>
                         `;
                     });
+                    html += `</div>`;
+                }
+
+                // Pharmacogenomics
+                if (analysis.pharmacogenomics) {
+                    html += `<div class="analysis-section"><h3>🧬 Pharmacogenomics Profile</h3>`;
+                    html += `
+                        <div class="analysis-item">
+                            Genetic Markers: ${analysis.pharmacogenomics.genetic_markers_detected ? '✅ Detected' : '⚠️ Not detected'}<br/>
+                            CYP Profile: <strong>${analysis.pharmacogenomics.cyp_profile}</strong><br/>
+                            Efficiency: ${analysis.pharmacogenomics.metabolism_efficiency || 'N/A'}<br/>
+                            Risk Level: <strong>${analysis.pharmacogenomics.drug_interaction_risk || 'N/A'}</strong><br/>
+                            <small style="color: var(--text-secondary);">${analysis.pharmacogenomics.metabolism_note}</small>
+                        </div>
+                    `;
+                    
+                    // Display specific drug recommendations
+                    if (analysis.pharmacogenomics.specific_recommendations && analysis.pharmacogenomics.specific_recommendations.length > 0) {
+                        html += `<div class="analysis-section"><h4>💊 Drug Recommendations</h4>`;
+                        analysis.pharmacogenomics.specific_recommendations.forEach(rec => {
+                            html += `
+                                <div class="analysis-item" style="border-left: 3px solid #00d9ff; padding-left: 10px; margin: 8px 0;">
+                                    <strong>${rec.rank || ''} - ${rec.specific_drug || rec.category || ''}</strong><br/>
+                                    Action: ${rec.action || ''}<br/>
+                                    Initial Dose: ${rec.initial_dose || 'N/A'}<br/>
+                                    Target Dose: ${rec.target_dose || 'N/A'}<br/>
+                                    Titration: <small>${rec.titration || 'N/A'}</small><br/>
+                                    Monitoring: <small>${rec.monitoring || 'N/A'}</small><br/>
+                                    ${rec.expected_outcome ? `Expected Outcome: <small>${rec.expected_outcome}</small><br/>` : ''}
+                                    ${rec.genetic_score ? `Genetic Score: <strong>${rec.genetic_score}</strong>` : ''}
+                                </div>
+                            `;
+                        });
+                        html += `</div>`;
+                    }
+                    
                     html += `</div>`;
                 }
 

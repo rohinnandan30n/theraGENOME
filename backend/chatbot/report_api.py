@@ -18,14 +18,22 @@ from typing import Any
 try:
     from fastapi import APIRouter, UploadFile, File, HTTPException, Query, Body
     from pydantic import BaseModel, Field
-    import fitz  # PyMuPDF for PDF handling
     
     from backend.chatbot.report_analyzer import ReportAnalyzer, ParsedReport
     from backend.chatbot.mode_filter import ModeFilter
     
     HAS_FASTAPI = True
-except ImportError:
+except ImportError as e:
+    print(f"Warning: Failed to import FastAPI modules: {e}")
     HAS_FASTAPI = False
+
+# Try to import fitz, but don't fail if it's missing
+try:
+    import fitz  # PyMuPDF for PDF handling
+    HAS_FITZ = True
+except ImportError:
+    print("Warning: PyMuPDF (fitz) not installed. PDF support disabled.")
+    HAS_FITZ = False
 
 
 # ──────────────────────────────────────────────
@@ -80,6 +88,9 @@ class DocumentExtractor:
         str
             Extracted text
         """
+        if not HAS_FITZ:
+            raise ValueError("PyMuPDF not installed. Install with: pip install PyMuPDF")
+        
         try:
             pdf_stream = io.BytesIO(file_content)
             doc = fitz.open(stream=pdf_stream, filetype="pdf")

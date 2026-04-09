@@ -1020,9 +1020,6 @@ function openModal(gene) {
     return p.trim() ? '<p>' + p.trim() + '</p>' : '';
   }).join('');
   document.getElementById('mExplanation').innerHTML = html;
-  document.getElementById('aiResponse').style.display = 'none';
-  document.getElementById('aiResponse').innerHTML = '';
-  document.getElementById('askInput').value = '';
 
   // PDB button label
   var pdb = GENE_PDB[gene];

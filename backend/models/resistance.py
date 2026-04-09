@@ -21,8 +21,10 @@ import logging
 # Import real data sources
 try:
     from backend.database import query_resistance_markers
+    from backend.models.drug_recommendations import generate_antibiotic_recommendations
 except ImportError:
     from database import query_resistance_markers
+    from drug_recommendations import generate_antibiotic_recommendations
 
 logger = logging.getLogger(__name__)
 
@@ -87,6 +89,7 @@ class ResistanceAnalysisResult:
     recommended_antibiotics: list[str] = field(default_factory=list)
     avoid_antibiotics: list[str] = field(default_factory=list)
     overall_resistance_risk: str = "unknown"  # low | medium | high | unknown
+    recommended_antibiotics_ranked: list[dict[str, Any]] = field(default_factory=list)  # ✨ NEW: Ranked antibiotic recommendations with dosing
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -222,6 +225,20 @@ def antibiotic_resistance_model(context: dict[str, Any] | None = None) -> Resist
         if "fluoroquinolone" in avoid_antibiotics:
             recommended_antibiotics.update({"beta_lactam", "aminoglycoside", "macrolide"})
     
+    # ✨ NEW: Generate ranked antibiotic recommendations with dosing and monitoring
+    try:
+        infection_site = context.get("infection_site", "bloodstream")
+        severity = "serious" if overall_risk in ["high"] else "moderate"
+        ranked_antibiotics = generate_antibiotic_recommendations(
+            pathogen=pathogen,
+            infection_site=infection_site,
+            severity=severity
+        )
+        logger.info(f"💉 Generated {len(ranked_antibiotics)} ranked antibiotic recommendations for {pathogen}")
+    except Exception as e:
+        logger.error(f"⚠️ Error generating antibiotic recommendations: {e}")
+        ranked_antibiotics = []
+    
     result = ResistanceAnalysisResult(
         pathogen_identified=pathogen,
         susceptibility_profile=susceptibility_profile,
@@ -229,6 +246,7 @@ def antibiotic_resistance_model(context: dict[str, Any] | None = None) -> Resist
         recommended_antibiotics=list(recommended_antibiotics),
         avoid_antibiotics=list(avoid_antibiotics),
         overall_resistance_risk=overall_risk,
+        recommended_antibiotics_ranked=ranked_antibiotics,  # ✨ NEW: Add ranked recommendations
     )
 
     logger.info(f"✅ Resistance analysis complete for {pathogen} (patient {patient_id}): {overall_risk} risk, {len(resistance_markers)} markers")
