@@ -1,0 +1,270 @@
+openapi: 3.0.0
+info:
+  title: theraGENOME Pathogen Resistance Analysis API
+  description: API for analyzing pathogen resistance genes and predicting antimicrobial resistance
+  version: 1.0.0
+  contact:
+    name: theraGENOME Support
+  license:
+    name: HIPAA-Compliant
+
+servers:
+  - url: http://localhost:8001/api/v1
+    description: Local development server
+  - url: https://api.theragenome.com/api/v1
+    description: Production server
+
+paths:
+  /pathogens/{id}/resistance-genes:
+    get:
+      summary: Get resistance genes for pathogen
+      description: |
+        Retrieve resistance genes associated with a specific pathogen.
+        Returns genes from SPADES-based analysis and AMR databases.
+      operationId: getResistanceGenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Pathogen identifier (NCBI taxonomy ID or strain name)
+          example: "562"
+        - name: include_mechanisms
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include resistance mechanisms
+        - name: threshold
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 1
+            default: 0.8
+          description: Confidence threshold for resistance gene predictions
+      responses:
+        '200':
+          description: Successfully retrieved resistance genes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResistanceGenesResponse'
+              example:
+                pathogen_id: "562"
+                pathogen_name: "Escherichia coli"
+                resistance_genes:
+                  - gene_id: "ARO:3000000"
+                    gene_name: "blaCTX-M-15"
+                    amr_phenotype: "Beta-lactam resistance"
+                    mechanism: "Enzymatic inactivation"
+                    coverage: 0.95
+                    depth: 150.5
+                  - gene_id: "ARO:3000001"
+                    gene_name: "gyrA"
+                    amr_phenotype: "Fluoroquinolone resistance"
+                    mechanism: "Target alteration"
+                    coverage: 0.88
+                    depth: 120.3
+                analysis_date: "2024-03-30T12:00:00Z"
+                total_genes: 2
+        '404':
+          description: Pathogen not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Analysis error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /pathogens/{id}/predict-resistance:
+    post:
+      summary: Predict antimicrobial resistance
+      description: |
+        Use ML model to predict resistance phenotype based on identified resistance genes.
+      operationId: predictResistance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Pathogen identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictResistanceRequest'
+            example:
+              resistance_genes:
+                - gene_name: "blaCTX-M-15"
+                  coverage: 0.95
+                - gene_name: "gyrA"
+                  coverage: 0.88
+      responses:
+        '200':
+          description: Resistance prediction successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResistancePredictionResponse'
+              example:
+                pathogen_id: "562"
+                predictions:
+                  - antibiotic: "Ceftriaxone"
+                    predicted_resistance: "Resistant"
+                    confidence: 0.94
+                  - antibiotic: "Ciprofloxacin"
+                    predicted_resistance: "Resistant"
+                    confidence: 0.87
+                  - antibiotic: "Amoxicillin"
+                    predicted_resistance: "Resistant"
+                    confidence: 0.91
+                model_version: "1.2.0"
+                prediction_date: "2024-03-30T12:00:00Z"
+        '400':
+          description: Invalid prediction request
+        '500':
+          description: Prediction error
+
+components:
+  schemas:
+    ResistanceGenesResponse:
+      type: object
+      required:
+        - pathogen_id
+        - pathogen_name
+        - resistance_genes
+        - analysis_date
+      properties:
+        pathogen_id:
+          type: string
+          description: Pathogen identifier
+        pathogen_name:
+          type: string
+          description: Pathogen common name
+        resistance_genes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResistanceGene'
+        analysis_date:
+          type: string
+          format: date-time
+          description: Date of analysis
+        total_genes:
+          type: integer
+          description: Total number of resistance genes
+
+    ResistanceGene:
+      type: object
+      required:
+        - gene_id
+        - gene_name
+        - amr_phenotype
+        - mechanism
+        - coverage
+      properties:
+        gene_id:
+          type: string
+          description: AMR gene ontology ID
+        gene_name:
+          type: string
+          description: Gene name
+        amr_phenotype:
+          type: string
+          description: AMR phenotype
+        mechanism:
+          type: string
+          description: Resistance mechanism
+        coverage:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+        depth:
+          type: number
+          format: float
+          description: Average sequencing depth
+
+    PredictResistanceRequest:
+      type: object
+      required:
+        - resistance_genes
+      properties:
+        resistance_genes:
+          type: array
+          items:
+            type: object
+            required:
+              - gene_name
+            properties:
+              gene_name:
+                type: string
+              coverage:
+                type: number
+                format: float
+
+    ResistancePredictionResponse:
+      type: object
+      required:
+        - pathogen_id
+        - predictions
+        - model_version
+        - prediction_date
+      properties:
+        pathogen_id:
+          type: string
+        predictions:
+          type: array
+          items:
+            type: object
+            properties:
+              antibiotic:
+                type: string
+              predicted_resistance:
+                type: string
+                enum: [Susceptible, Resistant, Intermediate]
+              confidence:
+                type: number
+                format: float
+                minimum: 0
+                maximum: 1
+        model_version:
+          type: string
+        prediction_date:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - status
+      properties:
+        error:
+          type: string
+          description: Error message
+        status:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

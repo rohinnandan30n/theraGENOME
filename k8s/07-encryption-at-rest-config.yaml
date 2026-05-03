@@ -1,0 +1,182 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: encryption-keys
+  namespace: theragenome
+type: Opaque
+stringData:
+  # Database encryption key (must be changed in production)
+  # Generate with: openssl rand -base64 32
+  DB_ENCRYPTION_KEY: "database-encryption-key-change-in-production"
+  
+  # Application encryption key for sensitive fields
+  APP_ENCRYPTION_KEY: "application-encryption-key-change-in-production"
+  
+  # Backup encryption key
+  BACKUP_ENCRYPTION_KEY: "backup-encryption-key-change-in-production"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: encryption-queries
+  namespace: theragenome
+data:
+  init-encryption.sql: |
+    -- Create encryption extension
+    CREATE EXTENSION IF NOT EXISTS pgcrypto;
+    
+    -- Create schema for encryption
+    CREATE SCHEMA IF NOT EXISTS encryption_management;
+    
+    -- Create encrypted data type for JSON data
+    CREATE OR REPLACE FUNCTION encryption_management.encrypt_data(
+      data_to_encrypt TEXT,
+      encryption_key TEXT
+    ) RETURNS TEXT AS $$
+    DECLARE
+      encrypted_hex TEXT;
+    BEGIN
+      -- Use pgcrypto to encrypt with AES-256
+      encrypted_hex := encode(
+        encrypt(
+          convert_to(data_to_encrypt, 'UTF8'),
+          convert_to(encryption_key, 'UTF8'),
+          'aes'
+        ),
+        'hex'
+      );
+      RETURN 'encrypted:' || encrypted_hex;
+    END;
+    $$ LANGUAGE plpgsql;
+    
+    -- Create decryption function
+    CREATE OR REPLACE FUNCTION encryption_management.decrypt_data(
+      encrypted_data TEXT,
+      encryption_key TEXT
+    ) RETURNS TEXT AS $$
+    DECLARE
+      decrypted_text TEXT;
+    BEGIN
+      IF encrypted_data LIKE 'encrypted:%' THEN
+        decrypted_text := convert_from(
+          decrypt(
+            decode(substring(encrypted_data, 11), 'hex'),
+            convert_to(encryption_key, 'UTF8'),
+            'aes'
+          ),
+          'UTF8'
+        );
+        RETURN decrypted_text;
+      ELSE
+        RETURN encrypted_data;
+      END IF;
+    END;
+    $$ LANGUAGE plpgsql;
+    
+    -- Create trigger for automatic encryption of sensitive columns
+    CREATE OR REPLACE FUNCTION encryption_management.encrypt_trigger()
+    RETURNS TRIGGER AS $$
+    DECLARE
+      encryption_key TEXT := current_setting('app.encryption_key');
+    BEGIN
+      IF NEW IS NOT NULL THEN
+        -- Encrypt patient SSN
+        IF NEW.ssn IS NOT NULL THEN
+          NEW.ssn := encryption_management.encrypt_data(NEW.ssn, encryption_key);
+        END IF;
+        
+        -- Encrypt patient medical record number
+        IF NEW.medical_record_number IS NOT NULL THEN
+          NEW.medical_record_number := encryption_management.encrypt_data(
+            NEW.medical_record_number, encryption_key
+          );
+        END IF;
+      END IF;
+      RETURN NEW;
+    END;
+    $$ LANGUAGE plpgsql;
+    
+    -- Log all encryption/decryption activity
+    CREATE TABLE IF NOT EXISTS encryption_management.encryption_audit_log (
+      id SERIAL PRIMARY KEY,
+      operation VARCHAR(50),
+      table_name VARCHAR(100),
+      record_id INTEGER,
+      encrypted_columns TEXT[],
+      timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      user_name VARCHAR(100),
+      ip_address INET
+    );
+    
+    -- Create index for audit log queries
+    CREATE INDEX IF NOT EXISTS idx_encryption_audit_timestamp 
+      ON encryption_management.encryption_audit_log(timestamp DESC);
+    
+    -- Grant permissions
+    GRANT USAGE ON SCHEMA encryption_management TO postgres;
+    GRANT EXECUTE ON FUNCTION encryption_management.encrypt_data(TEXT, TEXT) TO postgres;
+    GRANT EXECUTE ON FUNCTION encryption_management.decrypt_data(TEXT, TEXT) TO postgres;
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-encryption-config
+  namespace: theragenome
+data:
+  postgresql-encryption.conf: |
+    # PostgreSQL Encryption Configuration
+    
+    # Enable SSL for all connections
+    ssl = on
+    
+    # WAL (Write-Ahead Log) Encryption
+    # Note: Available in PostgreSQL 15+, enable if using newer version
+    # wal_encryption = on
+    
+    # Data Checksum
+    data_checksums = on
+    
+    # Security settings for encryption key management
+    shared_preload_libraries = 'pgcrypto'
+    
+    # Session configuration for encryption
+    custom_variable_classes = 'app'
+    
+    # Enhanced logging for encryption operations
+    log_statement = 'all'
+    log_min_duration_statement = 0
+    log_connections = on
+    log_disconnections = on
+    log_lock_waits = on
+    
+    # Query logging for sensitive operations
+    log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: encrypted-storage
+provisioner: ebs.csi.aws.com
+parameters:
+  # AWS EBS encryption for volumes at rest
+  encrypted: "true"
+  kmsKeyId: arn:aws:kms:us-east-1:ACCOUNT_ID:key/KEY_ID
+  iops: "3000"
+  throughput: "125"
+  type: gp3
+  deleteOnTermination: "true"
+reclaimPolicy: Retain
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-encrypted-pvc
+  namespace: theragenome
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: encrypted-storage
+  resources:
+    requests:
+      storage: 50Gi

@@ -1,0 +1,355 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-rbac-audit
+  namespace: theragenome
+data:
+  rbac-setup.sql: |
+    -- TheraGenome PostgreSQL RBAC Setup
+    -- Implements role-based access control for HIPAA compliance
+    
+    -- ============================================================================
+    -- SECTION 1: Create Database Roles
+    -- ============================================================================
+    
+    -- Super user role (use sparingly)
+    CREATE ROLE theragenome_admin WITH
+      CREATEDB CREATEROLE INHERIT
+      LOGIN
+      PASSWORD 'admin-password-change-in-production';
+    
+    -- Application service role (for API reads/writes)
+    CREATE ROLE theragenome_app WITH
+      INHERIT
+      LOGIN
+      PASSWORD 'app-password-change-in-production';
+    
+    -- Read-only role for reporting
+    CREATE ROLE theragenome_reporter WITH
+      INHERIT
+      NOLOGIN;
+    
+    -- Audit role for logging
+    CREATE ROLE theragenome_audit WITH
+      INHERIT
+      NOLOGIN;
+    
+    -- Data analyst role (restricted PII access)
+    CREATE ROLE theragenome_analyst WITH
+      INHERIT
+      NOLOGIN;
+    
+    -- Backup role (for backup operations)
+    CREATE ROLE theragenome_backup WITH
+      INHERIT
+      NOLOGIN;
+    
+    -- Migration role (for schema updates)
+    CREATE ROLE theragenome_migration WITH
+      CREATEROLE
+      INHERIT
+      NOLOGIN;
+    
+    -- ============================================================================
+    -- SECTION 2: Create Audit Tables and Functions
+    -- ============================================================================
+    
+    -- Create schema for audit tracking
+    CREATE SCHEMA IF NOT EXISTS audit;
+    
+    -- Audit table for all changes
+    CREATE TABLE IF NOT EXISTS audit.logged_actions (
+      event_id BIGSERIAL PRIMARY KEY,
+      schema_name TEXT NOT NULL,
+      table_name TEXT NOT NULL,
+      relid OID NOT NULL,
+      session_user_name TEXT,
+      action_tstamp_tx TIMESTAMP WITH TIME ZONE NOT NULL,
+      action_tstamp_stm TIMESTAMP WITH TIME ZONE NOT NULL,
+      action_tstamp_clk TIMESTAMP WITH TIME ZONE NOT NULL,
+      transaction_id BIGINT,
+      application_name TEXT,
+      client_addr INET,
+      client_query TEXT,
+      action TEXT NOT NULL,
+      row_data HSTORE,
+      changed_fields HSTORE,
+      statement_only BOOLEAN NOT NULL
+    );
+    
+    -- Index for audit log queries
+    CREATE INDEX IF NOT EXISTS logged_actions_relid_idx 
+      ON audit.logged_actions (relid);
+    CREATE INDEX IF NOT EXISTS logged_actions_action_tstamp_tx_idx
+      ON audit.logged_actions (action_tstamp_tx);
+    CREATE INDEX IF NOT EXISTS logged_actions_action_idx
+      ON audit.logged_actions (action);
+    CREATE INDEX IF NOT EXISTS logged_actions_session_user_idx
+      ON audit.logged_actions (session_user_name);
+    
+    -- Access control log
+    CREATE TABLE IF NOT EXISTS audit.access_log (
+      event_id BIGSERIAL PRIMARY KEY,
+      access_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      user_name TEXT NOT NULL,
+      database_name TEXT NOT NULL,
+      schema_name TEXT,
+      table_name TEXT,
+      column_names TEXT[],
+      access_type VARCHAR(50), -- SELECT, INSERT, UPDATE, DELETE, EXECUTE
+      status VARCHAR(20), -- SUCCESS, DENIED, FAILED
+      reason TEXT,
+      client_addr INET,
+      application_name TEXT,
+      pii_accessed BOOLEAN DEFAULT FALSE
+    );
+    
+    CREATE INDEX IF NOT EXISTS access_log_user_idx ON audit.access_log(user_name);
+    CREATE INDEX IF NOT EXISTS access_log_time_idx ON audit.access_log(access_time DESC);
+    CREATE INDEX IF NOT EXISTS access_log_pii_idx ON audit.access_log(pii_accessed);
+    
+    -- Query logging table
+    CREATE TABLE IF NOT EXISTS audit.query_log (
+      query_id BIGSERIAL PRIMARY KEY,
+      log_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      user_name TEXT NOT NULL,
+      database_name TEXT,
+      query_text TEXT NOT NULL,
+      query_hash VARCHAR(64),
+      execution_time NUMERIC,
+      affected_rows INTEGER,
+      status VARCHAR(20)
+    );
+    
+    CREATE INDEX IF NOT EXISTS query_log_user_idx ON audit.query_log(user_name);
+    CREATE INDEX IF NOT EXISTS query_log_time_idx ON audit.query_log(log_time DESC);
+    
+    -- ============================================================================
+    -- SECTION 3: Audit Trigger Functions
+    -- ============================================================================
+    
+    -- Function to audit all DML operations
+    CREATE OR REPLACE FUNCTION audit.if_modified_func() RETURNS TRIGGER AS $$
+    DECLARE
+      v_old_data HSTORE;
+      v_new_data HSTORE;
+      v_changed_fields HSTORE;
+    BEGIN
+      IF (TG_OP = 'UPDATE') THEN
+        v_old_data := hstore(OLD.*);
+        v_new_data := hstore(NEW.*);
+        v_changed_fields := v_new_data - v_old_data;
+      ELSIF (TG_OP = 'DELETE') THEN
+        v_old_data := hstore(OLD.*);
+      ELSIF (TG_OP = 'INSERT') THEN
+        v_new_data := hstore(NEW.*);
+      END IF;
+      
+      INSERT INTO audit.logged_actions (
+        schema_name, table_name, relid, session_user_name,
+        action_tstamp_tx, action_tstamp_stm, action_tstamp_clk,
+        transaction_id, application_name, client_addr, client_query,
+        action, row_data, changed_fields, statement_only
+      ) VALUES (
+        TG_TABLE_SCHEMA::TEXT, TG_TABLE_NAME::TEXT, TG_RELID,
+        session_user,
+        NOW(), statement_timestamp(), clock_timestamp(),
+        txid_current(), application_name, inet_client_addr(),
+        current_query(),
+        SUBSTRING(TG_OP, 1, 1), v_old_data, v_changed_fields, 'f'
+      );
+      
+      IF (TG_OP = 'DELETE') THEN
+        RETURN OLD;
+      ELSE
+        RETURN NEW;
+      END IF;
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    
+    -- Function to log access attempts
+    CREATE OR REPLACE FUNCTION audit.log_access(
+      p_user TEXT,
+      p_table_name TEXT,
+      p_access_type TEXT,
+      p_status TEXT DEFAULT 'SUCCESS'
+    ) RETURNS VOID AS $$
+    BEGIN
+      INSERT INTO audit.access_log (
+        user_name, database_name, table_name, access_type, 
+        status, client_addr, application_name, pii_accessed
+      ) VALUES (
+        p_user,
+        current_database(),
+        p_table_name,
+        p_access_type,
+        p_status,
+        inet_client_addr(),
+        application_name,
+        (p_table_name IN ('patients', 'sensitive_data'))
+      );
+    END;
+    $$ LANGUAGE plpgsql SECURITY DEFINER;
+    
+    -- ============================================================================
+    -- SECTION 4: Enable Audit Triggers on Tables
+    -- ============================================================================
+    
+    -- Get list of all user tables and create triggers
+    DO $$
+    DECLARE
+      r RECORD;
+    BEGIN
+      FOR r IN (
+        SELECT schemaname, tablename
+        FROM pg_tables
+        WHERE schemaname NOT IN ('pg_catalog', 'information_schema', 'audit')
+        AND tablename != 'migrations'
+      ) LOOP
+        EXECUTE format(
+          'DROP TRIGGER IF EXISTS %I_audit_trigger ON %I.%I',
+          r.tablename || '_audit', r.schemaname, r.tablename
+        );
+        
+        EXECUTE format(
+          'CREATE TRIGGER %I_audit_trigger AFTER INSERT OR UPDATE OR DELETE ON %I.%I
+           FOR EACH ROW EXECUTE FUNCTION audit.if_modified_func()',
+          r.tablename || '_audit', r.schemaname, r.tablename
+        );
+      END LOOP;
+    END $$;
+    
+    -- ============================================================================
+    -- SECTION 5: Grant Permissions
+    -- ============================================================================
+    
+    -- Grant theragenome_app permissions (default for API)
+    GRANT USAGE ON SCHEMA public TO theragenome_app;
+    GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO theragenome_app;
+    GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO theragenome_app;
+    
+    -- Grant theragenome_reporter permissions (read-only)
+    GRANT USAGE ON SCHEMA public TO theragenome_reporter;
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO theragenome_reporter;
+    
+    -- Grant theragenome_audit permissions (audit tables)
+    GRANT USAGE ON SCHEMA audit TO theragenome_audit;
+    GRANT SELECT ON ALL TABLES IN SCHEMA audit TO theragenome_audit;
+    
+    -- Grant theragenome_analyst permissions (restricted access)
+    GRANT USAGE ON SCHEMA public TO theragenome_analyst;
+    GRANT SELECT ON public.resistance_results TO theragenome_analyst;
+    GRANT SELECT ON public.classifications TO theragenome_analyst;
+    
+    -- Grant theragenome_backup permissions
+    GRANT SELECT ON ALL TABLES IN SCHEMA public TO theragenome_backup;
+    GRANT CONNECT ON DATABASE thergenome_dev TO theragenome_backup;
+    
+    -- ============================================================================
+    -- SECTION 6: Column-Level Security
+    -- ============================================================================
+    
+    -- Create view for reporter role without sensitive columns
+    CREATE OR REPLACE VIEW audit.patients_public AS
+    SELECT
+      id,
+      first_name,
+      last_name,
+      date_of_birth,
+      created_at
+    FROM public.patients;
+    
+    GRANT SELECT ON audit.patients_public TO theragenome_reporter;
+    
+    -- ============================================================================
+    -- SECTION 7: Row-Level Security Policies (if using RLS)
+    -- ============================================================================
+    
+    ALTER TABLE public.patients ENABLE ROW LEVEL SECURITY;
+    
+    -- Policy: App can see all rows
+    CREATE POLICY patients_app_policy ON public.patients
+      FOR SELECT
+      USING (
+        current_user = 'theragenome_app'
+        OR current_user = 'theragenome_admin'
+      );
+    
+    -- Policy: Analyst can only see de-identified data
+    CREATE POLICY patients_analyst_policy ON public.patients
+      FOR SELECT
+      USING (
+        current_user = 'theragenome_analyst'
+        AND (ssn IS NULL OR ssn LIKE 'encrypted:%')
+      );
+    
+    -- ============================================================================
+    -- SECTION 8: Session-Level Audit Settings
+    -- ============================================================================
+    
+    -- Enable session-level parameter tracking
+    ALTER DATABASE thergenome_dev SET log_connections = on;
+    ALTER DATABASE thergenome_dev SET log_disconnections = on;
+    ALTER DATABASE thergenome_dev SET log_statement = 'all';
+    ALTER DATABASE thergenome_dev SET log_min_duration_statement = 1000;
+    ALTER DATABASE thergenome_dev SET log_lock_waits = on;
+    ALTER DATABASE thergenome_dev SET log_line_prefix = '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h ';
+    
+    \echo 'RBAC and audit logging setup completed successfully'
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: postgres-rbac-setup
+  namespace: theragenome
+spec:
+  backoffLimit: 3
+  template:
+    spec:
+      serviceAccountName: theragenome-api
+      restartPolicy: Never
+      containers:
+      - name: rbac-setup
+        image: postgres:15-alpine
+        env:
+        - name: PGHOST
+          value: postgresql.theragenome.svc.cluster.local
+        - name: PGUSER
+          valueFrom:
+            secretKeyRef:
+              name: theragenome-secrets
+              key: DB_USER
+        - name: PGPASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: theragenome-secrets
+              key: DB_PASSWORD
+        - name: PGDATABASE
+          value: thergenome_dev
+        volumeMounts:
+        - name: rbac-script
+          mountPath: /scripts
+          readOnly: true
+        command:
+        - /bin/sh
+        - -c
+        - |
+          until pg_isready -h $PGHOST -U $PGUSER; do
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          
+          # Install required extensions
+          psql << 'SQL'
+          CREATE EXTENSION IF NOT EXISTS hstore;
+          SQL
+          
+          # Run RBAC setup
+          psql -f /scripts/rbac-setup.sql
+      
+      volumes:
+      - name: rbac-script
+        configMap:
+          name: postgres-rbac-audit
+          defaultMode: 0755
+      restartPolicy: Never

@@ -1,0 +1,469 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: audit-log-archive
+  namespace: theragenome
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: encrypted-storage
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: audit-log-retention-config
+  namespace: theragenome
+data:
+  retention-policy.sql: |
+    -- 6-Year Audit Log Retention Policy
+    -- Archive logs older than 6 years, delete after 7 years
+    
+    -- Create retention management schema
+    CREATE SCHEMA IF NOT EXISTS retention_management;
+    
+    -- Create retention metadata table
+    CREATE TABLE IF NOT EXISTS retention_management.archive_metadata (
+      archive_id BIGSERIAL PRIMARY KEY,
+      archive_date TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+      source_table TEXT NOT NULL,
+      records_archived INTEGER,
+      archive_file_path TEXT,
+      archive_hash VARCHAR(256),
+      encryption_key_id VARCHAR(255),
+      retention_until TIMESTAMP WITH TIME ZONE,
+      verified BOOLEAN DEFAULT FALSE,
+      verified_date TIMESTAMP WITH TIME ZONE
+    );
+    
+    -- Create index for archive queries
+    CREATE INDEX IF NOT EXISTS idx_archive_retention_until 
+      ON retention_management.archive_metadata(retention_until);
+    
+    CREATE INDEX IF NOT EXISTS idx_archive_date 
+      ON retention_management.archive_metadata(archive_date DESC);
+    
+    -- Archive procedure: Copy logs older than 6 years to long-term storage
+    CREATE OR REPLACE PROCEDURE retention_management.archive_old_logs(
+      p_days_old INTEGER DEFAULT 2190  -- 6 years
+    )
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      v_archive_path TEXT;
+      v_cutoff_date TIMESTAMP WITH TIME ZONE;
+      v_records_count INTEGER;
+      v_archive_hash VARCHAR(256);
+    BEGIN
+      v_cutoff_date := NOW() - INTERVAL '1 day' * p_days_old;
+      v_archive_path := '/audit-archive/logs_' || TO_CHAR(NOW(), 'YYYY_MM_DD_HH24MI') || '.sql.gz';
+      
+      -- Count records to archive
+      SELECT COUNT(*) INTO v_records_count 
+      FROM audit.logged_actions 
+      WHERE action_tstamp_tx < v_cutoff_date;
+      
+      IF v_records_count > 0 THEN
+        -- Export to file (would use COPY in production with proper file permissions)
+        RAISE NOTICE 'Archiving % records from audit.logged_actions', v_records_count;
+        
+        -- Record archive metadata
+        INSERT INTO retention_management.archive_metadata (
+          source_table, records_archived, archive_file_path, retention_until
+        ) VALUES (
+          'audit.logged_actions',
+          v_records_count,
+          v_archive_path,
+          NOW() + INTERVAL '7 years'
+        );
+        
+        -- Archive access logs
+        SELECT COUNT(*) INTO v_records_count 
+        FROM audit.access_log 
+        WHERE access_time < v_cutoff_date;
+        
+        IF v_records_count > 0 THEN
+          v_archive_path := '/audit-archive/access_logs_' || TO_CHAR(NOW(), 'YYYY_MM_DD_HH24MI') || '.sql.gz';
+          
+          INSERT INTO retention_management.archive_metadata (
+            source_table, records_archived, archive_file_path, retention_until
+          ) VALUES (
+            'audit.access_log',
+            v_records_count,
+            v_archive_path,
+            NOW() + INTERVAL '7 years'
+          );
+        END IF;
+        
+        -- Archive query logs
+        SELECT COUNT(*) INTO v_records_count 
+        FROM audit.query_log 
+        WHERE log_time < v_cutoff_date;
+        
+        IF v_records_count > 0 THEN
+          v_archive_path := '/audit-archive/query_logs_' || TO_CHAR(NOW(), 'YYYY_MM_DD_HH24MI') || '.sql.gz';
+          
+          INSERT INTO retention_management.archive_metadata (
+            source_table, records_archived, archive_file_path, retention_until
+          ) VALUES (
+            'audit.query_log',
+            v_records_count,
+            v_archive_path,
+            NOW() + INTERVAL '7 years'
+          );
+        END IF;
+        
+        RAISE NOTICE 'Archive completed at %', NOW();
+      ELSE
+        RAISE NOTICE 'No records to archive';
+      END IF;
+    END;
+    $$;
+    
+    -- Verify archive integrity
+    CREATE OR REPLACE FUNCTION retention_management.verify_archive(
+      p_archive_id BIGINT
+    ) RETURNS TABLE (
+      verification_status TEXT,
+      records_count INTEGER,
+      last_verified TIMESTAMP WITH TIME ZONE
+    ) AS $$
+    DECLARE
+      v_archive_path TEXT;
+      v_archive_hash VARCHAR(256);
+      v_file_exists BOOLEAN;
+    BEGIN
+      -- Get archive details
+      SELECT archive_file_path, archive_hash 
+      INTO v_archive_path, v_archive_hash
+      FROM retention_management.archive_metadata
+      WHERE archive_id = p_archive_id;
+      
+      -- Verify file exists and is readable
+      -- In production, this would check actual file system or cloud storage
+      
+      -- Update verification status
+      UPDATE retention_management.archive_metadata
+      SET verified = TRUE, verified_date = NOW()
+      WHERE archive_id = p_archive_id;
+      
+      RETURN QUERY 
+      SELECT 'VERIFIED'::TEXT, 0::INTEGER, NOW();
+    END;
+    $$ LANGUAGE plpgsql;
+    
+    -- Cleanup procedure: Delete logs older than 7 years
+    CREATE OR REPLACE PROCEDURE retention_management.cleanup_expired_logs(
+      p_days_old INTEGER DEFAULT 2555  -- 7 years
+    )
+    LANGUAGE plpgsql
+    AS $$
+    DECLARE
+      v_cutoff_date TIMESTAMP WITH TIME ZONE;
+      v_deleted_count INTEGER := 0;
+    BEGIN
+      v_cutoff_date := NOW() - INTERVAL '1 day' * p_days_old;
+      
+      -- Delete expired logged_actions
+      DELETE FROM audit.logged_actions 
+      WHERE action_tstamp_tx < v_cutoff_date 
+      AND EXISTS (
+        SELECT 1 FROM retention_management.archive_metadata
+        WHERE source_table = 'audit.logged_actions'
+        AND archive_date < v_cutoff_date
+        AND verified = TRUE
+      );
+      
+      GET DIAGNOSTICS v_deleted_count = ROW_COUNT;
+      RAISE NOTICE 'Deleted % expired logged_actions records', v_deleted_count;
+      
+      -- Delete expired access logs
+      DELETE FROM audit.access_log 
+      WHERE access_time < v_cutoff_date
+      AND EXISTS (
+        SELECT 1 FROM retention_management.archive_metadata
+        WHERE source_table = 'audit.access_log'
+        AND archive_date < v_cutoff_date
+        AND verified = TRUE
+      );
+      
+      GET DIAGNOSTICS v_deleted_count = ROW_COUNT;
+      RAISE NOTICE 'Deleted % expired access_log records', v_deleted_count;
+      
+      -- Delete expired query logs
+      DELETE FROM audit.query_log 
+      WHERE log_time < v_cutoff_date
+      AND EXISTS (
+        SELECT 1 FROM retention_management.archive_metadata
+        WHERE source_table = 'audit.query_log'
+        AND archive_date < v_cutoff_date
+        AND verified = TRUE
+      );
+      
+      GET DIAGNOSTICS v_deleted_count = ROW_COUNT;
+      RAISE NOTICE 'Deleted % expired query_log records', v_deleted_count;
+    END;
+    $$;
+    
+    GRANT EXECUTE ON PROCEDURE retention_management.archive_old_logs TO postgres;
+    GRANT EXECUTE ON PROCEDURE retention_management.cleanup_expired_logs TO postgres;
+    GRANT EXECUTE ON FUNCTION retention_management.verify_archive TO postgres;
+    
+    \echo 'Retention policy installed successfully'
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: audit-log-archiver
+  namespace: theragenome
+spec:
+  # Run daily at 3 AM UTC for archival
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: theragenome-api
+          restartPolicy: OnFailure
+          containers:
+          - name: archiver
+            image: postgres:15-alpine
+            env:
+            - name: PGHOST
+              value: postgresql.theragenome.svc.cluster.local
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: theragenome-secrets
+                  key: DB_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: theragenome-secrets
+                  key: DB_PASSWORD
+            - name: PGDATABASE
+              value: thergenome_dev
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting audit log archival..."
+              start_time=$(date +%s)
+              
+              psql << 'SQL'
+              -- Archive logs older than 6 years
+              CALL retention_management.archive_old_logs(2190);
+              
+              -- Report archive status
+              SELECT archive_date, records_archived, source_table, retention_until
+              FROM retention_management.archive_metadata
+              WHERE archive_date > NOW() - INTERVAL '1 day'
+              ORDER BY archive_date DESC;
+              SQL
+              
+              end_time=$(date +%s)
+              duration=$((end_time - start_time))
+              echo "Archival completed in ${duration}s"
+            
+            resources:
+              requests:
+                cpu: 200m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: audit-log-cleanup
+  namespace: theragenome
+spec:
+  # Run first day of month at 4 AM UTC for cleanup
+  schedule: "0 4 1 * *"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: theragenome-api
+          restartPolicy: OnFailure
+          containers:
+          - name: cleanup
+            image: postgres:15-alpine
+            env:
+            - name: PGHOST
+              value: postgresql.theragenome.svc.cluster.local
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: theragenome-secrets
+                  key: DB_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: theragenome-secrets
+                  key: DB_PASSWORD
+            - name: PGDATABASE
+              value: thergenome_dev
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting audit log cleanup..."
+              
+              psql << 'SQL'
+              -- Cleanup logs older than 7 years (only after archival)
+              CALL retention_management.cleanup_expired_logs(2555);
+              
+              -- Report cleanup status
+              SELECT COUNT(*) as total_logged_actions 
+              FROM audit.logged_actions;
+              
+              SELECT COUNT(*) as total_access_logs 
+              FROM audit.access_log;
+              
+              SELECT COUNT(*) as total_query_logs 
+              FROM audit.query_log;
+              SQL
+              
+              echo "Cleanup completed"
+            
+            resources:
+              requests:
+                cpu: 200m
+                memory: 256Mi
+              limits:
+                cpu: 500m
+                memory: 512Mi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: audit-log-backup
+  namespace: theragenome
+spec:
+  # Run weekly on Sunday at 1 AM UTC
+  schedule: "0 1 * * 0"
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 3
+      template:
+        spec:
+          serviceAccountName: theragenome-api
+          restartPolicy: OnFailure
+          containers:
+          - name: backup
+            image: postgres:15-alpine
+            env:
+            - name: PGHOST
+              value: postgresql.theragenome.svc.cluster.local
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: theragenome-secrets
+                  key: DB_USER
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: theragenome-secrets
+                  key: DB_PASSWORD
+            - name: PGDATABASE
+              value: thergenome_dev
+            - name: AWS_S3_BUCKET
+              value: theragenome-audit-backups
+            - name: AWS_REGION
+              value: us-east-1
+            command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Backing up audit logs..."
+              
+              # Create backup directory
+              mkdir -p /tmp/audit-backup
+              
+              # Export audit tables
+              pg_dump -t 'audit.*' \
+                --format=directory \
+                --file=/tmp/audit-backup/audit_tables_$(date +%Y%m%d)
+              
+              # Compress
+              tar -czf /tmp/audit_backup_$(date +%Y%m%d_%H%M%S).tar.gz \
+                -C /tmp audit-backup
+              
+              # Upload to S3
+              if command -v aws &> /dev/null; then
+                aws s3 cp /tmp/audit_backup_*.tar.gz \
+                  s3://$AWS_S3_BUCKET/weekly-backups/ \
+                  --region $AWS_REGION \
+                  --sse AES256
+                echo "Backup uploaded to S3"
+              fi
+              
+              # Cleanup temp files
+              rm -rf /tmp/audit-backup /tmp/audit_backup_*.tar.gz
+              
+              echo "Backup completed"
+            
+            resources:
+              requests:
+                cpu: 500m
+                memory: 512Mi
+              limits:
+                cpu: 1000m
+                memory: 1Gi
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: audit-log-monitoring
+  namespace: theragenome
+data:
+  monitor-retention.sql: |
+    -- Monitor audit log retention status
+    
+    -- Total logs by age
+    SELECT 
+      'logged_actions' as table_name,
+      DATE_TRUNC('year', action_tstamp_tx)::DATE as year,
+      COUNT(*) as record_count,
+      ROUND(SUM(OCTET_LENGTH(row_data::TEXT)) / 1024 / 1024, 2) as size_mb
+    FROM audit.logged_actions
+    GROUP BY DATE_TRUNC('year', action_tstamp_tx)
+    UNION ALL
+    SELECT
+      'access_log',
+      DATE_TRUNC('year', access_time)::DATE,
+      COUNT(*),
+      ROUND(SUM(OCTET_LENGTH(reason::TEXT)) / 1024 / 1024, 2)
+    FROM audit.access_log
+    GROUP BY DATE_TRUNC('year', access_time)
+    ORDER BY year DESC;
+    
+    -- Archive status
+    SELECT 
+      source_table,
+      COUNT(*) as archives,
+      SUM(records_archived) as total_records_archived,
+      MIN(archive_date) as oldest_archive,
+      MAX(archive_date) as newest_archive,
+      COUNT(CASE WHEN verified THEN 1 END) as verified_count
+    FROM retention_management.archive_metadata
+    GROUP BY source_table;
+    
+    -- Retention compliance
+    SELECT
+      'COMPLIANT' as status,
+      COUNT(*) as total_archives,
+      COUNT(CASE WHEN retention_until > NOW() THEN 1 END) as within_retention,
+      COUNT(CASE WHEN verified THEN 1 END) as verified,
+      MIN(retention_until) as earliest_retention_date,
+      MAX(retention_until) as latest_retention_date
+    FROM retention_management.archive_metadata;

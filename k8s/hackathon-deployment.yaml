@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: theragenome-hackathon
+  namespace: staging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: theragenome-hackathon
+  template:
+    metadata:
+      labels:
+        app: theragenome-hackathon
+    spec:
+      containers:
+      - name: app
+        image: theragenome/hackathon:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DB_NAME
+          value: "theragenome"
+        - name: DB_USER
+          value: "app_user"
+        - name: DB_PASS
+          value: ""
+        - name: DB_HOST
+          value: "localhost"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: theragenome-hackathon-svc
+  namespace: staging
+spec:
+  selector:
+    app: theragenome-hackathon
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: LoadBalancer
