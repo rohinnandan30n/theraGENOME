@@ -1,0 +1,194 @@
+{
+  "variant_analyze": [
+    {
+      "chrom": "17",
+      "pos": 41244394,
+      "ref": "T",
+      "alt": "G",
+      "gene": "TP53",
+      "hgvs_c": "c.524A>C",
+      "hgvs_p": "p.R175H",
+      "variant_class": "missense_variant",
+      "freq_gnomad": 0.00015,
+      "sift_score": 0.02,
+      "polyphen_score": 0.95,
+      "cadd_score": 28.1,
+      "conservation_phylop": 9.5,
+      "zygosity": "heterozygous"
+    },
+    {
+      "chrom": "13",
+      "pos": 32890559,
+      "ref": "G",
+      "alt": "A",
+      "gene": "BRCA2",
+      "hgvs_c": "c.9097C>T",
+      "hgvs_p": "p.R3033*",
+      "variant_class": "stop_gained",
+      "freq_gnomad": 0.000089,
+      "sift_score": null,
+      "polyphen_score": null,
+      "cadd_score": 45.0,
+      "conservation_phylop": 10.0,
+      "zygosity": "heterozygous"
+    },
+    {
+      "chrom": "12",
+      "pos": 25398284,
+      "ref": "CAGCAGCAG",
+      "alt": "C",
+      "gene": "KRAS",
+      "hgvs_c": "c.34_35delGC",
+      "hgvs_p": "p.A12fs",
+      "variant_class": "frameshift_variant",
+      "freq_gnomad": 0.00023,
+      "sift_score": null,
+      "polyphen_score": null,
+      "cadd_score": 32.5,
+      "conservation_phylop": 9.8,
+      "zygosity": "compound_heterozygous"
+    },
+    {
+      "chrom": "2",
+      "pos": 48010556,
+      "ref": "T",
+      "alt": "C",
+      "gene": "MSH2",
+      "hgvs_c": "c.942+1G>A",
+      "hgvs_p": null,
+      "variant_class": "splice_acceptor_variant",
+      "freq_gnomad": 0.000045,
+      "sift_score": null,
+      "polyphen_score": null,
+      "cadd_score": 42.3,
+      "conservation_phylop": 8.9,
+      "zygosity": "homozygous"
+    },
+    {
+      "chrom": "5",
+      "pos": 112839871,
+      "ref": "C",
+      "alt": "T",
+      "gene": "APC",
+      "hgvs_c": "c.1261G>A",
+      "hgvs_p": "p.R421H",
+      "variant_class": "missense_variant",
+      "freq_gnomad": 0.0001,
+      "sift_score": 0.08,
+      "polyphen_score": 0.87,
+      "cadd_score": 25.4,
+      "conservation_phylop": 8.2,
+      "zygosity": "heterozygous"
+    }
+  ],
+  "pathogen_analyze": [
+    {
+      "pathogen_name": "SARS-CoV-2",
+      "lineage": "Omicron-XBB.1.5",
+      "mutation_profile": [
+        "S:L452R",
+        "S:F486V",
+        "S:K417N",
+        "N:R203K",
+        "N:G204R",
+        "ORF1a:K856R"
+      ],
+      "severity_score": 7.2,
+      "transmission_score": 8.5,
+      "virulence_markers": ["high_transmissibility", "immune_escape", "increased_virulence"],
+      "prevalence_region": "North America",
+      "prevalence_percentage": 45.3
+    },
+    {
+      "pathogen_name": "Mycobacterium tuberculosis",
+      "lineage": "Beijing/X",
+      "mutation_profile": [
+        "rpoB_S450L",
+        "katG_S315T",
+        "inhA_C-15T"
+      ],
+      "severity_score": 8.1,
+      "transmission_score": 6.8,
+      "virulence_markers": ["multi_drug_resistant", "rifampicin_resistant", "isoniazid_resistant"],
+      "prevalence_region": "Southeast Asia",
+      "prevalence_percentage": 12.5
+    },
+    {
+      "pathogen_name": "Plasmodium falciparum",
+      "lineage": "3D7",
+      "mutation_profile": [
+        "PfCRT_K76T",
+        "PfMDR1_N86Y",
+        "DHFR_N108N"
+      ],
+      "severity_score": 6.9,
+      "transmission_score": 7.2,
+      "virulence_markers": ["chloroquine_resistant", "artemisinin_resistant", "treatment_failure"],
+      "prevalence_region": "Sub-Saharan Africa",
+      "prevalence_percentage": 78.9
+    }
+  ],
+  "drug_analyze": [
+    {
+      "drug_name": "Metformin",
+      "dosage_mg": 1000,
+      "frequency": "twice daily",
+      "patient_genotype": {
+        "CYP2C9": "*1/*1",
+        "CYP3A4": "*1/*1",
+        "OCT1": "*1/*2",
+        "SLC22A1": "rs12208357_AG"
+      },
+      "age_years": 45,
+      "weight_kg": 75.0,
+      "kidney_function_egfr": 85.5,
+      "liver_function_ast": 28,
+      "concurrent_drugs": ["Lisinopril", "Simvastatin"],
+      "comorbidities": ["Type 2 Diabetes", "Hypertension"]
+    },
+    {
+      "drug_name": "Warfarin",
+      "dosage_mg": 5.0,
+      "frequency": "once daily",
+      "patient_genotype": {
+        "CYP2C9": "*1/*3",
+        "VKORC1": "-1639G>A",
+        "CYP4F2": "rs2108622_TT"
+      },
+      "age_years": 68,
+      "weight_kg": 82.0,
+      "kidney_function_egfr": 72.0,
+      "liver_function_ast": 32,
+      "concurrent_drugs": ["Aspirin", "NSAIDs"],
+      "comorbidities": ["Atrial Fibrillation", "Previous Stroke"]
+    },
+    {
+      "drug_name": "Clopidogrel",
+      "dosage_mg": 75.0,
+      "frequency": "once daily",
+      "patient_genotype": {
+        "CYP2C19": "*2/*2",
+        "CYP2C9": "*1/*1",
+        "PON1": "rs662_AA"
+      },
+      "age_years": 55,
+      "weight_kg": 92.0,
+      "kidney_function_egfr": 68.0,
+      "liver_function_ast": 35,
+      "concurrent_drugs": ["Omeprazole", "Atorvastatin"],
+      "comorbidities": ["Coronary Artery Disease", "Previous MI"]
+    }
+  ],
+  "patient_ids": [
+    "P001001",
+    "P001002",
+    "P001003",
+    "P001004",
+    "P001005",
+    "P001006",
+    "P001007",
+    "P001008",
+    "P001009",
+    "P001010"
+  ]
+}
