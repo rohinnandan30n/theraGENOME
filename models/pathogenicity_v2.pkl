@@ -1,0 +1,1 @@
+# Placeholder binary content for pathogenicity_v2 model

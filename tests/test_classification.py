@@ -8,6 +8,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 
 from src.ml.feature_preprocessor import FeaturePreprocessor
 from src.ml.classifier import PathogenicityClassifier
+from src.ml.model_manager import ModelRegistry
 
 
 class TestFeaturePreprocessor:
@@ -115,7 +116,16 @@ class TestPathogenicityClassifier:
         # Create mock model
         self.mock_model = Mock()
         self.mock_model.predict_proba = Mock(return_value=np.array([[0.2, 0.8]]))
-        
+
+        # Log the state of the ModelRegistry
+        from src.ml.model_manager import ModelRegistry
+        registry = ModelRegistry()
+        print("Model Metadata in Test Setup:", registry.model_metadata)
+
+        # Explicitly register default models
+        registry.register_default_models()
+        print("Model Metadata after forced registration:", registry.model_metadata)
+
         self.classifier = PathogenicityClassifier(default_version='v2')
         self.classifier.current_model = self.mock_model
     
@@ -256,6 +266,12 @@ class TestPathogenicityClassifier:
         assert len(results) == 2
         assert results[0]['classification'] == 'Pathogenic'
         assert results[1]['classification'] == 'Benign'
+
+
+def test_inspect_metadata():
+    from src.ml.model_manager import ModelRegistry
+    registry = ModelRegistry()
+    print("Model Metadata:", registry.model_metadata)
 
 
 if __name__ == '__main__':

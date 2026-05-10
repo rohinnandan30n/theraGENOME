@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Test Treatment Plan Endpoint
 Creates a treatment plan with auto-recommended drugs from classification
@@ -15,7 +15,7 @@ print("  TREATMENT PLAN TEST - Using Auto-Recommended Drugs")
 print("="*70 + "\n")
 
 # Step 1: Create treatment plan with auto-recommended drugs
-print("📋 Step 1: Creating Treatment Plan\n")
+print("[STEP 1] Creating Treatment Plan\n")
 
 plan_data = {
     "variants": [
@@ -73,19 +73,19 @@ try:
     
     if response.status_code == 201:
         plan_id = result.get("plan_id")
-        print(f"\n✅ Treatment Plan Created Successfully!")
+        print(f"\n[SUCCESS] Treatment Plan Created Successfully!")
         print(f"   Plan ID: {plan_id}")
         print(f"   Status: {result.get('status')}")
         print(f"   Message: {result.get('message')}")
     else:
-        print(f"\n❌ Failed to create treatment plan")
+        print(f"\n[FAIL] Failed to create treatment plan")
         
 except Exception as e:
-    print(f"❌ Error: {e}")
+    print(f"[FAIL] Error: {e}")
 
 # Step 2: Retrieve all treatment plans
 print("\n" + "="*70)
-print("📋 Step 2: Retrieving All Treatment Plans\n")
+print("[STEP 2] Retrieving All Treatment Plans\n")
 
 try:
     response = requests.get(
@@ -99,7 +99,7 @@ try:
     print(f"\nTotal Plans: {plans.get('count')}")
     
     if plans.get('count', 0) > 0:
-        print("\n📋 Treatment Plans:")
+        print("\n[INFO] Treatment Plans:")
         for i, plan in enumerate(plans.get('treatment_plans', []), 1):
             print(f"\n  Plan {i}:")
             print(f"    ID: {plan.get('id')}")
@@ -109,16 +109,16 @@ try:
             print(f"    Drugs: {len(plan.get('selected_drugs', []))}")
             print(f"    Created At: {plan.get('created_at')}")
         
-        print("\n✅ Treatment Plans Retrieved Successfully!")
+        print("\n[SUCCESS] Treatment Plans Retrieved Successfully!")
     else:
-        print("\n⚠️  No treatment plans found")
+        print("\n[WARN] No treatment plans found")
         
 except Exception as e:
-    print(f"❌ Error: {e}")
+    print(f"[FAIL] Error: {e}")
 
 # Step 3: Check Audit Log for Treatment Plan Entry
 print("\n" + "="*70)
-print("📋 Step 3: Checking Audit Log\n")
+print("[STEP 3] Checking Audit Log\n")
 
 try:
     response = requests.get(
@@ -140,13 +140,14 @@ try:
             print(f"  User: {log.get('user')}")
             print(f"  Timestamp: {log.get('timestamp')}")
             print()
-        print("✅ Audit Trail Created Successfully!")
+        print("[SUCCESS] Audit Trail Created Successfully!")
     else:
-        print("⚠️  No treatment plan audit entries found")
+        print("[WARN] No treatment plan audit entries found")
         
 except Exception as e:
-    print(f"❌ Error: {e}")
+    print(f"[FAIL] Error: {e}")
 
 print("="*70)
 print("  TEST COMPLETE")
 print("="*70 + "\n")
+

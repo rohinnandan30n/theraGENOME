@@ -1,6 +1,8 @@
 from typing import Dict, Any, Tuple, Optional
 import numpy as np
+import pickle
 import logging
+import os
 from src.ml.feature_preprocessor import FeaturePreprocessor
 from src.ml.model_manager import get_registry
 from src.ml.interpreters import SHAPInterpreter
@@ -11,6 +13,7 @@ logger = logging.getLogger(__name__)
 class PathogenicityClassifier:
     """Unified interface for pathogenicity classification"""
     
+    # Fallback thresholds if metadata not available
     CLASSIFICATION_THRESHOLDS = {
         'v1': {'pathogenic': 0.7, 'vus_lower': 0.4, 'vus_upper': 0.7},
         'v2': {'pathogenic': 0.75, 'vus_lower': 0.35, 'vus_upper': 0.75},
@@ -26,17 +29,48 @@ class PathogenicityClassifier:
         self.current_model = None
         self.current_version = None
         self.current_interpreter = None
+        self.current_threshold = None
+        self.current_scaler = None  # ✅ Feature scaler
         
         # Load default model
         self._load_model(default_version)
         logger.info(f"Pathogenicity classifier initialized with {model_name}:{default_version}")
     
     def _load_model(self, version: str):
-        """Load model and interpreter"""
+        """Load model, interpreter, threshold, and scaler from metadata"""
         try:
             model = self.registry.load_model(self.model_name, version)
             self.current_model = model
             self.current_version = version
+            
+            # Load threshold and scaler from metadata
+            model_info = self.registry.get_model_info(self.model_name, version)
+            if model_info and 'performance' in model_info and 'threshold' in model_info['performance']:
+                self.current_threshold = model_info['performance']['threshold']
+                logger.info(f"Loaded optimized threshold for {version}: {self.current_threshold:.4f}")
+            else:
+                # Fallback: compute midpoint threshold if metadata unavailable
+                default_thresholds = self.CLASSIFICATION_THRESHOLDS.get(version, self.CLASSIFICATION_THRESHOLDS['v2'])
+                self.current_threshold = default_thresholds['pathogenic']
+                logger.warning(f"Metadata threshold not found, using fallback: {self.current_threshold:.4f}")
+            
+            # Load scaler if available
+            if model_info and 'scaler_path' in model_info:
+                scaler_path = model_info['scaler_path']
+                if os.path.exists(scaler_path):
+                    try:
+                        with open(scaler_path, 'rb') as f:
+                            self.current_scaler = pickle.load(f)
+                        logger.info(f"Loaded feature scaler for {version} from {scaler_path}")
+                    except Exception as e:
+                        logger.warning(f"Failed to load scaler: {e}, will use raw features")
+                        self.current_scaler = None
+                else:
+                    logger.warning(f"Scaler file not found: {scaler_path}, will use raw features")
+                    self.current_scaler = None
+            else:
+                logger.warning(f"No scaler path in metadata, will use raw features")
+                self.current_scaler = None
             
             # Initialize interpreter
             feature_names = self.preprocessor.get_feature_names()
@@ -65,8 +99,16 @@ class PathogenicityClassifier:
             if version and version != self.current_version:
                 self._load_model(version)
             
-            # Preprocess features
+            # Preprocess features to get raw vector
             feature_vector = self.preprocessor.preprocess(features)
+            
+            # Apply scaler if available (prevents distribution shift)
+            if self.current_scaler is not None:
+                try:
+                    feature_vector = self.current_scaler.transform(feature_vector.reshape(1, -1))[0]
+                    logger.debug(f"Applied scaler to features: {feature_vector[:3]}...")
+                except Exception as e:
+                    logger.warning(f"Failed to apply scaler: {e}, using raw features")
             
             # Get prediction
             if hasattr(self.current_model, 'predict_proba'):
@@ -79,14 +121,19 @@ class PathogenicityClassifier:
                 pathogenic_prob = float(prediction)
                 benign_prob = 1.0 - pathogenic_prob
             
-            # Determine classification
-            thresholds = self.CLASSIFICATION_THRESHOLDS.get(self.current_version, 
-                                                           self.CLASSIFICATION_THRESHOLDS['v2'])
+            # Determine classification using optimized threshold
+            # Use threshold from model metadata (set during training)
+            optimal_threshold = self.current_threshold if self.current_threshold else 0.5
             
-            if pathogenic_prob >= thresholds['pathogenic']:
+            # VUS thresholds (band around the optimal threshold)
+            vus_margin = 0.15  # ±15% margin around threshold
+            vus_lower = max(0.0, optimal_threshold - vus_margin)
+            vus_upper = min(1.0, optimal_threshold + vus_margin)
+            
+            if pathogenic_prob >= optimal_threshold + vus_margin:
                 classification = 'Pathogenic'
                 confidence = pathogenic_prob
-            elif pathogenic_prob <= (1 - thresholds['pathogenic']):
+            elif pathogenic_prob <= optimal_threshold - vus_margin:
                 classification = 'Benign'
                 confidence = benign_prob
             else:
@@ -102,7 +149,11 @@ class PathogenicityClassifier:
                     'pathogenic': pathogenic_prob
                 },
                 'model_version': self.current_version,
-                'thresholds': thresholds
+                'thresholds': {
+                    'optimal': optimal_threshold,
+                    'vus_lower': vus_lower,
+                    'vus_upper': vus_upper
+                }
             }
             
             # Add interpretation if requested

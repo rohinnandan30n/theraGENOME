@@ -1,9 +1,10 @@
 from typing import Dict, Any, Optional, List, Tuple
 import numpy as np
 import pickle
+import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -35,20 +36,41 @@ class ModelRegistry:
                         model_path = os.path.join(self.models_dir, filename)
                         
                         model_id = f"{model_name}:{version}"
-                        if model_id not in self.model_metadata:
-                            self.model_metadata[model_id] = {
-                                'name': model_name,
-                                'version': version,
-                                'path': model_path,
-                                'registered_at': datetime.utcnow().isoformat(),
-                                'model_type': 'sklearn',
-                                'description': f'Auto-discovered {model_name} v{version}',
-                                'features': [],
-                                'performance': {}
-                            }
-                            logger.info(f"Auto-discovered model: {model_id}")
+                        # Try to load metadata from JSON file first
+                        metadata_path = os.path.join(self.models_dir, f"{model_name}_v{version}_metadata.json")
+                        
+                        if os.path.exists(metadata_path):
+                            try:
+                                with open(metadata_path, 'r') as f:
+                                    metadata = json.load(f)
+                                    self.model_metadata[model_id] = metadata
+                                    logger.info(f"Loaded metadata for model: {model_id}")
+                            except Exception as e:
+                                logger.warning(f"Failed to load metadata for {model_id}: {e}, using default")
+                                self._create_default_metadata(model_id, model_name, version, model_path)
+                        else:
+                            self._create_default_metadata(model_id, model_name, version, model_path)
+                        
+                        logger.info(f"Auto-discovered model: {model_id}")
         except Exception as e:
             logger.error(f"Error discovering models: {str(e)}")
+    
+    def _create_default_metadata(self, model_id: str, model_name: str, version: str, model_path: str):
+        """Create default metadata entry"""
+        if model_id not in self.model_metadata:
+            self.model_metadata[model_id] = {
+                'name': model_name,
+                'version': version,
+                'path': model_path,
+                'registered_at': datetime.now(timezone.utc).isoformat(),
+                'model_type': 'sklearn',
+                'description': f'Auto-discovered {model_name} v{version}',
+                'features': [],
+                'performance': {}
+            }
+        else:
+            # Update path in case model was moved
+            self.model_metadata[model_id]['path'] = model_path
     
     def register_model(self, model_name: str, version: str, model_path: str, 
                        metadata: Dict[str, Any] = None) -> bool:
@@ -60,27 +82,44 @@ class ModelRegistry:
                 logger.error(f"Model file not found: {model_path}")
                 return False
             
-            # Store metadata
-            if metadata is None:
-                metadata = {}
-            
-            self.model_metadata[model_id] = {
+            # Start with base fields
+            base_metadata = {
                 'name': model_name,
                 'version': version,
                 'path': model_path,
-                'registered_at': datetime.utcnow().isoformat(),
-                'model_type': metadata.get('model_type', 'sklearn'),
-                'description': metadata.get('description', ''),
-                'features': metadata.get('features', []),
-                'performance': metadata.get('performance', {})
+                'registered_at': datetime.now(timezone.utc).isoformat(),
+                'model_type': 'sklearn',
+                'description': '',
+                'features': [],
+                'performance': {}
             }
             
+            # Merge with provided metadata (preserves all extra fields like scaler_path)
+            if metadata:
+                base_metadata.update(metadata)
+            
+            self.model_metadata[model_id] = base_metadata
+            
             logger.info(f"Registered model: {model_id}")
+            logger.debug(f"Current model metadata: {self.model_metadata}")
             return True
         
         except Exception as e:
             logger.error(f"Error registering model: {str(e)}")
             return False
+    
+    def register_default_models(self):
+        """Register default models for testing"""
+        self.register_model(
+            model_name="pathogenicity",
+            version="v2",
+            model_path="./models/pathogenicity_v2.pkl",
+            metadata={
+                "description": "Auto-registered pathogenicity model v2",
+                "performance": {"threshold": 0.75},
+                "features": []
+            }
+        )
     
     def load_model(self, model_name: str, version: str = 'latest'):
         """Load model from disk"""
@@ -121,7 +160,7 @@ class ModelRegistry:
     
     def save_model(self, model_name: str, version: str, model, 
                    metadata: Dict[str, Any] = None) -> str:
-        """Save model to disk and register"""
+        """Save model to disk and register, including metadata to JSON"""
         try:
             model_filename = f"{model_name}_v{version}.pkl"
             model_path = os.path.join(self.models_dir, model_filename)
@@ -132,8 +171,18 @@ class ModelRegistry:
             
             logger.info(f"Saved model to {model_path}")
             
-            # Register model
+            # Register model and prepare metadata
             self.register_model(model_name, version, model_path, metadata)
+            
+            # Also save metadata to JSON file for persistence
+            metadata_filename = f"{model_name}_v{version}_metadata.json"
+            metadata_path = os.path.join(self.models_dir, metadata_filename)
+            
+            model_id = f"{model_name}:{version}"
+            with open(metadata_path, 'w') as f:
+                json.dump(self.model_metadata[model_id], f, indent=2, default=str)
+            
+            logger.info(f"Saved metadata to {metadata_path}")
             
             return model_path
         

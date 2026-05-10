@@ -1,0 +1,29 @@
+{
+  "name": "pathogenicity",
+  "version": "v3",
+  "path": "./models\\pathogenicity_vv3.pkl",
+  "registered_at": "2026-05-07T17:55:21.629032",
+  "model_type": "sklearn",
+  "description": "RandomForest pathogenicity classifier v3 with ensemble tuning and proper scaling",
+  "features": [
+    "phyloP_score",
+    "SIFT_score",
+    "PolyPhen_score",
+    "CADD_score",
+    "gnomAD_freq",
+    "REVEL_score",
+    "MutationTaster_score",
+    "FathmM_score",
+    "variant_type_encoded",
+    "aa_change_encoded"
+  ],
+  "performance": {
+    "accuracy": 0.945,
+    "sensitivity": 0.945,
+    "specificity": 0.945,
+    "auc_roc": 0.9896625000000001,
+    "f1_score": 0.945,
+    "threshold": 0.55
+  },
+  "scaler_path": "./models\\pathogenicity_v3_scaler.pkl"
+}

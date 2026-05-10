@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+﻿#!/usr/bin/env python3
 """
 Comprehensive API Endpoint Testing
 Tests all 8 endpoints of the TheraGenome Hackathon API
@@ -35,10 +35,10 @@ def test_health():
         response = requests.get(f"{BASE_URL}/health")
         print_response(response)
         assert response.status_code == 200
-        print("✅ PASS: Health check successful\n")
+        print("âœ… PASS: Health check successful\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -69,10 +69,10 @@ def test_classify():
         assert response.status_code == 200
         assert response.json()["status"] == "success"
         assert response.json()["variants_processed"] == 3
-        print("✅ PASS: Variants classified successfully\n")
+        print("âœ… PASS: Variants classified successfully\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -84,10 +84,10 @@ def test_get_results():
         response = requests.get(f"{BASE_URL}/api/v1/results", params={"limit": 10})
         print_response(response)
         assert response.status_code == 200
-        print("✅ PASS: Results retrieved successfully\n")
+        print("âœ… PASS: Results retrieved successfully\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -103,10 +103,10 @@ def test_get_drugs():
             print_response(response, f"Response for {gene}")
             assert response.status_code == 200
         
-        print("\n✅ PASS: Drug interactions retrieved successfully\n")
+        print("\nâœ… PASS: Drug interactions retrieved successfully\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -118,10 +118,10 @@ def test_audit_log():
         response = requests.get(f"{BASE_URL}/api/v1/audit-log", params={"limit": 50})
         print_response(response)
         assert response.status_code == 200
-        print("✅ PASS: Audit log retrieved successfully\n")
+        print("âœ… PASS: Audit log retrieved successfully\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -139,18 +139,18 @@ def test_dashboard():
                 print("Dashboard HTML served successfully")
                 print(f"Content-Type: {response.headers.get('content-type')}")
                 print(f"Response length: {len(response.text)} bytes")
-                print("✅ PASS: Dashboard served successfully\n")
+                print("âœ… PASS: Dashboard served successfully\n")
                 return True
             else:
                 print(f"Response: {response.json()}")
-                print("✅ PASS: Dashboard endpoint accessible\n")
+                print("âœ… PASS: Dashboard endpoint accessible\n")
                 return True
         else:
             print(f"Response: {response.text}")
-            print("✅ PASS: Dashboard endpoint accessible (not found is expected)\n")
+            print("âœ… PASS: Dashboard endpoint accessible (not found is expected)\n")
             return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -179,10 +179,10 @@ def test_create_treatment_plan():
         print_response(response)
         assert response.status_code == 201
         assert response.json()["status"] == "success"
-        print("✅ PASS: Treatment plan created successfully\n")
+        print("âœ… PASS: Treatment plan created successfully\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -194,10 +194,10 @@ def test_get_treatment_plans():
         response = requests.get(f"{BASE_URL}/api/v1/treatment-plans", params={"limit": 10})
         print_response(response)
         assert response.status_code == 200
-        print("✅ PASS: Treatment plans retrieved successfully\n")
+        print("âœ… PASS: Treatment plans retrieved successfully\n")
         return True
     except Exception as e:
-        print(f"❌ FAIL: {e}\n")
+        print(f"âŒ FAIL: {e}\n")
         return False
 
 # ============================================
@@ -205,10 +205,10 @@ def test_get_treatment_plans():
 # ============================================
 def main():
     print("\n")
-    print("╔" + "="*68 + "╗")
-    print("║" + " "*15 + "THERAGENOME API ENDPOINT TESTS" + " "*23 + "║")
-    print("║" + " "*20 + f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}" + " "*16 + "║")
-    print("╚" + "="*68 + "╝")
+    print("[" + "="*68 + "]")
+    print("|" + " "*15 + "THERAGENOME API ENDPOINT TESTS" + " "*23 + "|")
+    print("|" + " "*20 + f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}" + " "*16 + "|")
+    print("[" + "="*68 + "]")
     
     results = []
     
@@ -228,24 +228,25 @@ def main():
     total = len(results)
     
     for test_name, result in results:
-        status = "✅ PASS" if result else "❌ FAIL"
+        status = "[OK] PASS" if result else "[FAIL] FAIL"
         print(f"{status}: {test_name}")
     
     print(f"\nTotal: {passed}/{total} tests passed")
     
     if passed == total:
-        print("\n🎉 ALL TESTS PASSED!\n")
+        print("\n[SUCCESS] ALL TESTS PASSED!\n")
         return 0
     else:
-        print(f"\n⚠️  {total - passed} test(s) failed\n")
+        print(f"\n[WARN] {total - passed} test(s) failed\n")
         return 1
 
 if __name__ == "__main__":
     try:
         sys.exit(main())
     except KeyboardInterrupt:
-        print("\n\n⚠️  Tests interrupted by user\n")
+        print("\n\n[WARN] Tests interrupted by user\n")
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Unexpected error: {e}\n")
+        print(f"\n[FAIL] Unexpected error: {e}\n")
         sys.exit(1)
+

@@ -1,0 +1,12 @@
+{
+  "name": "pathogenicity",
+  "version": "v2",
+  "path": "./models/pathogenicity_v2.pkl",
+  "registered_at": "2026-05-10T00:00:00Z",
+  "model_type": "sklearn",
+  "description": "Auto-generated metadata for pathogenicity v2",
+  "features": [],
+  "performance": {
+    "threshold": 0.75
+  }
+}
