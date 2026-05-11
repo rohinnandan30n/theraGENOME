@@ -117,23 +117,33 @@ services:
       - theragenome
 
   # ============================================================================
-  # Redis - For rate limiting and caching
+  # Redis - For rate limiting and caching (SECURED)
   # ============================================================================
   redis:
     image: redis:7-alpine
     container_name: theragenome-redis
-    command: redis-server --appendonly yes
+    # Use secure redis.conf with authentication and hardened settings
+    command: redis-server /usr/local/etc/redis/redis.conf
+    environment:
+      # Redis password from environment (never hardcode)
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-changeme-in-production}
     volumes:
+      # Mount secure configuration file
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      # Data persistence volume
       - redis-data:/data
+    # SECURITY: Bind to localhost ONLY (no external access)
     ports:
-      - "6379:6379"
+      - "127.0.0.1:6379:6379"
     networks:
-      - theragenome
+      - theragenome-internal
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      # Check if Redis is alive (no password in healthcheck)
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-changeme-in-production}", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   # ============================================================================
   # OpenTelemetry Collector - Collects traces

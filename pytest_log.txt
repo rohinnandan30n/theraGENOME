@@ -1,0 +1,149 @@
+﻿........F.FF..........................FF..FF...                          [100%]
+================================== FAILURES ===================================
+_________________ TestMissingData.test_compare_without_drugs __________________
+
+self = <backend.tests.test_chatbot.TestMissingData object at 0x00000125734CC550>
+
+    def test_compare_without_drugs(self) -> None:
+        """compare_drugs with no drugs list \u2192 REQUIRE_MORE_DATA."""
+        resp = process_query(
+            user_input="Compare these medications",
+            mode="doctor",
+            context={},  # no "drugs" key
+        )
+        _assert_envelope(resp)
+>       assert resp["template"] == TemplateCode.REQUIRE_MORE_DATA.value
+E       AssertionError: assert 'REQUEST_MISSING_INFO' == 'REQUIRE_MORE_DATA'
+E         
+E         - REQUIRE_MORE_DATA
+E         + REQUEST_MISSING_INFO
+
+backend\tests\test_chatbot.py:171: AssertionError
+______________________ TestMissingData.test_empty_input _______________________
+
+self = <backend.tests.test_chatbot.TestMissingData object at 0x0000012573436EA0>
+
+    def test_empty_input(self) -> None:
+        """Empty string \u2192 general_query with low confidence."""
+        resp = process_query(user_input="", mode="doctor")
+        _assert_envelope(resp)
+>       assert resp["intent"] == "general_query"
+E       AssertionError: assert 'input_guidance' == 'general_query'
+E         
+E         - general_query
+E         + input_guidance
+
+backend\tests\test_chatbot.py:189: AssertionError
+_____________________ TestMissingData.test_unknown_query ______________________
+
+self = <backend.tests.test_chatbot.TestMissingData object at 0x0000012573436FD0>
+
+    def test_unknown_query(self) -> None:
+        """Completely unrelated text \u2192 general_query fallback."""
+        resp = process_query(
+            user_input="What's the weather like today?",
+            mode="doctor",
+        )
+        _assert_envelope(resp)
+>       assert resp["intent"] == "general_query"
+E       AssertionError: assert 'input_guidance' == 'general_query'
+E         
+E         - general_query
+E         + input_guidance
+
+backend\tests\test_chatbot.py:199: AssertionError
+______ TestSafetyGuardrails.test_guardrails_integration_with_controller _______
+
+self = <backend.tests.test_chatbot.TestSafetyGuardrails object at 0x00000125734D5A50>
+
+    def test_guardrails_integration_with_controller(self) -> None:
+        """Guardrails should run first in the controller pipeline."""
+        # Emergency query should return safety response, not normal pipeline
+        resp = process_query(
+            user_input="I have severe chest pain and can't breathe",
+            mode="doctor",
+            context={},
+        )
+    
+        # Should be safety response
+>       assert resp["intent"] == "safety_guardrail"
+E       AssertionError: assert 'input_guidance' == 'safety_guardrail'
+E         
+E         - safety_guardrail
+E         + input_guidance
+
+backend\tests\test_chatbot.py:713: AssertionError
+_________ TestSafetyGuardrails.test_guardrails_blocks_before_pipeline _________
+
+self = <backend.tests.test_chatbot.TestSafetyGuardrails object at 0x00000125734754F0>
+
+    def test_guardrails_blocks_before_pipeline(self) -> None:
+        """Safety responses should not enter normal processing pipeline."""
+        # Self-medication risk should trigger, not go to normal intent detection
+        resp = process_query(
+            user_input="What drug should I take without seeing a doctor?",
+            mode="doctor",
+            context={},
+        )
+    
+>       assert resp["intent"] == "safety_guardrail"
+E       AssertionError: assert 'input_guidance' == 'safety_guardrail'
+E         
+E         - safety_guardrail
+E         + input_guidance
+
+backend\tests\test_chatbot.py:727: AssertionError
+______ TestSafetyGuardrails.test_no_natural_language_in_safety_response _______
+
+self = <backend.tests.test_chatbot.TestSafetyGuardrails object at 0x00000125734DA190>
+
+    def test_no_natural_language_in_safety_response(self) -> None:
+        """Safety response should not contain natural language."""
+        resp = process_query(
+            user_input="I have chest pain",
+            mode="doctor",
+            context={},
+        )
+    
+        # No sentences in variables
+        for key, value in resp.get("variables", {}).items():
+            if isinstance(value, str):
+                # Should be a code like "EMERGENCY", not "You are experiencing an emergency"
+                assert value == value.upper() or len(value.split()) == 1, (
+                    f"Natural language detected in variables: {value}"
+                )
+    
+        # Action code should be uppercase
+>       action_code = resp["safety"]["action_code"]
+                      ^^^^^^^^^^^^^^
+E       KeyError: 'safety'
+
+backend\tests\test_chatbot.py:774: KeyError
+____________ TestSafetyGuardrails.test_guardrails_mode_independent ____________
+
+self = <backend.tests.test_chatbot.TestSafetyGuardrails object at 0x00000125734B42C0>
+
+    def test_guardrails_mode_independent(self) -> None:
+        """Guardrails should trigger in both doctor and patient modes."""
+        query = "I have severe bleeding"
+    
+        resp_doc = process_query(query, mode="doctor", context={})
+        resp_pat = process_query(query, mode="patient", context={})
+    
+        # Both should trigger safety
+>       assert resp_doc["intent"] == "safety_guardrail"
+E       AssertionError: assert 'input_guidance' == 'safety_guardrail'
+E         
+E         - safety_guardrail
+E         + input_guidance
+
+backend\tests\test_chatbot.py:786: AssertionError
+=========================== short test summary info ===========================
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_compare_without_drugs
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_empty_input - Ass...
+FAILED backend/tests/test_chatbot.py::TestMissingData::test_unknown_query - A...
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_guardrails_integration_with_controller
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_guardrails_blocks_before_pipeline
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_no_natural_language_in_safety_response
+FAILED backend/tests/test_chatbot.py::TestSafetyGuardrails::test_guardrails_mode_independent
+7 failed, 40 passed in 0.47s
