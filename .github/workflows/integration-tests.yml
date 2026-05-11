@@ -1,0 +1,63 @@
+name: Integration Tests
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+
+jobs:
+  integration-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11']
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio pytest-cov httpx
+        pip install fastapi uvicorn sqlalchemy pydantic slowapi
+
+    - name: Run integration tests
+      run: |
+        pytest tests/ -v --tb=short
+      continue-on-error: false
+
+    - name: Run tests with coverage
+      run: |
+        pytest tests/ --cov=src/api --cov-report=xml --cov-report=term-missing
+      continue-on-error: true
+
+    - name: Upload coverage reports
+      if: always()
+      uses: codecov/codecov-action@v3
+      with:
+        files: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    - name: Check test results
+      run: |
+        echo "Integration tests completed."
+        echo "Note: Some tests may be skipped or have known failures in classification module."

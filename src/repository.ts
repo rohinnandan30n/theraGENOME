@@ -9,8 +9,11 @@ import {
   ListResponse,
   StatisticsResponse,
 } from "./types.ts";
-import { Client } from "postgres";
-import { v4 } from "https://deno.land/std@0.208.0/uuid/mod.ts";
+
+// Generate a simple UUID v4
+function generateUUID(): string {
+  return crypto.randomUUID();
+}
 
 /**
  * Create a new variant result
@@ -20,7 +23,7 @@ export async function createVariantResult(
   data: CreateVariantResultRequest,
   userId: string
 ): Promise<VariantResult> {
-  const resultId = v4.generate();
+  const resultId = generateUUID();
   const now = new Date().toISOString();
 
   const result = await query<VariantResult>(

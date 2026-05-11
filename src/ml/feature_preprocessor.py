@@ -4,9 +4,36 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Expected feature vector length for model compatibility
+EXPECTED_FEATURE_COUNT = 10
+
+# Protein domain regions by gene (amino acid position ranges)
+DOMAIN_REGIONS = {
+    "TP53": [(102, 292)],
+    "BRCA1": [(1, 1863)],
+}
+
 
 class FeaturePreprocessor:
-    """Preprocess variant features for ML model input"""
+    """
+    Preprocess variant features for ML model input.
+    
+    Returns a 10-element feature vector in the following order:
+    1. phyloP_score (normalized conservation)
+    2. SIFT_score (protein impact)
+    3. PolyPhen_score (protein impact)
+    4. CADD_score (normalized combined pathogenicity)
+    5. gnomAD_freq (population frequency)
+    6. REVEL_score (ensemble pathogenicity)
+    7. MutationTaster_score (mutation impact)
+    8. FathmM_score (functional impact)
+    9. domain_annotation (1.0 if in known protein domain, 0.0 otherwise)
+    10. regulatory_region_flag (1.0 if in regulatory region, 0.0 otherwise)
+    11. splice_site_impact (1.0 if splice variant, 0.0 otherwise)
+    12. functional_prediction (composite score: mean of normalized scores)
+    
+    Note: Total = 12 when categorical encodings included; core numerical = 10
+    """
     
     # Feature columns expected by the model
     REQUIRED_FEATURES = [
@@ -48,6 +75,23 @@ class FeaturePreprocessor:
         self.NUMERICAL_FEATURES = [f for f in self.REQUIRED_FEATURES if f not in self.CATEGORICAL_FEATURES]
         
         logger.info("Feature preprocessor initialized")
+    
+    @staticmethod
+    def validate_feature_vector(vec: np.ndarray) -> None:
+        """
+        Validate feature vector length and type.
+        
+        Args:
+            vec: Feature vector to validate
+            
+        Raises:
+            ValueError: If vector length is not EXPECTED_FEATURE_COUNT
+        """
+        if len(vec) != EXPECTED_FEATURE_COUNT:
+            raise ValueError(
+                f"Feature vector length mismatch. Expected {EXPECTED_FEATURE_COUNT} features, "
+                f"got {len(vec)}. This indicates a mismatch between preprocessing and model training."
+            )
     
     def validate_features(self, features: Dict[str, Any]) -> Tuple[bool, List[str]]:
         """Validate input features"""
@@ -117,7 +161,17 @@ class FeaturePreprocessor:
     def preprocess(self, features: Dict[str, Any]) -> np.ndarray:
         """
         Preprocess features for model input.
-        Returns feature vector ready for ML model.
+        Returns a 10-element feature vector with the following structure:
+        1. phyloP_score (normalized)
+        2. SIFT_score (0-1)
+        3. PolyPhen_score (0-1)
+        4. CADD_score (normalized to 0-1)
+        5. gnomAD_freq (0-1)
+        6. REVEL_score (0-1)
+        7. domain_annotation (1.0 if in known protein domain, 0.0 otherwise)
+        8. regulatory_region_flag (1.0 if in regulatory region, 0.0 otherwise)
+        9. splice_site_impact (1.0 if splice variant, 0.0 otherwise)
+        10. functional_prediction (composite score of SIFT, PolyPhen, CADD)
         """
         # Validate
         is_valid, errors = self.validate_features(features)
@@ -127,10 +181,13 @@ class FeaturePreprocessor:
         # Handle missing values
         processed = self.handle_missing_values(features)
         
-        # Extract and normalize numerical features
+        # Extract and normalize only the first 6 numerical features
+        # (phyloP, SIFT, PolyPhen, CADD, gnomAD_freq, REVEL)
         feature_vector = []
+        primary_features = ['phyloP_score', 'SIFT_score', 'PolyPhen_score', 
+                           'CADD_score', 'gnomAD_freq', 'REVEL_score']
         
-        for feat_name in self.NUMERICAL_FEATURES:
+        for feat_name in primary_features:
             val = processed.get(feat_name, 0.0)
             
             # Normalize to 0-1 range (feature-specific normalization)
@@ -138,8 +195,7 @@ class FeaturePreprocessor:
                 val = (val + 14.0) / 20.0  # Range -14 to 6
             elif feat_name == 'CADD_score':
                 val = val / 99.0  # Range 0 to 99
-            elif feat_name in ['SIFT_score', 'PolyPhen_score', 'REVEL_score', 
-                             'MutationTaster_score', 'FathmM_score']:
+            elif feat_name in ['SIFT_score', 'PolyPhen_score', 'REVEL_score']:
                 val = val  # Already 0-1
             
             # Clamp to [0, 1] range to handle out-of-range values
@@ -147,17 +203,95 @@ class FeaturePreprocessor:
             
             feature_vector.append(val)
         
-        # Encode categorical features
-        variant_type = processed.get('variant_type', 'Unknown')
-        aa_change = processed.get('amino_acid_change', 'X')
-        variant_encoded, aa_encoded = self.encode_categorical(variant_type, aa_change)
+        # Feature 7: Domain annotation
+        domain_annotation = self._compute_domain_annotation(
+            processed.get('gene', 'Unknown'),
+            processed.get('position', 0)
+        )
+        feature_vector.append(domain_annotation)
         
-        # Normalize categorical encodings
-        feature_vector.append(variant_encoded / 6.0)  # 0-6 range
-        feature_vector.append(aa_encoded / 400.0)     # 0-400 range
+        # Feature 8: Regulatory region flag
+        regulatory_region_flag = float(processed.get('is_regulatory', False))
+        feature_vector.append(regulatory_region_flag)
         
-        return np.array(feature_vector, dtype=np.float32)
+        # Feature 9: Splice site impact
+        mutation_type = processed.get('mutation_type', '')
+        splice_site_impact = 1.0 if 'splice' in str(mutation_type).lower() else 0.0
+        feature_vector.append(splice_site_impact)
+        
+        # Feature 10: Functional prediction (composite score)
+        functional_prediction = self._compute_functional_prediction(processed)
+        feature_vector.append(functional_prediction)
+        
+        # Convert to numpy array
+        feature_array = np.array(feature_vector, dtype=np.float32)
+        
+        # Validate feature count
+        assert len(feature_array) == EXPECTED_FEATURE_COUNT, \
+            f"Feature vector length mismatch: expected {EXPECTED_FEATURE_COUNT}, got {len(feature_array)}"
+        
+        # Additional validation
+        self.validate_feature_vector(feature_array)
+        
+        return feature_array
+    
+    def _compute_domain_annotation(self, gene: str, position: int) -> float:
+        """
+        Check if variant falls within a known protein domain.
+        
+        Args:
+            gene: Gene symbol (e.g., 'TP53')
+            position: Amino acid position (1-based)
+            
+        Returns:
+            1.0 if variant is in a known domain, 0.0 otherwise
+        """
+        if gene not in DOMAIN_REGIONS:
+            return 0.0
+        
+        try:
+            position = int(position)
+            for start, end in DOMAIN_REGIONS[gene]:
+                if start <= position <= end:
+                    return 1.0
+        except (ValueError, TypeError):
+            pass
+        
+        return 0.0
+    
+    def _compute_functional_prediction(self, features: Dict[str, Any]) -> float:
+        """
+        Compute composite functional prediction score.
+        
+        Calculates mean of normalized SIFT, PolyPhen, and CADD scores.
+        Each component defaults to 0.5 if missing, then result is clamped to [0.0, 1.0].
+        
+        Args:
+            features: Feature dictionary with scoring values
+            
+        Returns:
+            Composite score in range [0.0, 1.0]
+        """
+        # Get component scores, defaulting to 0.5 if missing
+        sift = features.get('SIFT_score', 0.5)
+        polyphen = features.get('PolyPhen_score', 0.5)
+        cadd_raw = features.get('CADD_score', 20.0)
+        
+        # Normalize CADD to 0-1 range (CADD range is 0-99)
+        cadd_normalized = min(max(cadd_raw / 40.0, 0.0), 1.0)
+        
+        # Ensure all values are in valid range
+        sift = min(max(float(sift), 0.0), 1.0)
+        polyphen = min(max(float(polyphen), 0.0), 1.0)
+        
+        # Compute mean and clamp to [0.0, 1.0]
+        composite = (sift + polyphen + cadd_normalized) / 3.0
+        composite = min(max(composite, 0.0), 1.0)
+        
+        return float(composite)
     
     def get_feature_names(self) -> List[str]:
         """Get list of feature names in order"""
-        return self.NUMERICAL_FEATURES + ['variant_type_encoded', 'aa_change_encoded']
+        return self.NUMERICAL_FEATURES + ['variant_type_encoded', 'aa_change_encoded',
+                                         'domain_annotation', 'regulatory_region_flag',
+                                         'splice_site_impact', 'functional_prediction']

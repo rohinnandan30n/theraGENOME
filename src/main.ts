@@ -1,13 +1,17 @@
 // Entry point for Deno Variant Results API
 import { Application, Router } from "oak";
 import { initDatabase, closeDatabase } from "./db.ts";
-import router from "./routes_app.ts";
+import router from "./routes.ts";
 
 const app = new Application();
 
 // Environment config
 const HOST = Deno.env.get("HOST") || "127.0.0.1";
-const PORT = parseInt(Deno.env.get("PORT") || "3000");
+const PORT = parseInt(Deno.env.get("PORT") || "8001");
+
+// Load version from deno.json
+const denoJson = JSON.parse(await Deno.readTextFile("deno.json")) as { version: string };
+const API_VERSION = denoJson.version;
 
 // Logging middleware
 app.use(async (ctx, next) => {
@@ -24,7 +28,7 @@ app.use(async (ctx, next) => {
   } catch (error) {
     console.error("Error:", error);
     ctx.response.status = 500;
-    ctx.response.body = { error: error.message };
+    ctx.response.body = { error: error instanceof Error ? error.message : String(error) };
   }
 });
 
@@ -61,9 +65,9 @@ const healthRouter = new Router();
 healthRouter.get("/health", (ctx) => {
   ctx.response.status = 200;
   ctx.response.body = {
-    status: "healthy",
-    service: "variant-results-api",
+    status: "ok",
     timestamp: new Date().toISOString(),
+    version: API_VERSION,
   };
 });
 

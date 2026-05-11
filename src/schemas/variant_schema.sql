@@ -21,3 +21,17 @@ CREATE TABLE IF NOT EXISTS ingestion_jobs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+-- Model performance tracking table
+CREATE TABLE IF NOT EXISTS model_performance (
+    id SERIAL PRIMARY KEY,
+    variant_id VARCHAR(255),
+    model_version VARCHAR(50) NOT NULL,
+    predicted_label VARCHAR(50) NOT NULL,
+    true_label VARCHAR(50),
+    confidence FLOAT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_created_at (created_at),
+    INDEX idx_model_version (model_version),
+    INDEX idx_variant_id (variant_id)
+);

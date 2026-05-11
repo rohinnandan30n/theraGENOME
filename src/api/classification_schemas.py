@@ -2,6 +2,53 @@ from pydantic import BaseModel, Field
 from typing import Optional, Dict, List, Any
 
 
+class ClinVarData(BaseModel):
+    """ClinVar reference data for a variant"""
+    id: str = Field(..., description="ClinVar RCV identifier (e.g., RCV000012312)")
+    source: str = Field(default="ClinVar", description="Data source name")
+    url: str = Field(..., description="Link to ClinVar record")
+    significance: Optional[str] = Field(None, description="ClinVar clinical significance")
+
+
+def format_clinvar_id(raw_id: Optional[str]) -> Optional[str]:
+    """
+    Format raw ClinVar ID with source prefix for backwards compatibility.
+    
+    Args:
+        raw_id: Raw ClinVar ID (e.g., "RCV000012312")
+        
+    Returns:
+        Formatted ID with source prefix (e.g., "ClinVar:RCV000012312") or None
+    """
+    if not raw_id:
+        return None
+    return f"ClinVar:{raw_id}"
+
+
+def build_clinvar_data(raw_id: Optional[str], significance: Optional[str] = None) -> Optional[ClinVarData]:
+    """
+    Build complete ClinVar data object from raw ID.
+    
+    Args:
+        raw_id: Raw ClinVar ID (e.g., "RCV000012312")
+        significance: Clinical significance from ClinVar
+        
+    Returns:
+        ClinVarData object with full details or None if raw_id is None
+    """
+    if not raw_id:
+        return None
+    
+    url = f"https://www.ncbi.nlm.nih.gov/clinvar/{raw_id}/"
+    
+    return ClinVarData(
+        id=raw_id,
+        source="ClinVar",
+        url=url,
+        significance=significance
+    )
+
+
 class VariantFeatures(BaseModel):
     """Base model for variant features"""
     chrom: str = Field(..., description="Chromosome (1-22, X, Y, MT)")
@@ -56,6 +103,10 @@ class ClassificationResponse(BaseModel):
     clinical_significance: str = Field(..., description="Clinical significance")
     feature_importance: Dict[str, Any] = Field(..., description="Top important features")
     shape_values: Optional[Dict[str, Any]] = Field(None, description="SHAP values and interpretation")
+    flags: Optional[List[str]] = Field(None, description="Classification flags (e.g., hotspot_override, review_required)")
+    explanation: Optional[str] = Field(None, description="Additional explanation for classification or overrides")
+    clinvar_id: Optional[str] = Field(None, description="ClinVar identifier with source prefix (e.g., ClinVar:RCV000012312)")
+    clinvar_data: Optional[ClinVarData] = Field(None, description="Structured ClinVar reference data")
 
 
 class BatchClassificationRequest(BaseModel):
@@ -70,6 +121,8 @@ class BatchClassification(BaseModel):
     classification: str = Field(..., description="Classification result")
     confidence: float = Field(..., description="Confidence score")
     probabilities: Optional[Dict[str, float]] = Field(None, description="Class probabilities")
+    flags: Optional[List[str]] = Field(None, description="Classification flags")
+    explanation: Optional[str] = Field(None, description="Additional explanation")
     error: Optional[str] = Field(None, description="Error message if classification failed")
 
 

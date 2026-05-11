@@ -7,9 +7,14 @@ from src.api.classification_schemas import (
     ClassificationResponse,
     ModelInfoResponse,
     BatchClassificationRequest,
-    BatchClassificationResponse
+    BatchClassificationResponse,
+    format_clinvar_id,
+    build_clinvar_data
 )
 from src.ml.classifier import PathogenicityClassifier
+from src.api.variant_analysis import HotspotValidator
+from src.db.model_performance_repository import ModelPerformanceRepository
+from src.cache.redis_cache import get_cache
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +68,29 @@ async def classify_variant(
         # Classify
         result = classifier.classify(features, version=model_version, include_interpretation=True)
         
+        # Apply post-classification hotspot validation
+        validation_result = HotspotValidator.validate_and_override(
+            result,
+            gene_symbol=request.gene_symbol,
+            mutation_notation=request.amino_acid_change
+        )
+        
+        # Get hotspot info if this is a known hotspot
+        clinvar_id = None
+        clinvar_data = None
+        if request.gene_symbol and request.amino_acid_change:
+            hotspot_info = HotspotValidator.get_hotspot_info(
+                request.gene_symbol,
+                request.amino_acid_change
+            )
+            if hotspot_info and 'clinvar_id' in hotspot_info:
+                raw_id = hotspot_info['clinvar_id']
+                clinvar_id = format_clinvar_id(raw_id)
+                clinvar_data = build_clinvar_data(
+                    raw_id,
+                    significance=hotspot_info.get('clinical_significance')
+                )
+        
         # Convert to response model
         response = ClassificationResponse(
             variant_id=f"{request.chrom}-{request.pos}-{request.ref}-{request.alt}",
@@ -70,13 +98,17 @@ async def classify_variant(
             pos=request.pos,
             ref=request.ref,
             alt=request.alt,
-            classification=result['classification'],
-            confidence=result['confidence'],
-            probabilities=result['probabilities'],
-            model_version=result['model_version'],
-            feature_importance=result.get('interpretation', {}).get('shap_values', {}),
-            shape_values=result.get('interpretation', {}),
-            clinical_significance=_get_clinical_significance(result['classification'])
+            classification=validation_result['classification'],
+            confidence=validation_result['confidence'],
+            probabilities=validation_result['probabilities'],
+            model_version=validation_result['model_version'],
+            feature_importance=validation_result.get('interpretation', {}).get('shap_values', {}),
+            shape_values=validation_result.get('interpretation', {}),
+            clinical_significance=_get_clinical_significance(validation_result['classification']),
+            flags=validation_result.get('flags'),
+            explanation=validation_result.get('explanation'),
+            clinvar_id=clinvar_id,
+            clinvar_data=clinvar_data
         )
         
         logger.info(f"Classified variant: {response.variant_id} -> {response.classification}")
@@ -128,15 +160,25 @@ async def batch_classify_variants(
         # Batch classify
         results = classifier.batch_classify(variants_list, version=model_version)
         
-        # Convert to response format
+        # Convert to response format with hotspot validation
         classifications = []
         for i, result in enumerate(results):
             if 'error' not in result:
+                # Apply hotspot validation
+                var_req = request.variants[i]
+                validated = HotspotValidator.validate_and_override(
+                    result,
+                    gene_symbol=var_req.gene_symbol,
+                    mutation_notation=var_req.amino_acid_change
+                )
+                
                 classifications.append({
                     'variant_id': f"{result['variant']['chrom']}-{result['variant']['pos']}-{result['variant']['ref']}-{result['variant']['alt']}",
-                    'classification': result['classification'],
-                    'confidence': result['confidence'],
-                    'probabilities': result['probabilities']
+                    'classification': validated['classification'],
+                    'confidence': validated['confidence'],
+                    'probabilities': validated['probabilities'],
+                    'flags': validated.get('flags'),
+                    'explanation': validated.get('explanation')
                 })
             else:
                 classifications.append({
@@ -274,6 +316,99 @@ async def get_shap_values(
         raise HTTPException(status_code=400, detail="Invalid variant ID format")
     except Exception as e:
         logger.error(f"Error getting SHAP values: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/models/metrics")
+async def get_model_metrics() -> Dict[str, Any]:
+    """
+    Get model performance metrics for the last 7 days.
+    
+    Returns:
+    - rolling_auroc_7d: AUROC over last 7 days
+    - rolling_accuracy_7d: Accuracy over last 7 days
+    - total_predictions: Number of predictions with ground truth
+    - correct_predictions: Number of correct predictions
+    - low_confidence_rate: Rate of predictions with confidence < 0.70
+    - per_model_metrics: Per-model accuracy and confidence stats
+    - model_drift_alert: True if AUROC dropped below 0.80 (indicates model drift)
+    """
+    try:
+        # Get metrics from database
+        metrics = ModelPerformanceRepository.get_metrics_7d()
+        
+        # Check for model drift (AUROC < 0.80)
+        auroc = metrics.get('rolling_auroc_7d', 0.0)
+        model_drift_alert = auroc < 0.80
+        
+        # Store drift alert in cache with 24h TTL if AUROC is low
+        try:
+            cache = get_cache()
+            ttl_seconds = 24 * 3600  # 24 hours in seconds
+            if model_drift_alert:
+                import json
+                drift_data = {
+                    'alert': True,
+                    'auroc': auroc,
+                    'timestamp': str(__import__('datetime').datetime.utcnow())
+                }
+                cache.set(
+                    'model_drift_alert',
+                    json.dumps(drift_data),
+                    ttl_seconds
+                )
+                logger.warning(f"Model drift detected! AUROC={auroc:.4f} < 0.80 threshold")
+            else:
+                # Clear alert if performance recovered
+                cache.delete('model_drift_alert')
+        except Exception as e:
+            logger.warning(f"Could not set/clear cache alert: {str(e)}")
+        
+        # Add drift alert to response
+        metrics['model_drift_alert'] = model_drift_alert
+        
+        logger.info(f"Retrieved model metrics: AUROC={auroc:.4f}, Accuracy={metrics.get('rolling_accuracy_7d'):.4f}")
+        return metrics
+    
+    except Exception as e:
+        logger.error(f"Error getting model metrics: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/health/extended")
+async def get_extended_health() -> Dict[str, Any]:
+    """
+    Get extended health status including model drift alert.
+    
+    Returns:
+    - status: Service status
+    - timestamp: Current timestamp
+    - model_drift_alert: True if AUROC < 0.80
+    - models_available: List of available models
+    """
+    try:
+        classifier = get_classifier()
+        
+        # Check for model drift alert in cache
+        model_drift_alert = False
+        try:
+            cache = get_cache()
+            drift_data_str = cache.get('model_drift_alert')
+            if drift_data_str:
+                import json
+                drift_data = json.loads(drift_data_str)
+                model_drift_alert = drift_data.get('alert', False)
+        except Exception as e:
+            logger.debug(f"Could not check cache for drift alert: {str(e)}")
+        
+        return {
+            'status': 'healthy',
+            'timestamp': __import__('datetime').datetime.utcnow().isoformat(),
+            'model_drift_alert': model_drift_alert,
+            'models_available': [m.get('version') for m in classifier.list_available_models()]
+        }
+    except Exception as e:
+        logger.error(f"Error getting extended health: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 
