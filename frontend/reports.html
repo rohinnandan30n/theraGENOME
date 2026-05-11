@@ -659,6 +659,7 @@
                 <div class="button-group" style="margin-top: 20px;">
                     <button class="btn btn-primary" id="analyzeBtn" disabled>🔬 Analyze Report</button>
                     <button class="btn btn-secondary" id="clearBtn">🔄 Clear</button>
+                    <button class="btn btn-success" id="demoBtn" style="background: linear-gradient(135deg, #22c55e, #16a34a);">🎬 Load Demo Results</button>
                 </div>
 
                     <div style="margin-top: 20px; padding: 15px; background: rgba(168, 85, 247, 0.05); border-radius: 8px; border-left: 3px solid var(--secondary);">
@@ -864,6 +865,9 @@
 
                 // Clear
                 document.getElementById('clearBtn').addEventListener('click', () => this.clearResults());
+
+                // Demo Results
+                document.getElementById('demoBtn').addEventListener('click', () => this.loadDemoResults());
 
                 // Tabs
                 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -1316,6 +1320,41 @@
                 document.getElementById('pasteTextarea').value = '';
                 document.getElementById('analyzeBtn').disabled = true;
                 document.getElementById('resultsContainer').classList.remove('active');
+            }
+
+            async loadDemoResults() {
+                this.showLoading(true);
+                try {
+                    console.log('🎬 Loading demo results...');
+                    const response = await fetch('http://localhost:8000/api/v1/test-results', {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        console.error('Response not OK:', response.status, response.statusText);
+                        throw new Error(`Failed to load demo results (${response.status})`);
+                    }
+
+                    const data = await response.json();
+                    console.log('✅ Demo results received:', data);
+                    console.log('📊 Test count:', data.data?.test_counts);
+                    console.log('🧪 Tests array:', data.data?.tests?.length, 'tests');
+                    
+                    this.currentReport = data;
+                    this.displayResults(data);
+                    
+                    // Clear file inputs
+                    document.getElementById('fileInput').value = '';
+                    document.getElementById('pasteTextarea').value = '';
+                    
+                    console.log('✓ Demo results displayed successfully!');
+                } catch (error) {
+                    console.error('❌ Error loading demo results:', error);
+                    alert('Error loading demo results: ' + error.message);
+                } finally {
+                    this.showLoading(false);
+                }
             }
 
             goToSimulator() {

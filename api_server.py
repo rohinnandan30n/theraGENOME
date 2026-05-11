@@ -389,6 +389,245 @@ async def get_treatment_plans(limit: int = 10):
     }
 
 # ============================================
+# ENDPOINT 9: Get Hardcoded Demo Analysis Results
+# ============================================
+@app.get("/api/v1/test-results")
+async def get_test_results():
+    """
+    Returns hardcoded demo analysis results in the exact format
+    expected by the frontend for display.
+    """
+    return {
+        "status": "success",
+        "summary": "Whole Exome Sequencing (WXS) - Pharmacogenomics Analysis\n\nPatient: Emily Rodriguez (PAT-002-2026)\nAge: 47 years | Female\n\nAnalysis Status: COMPLETE ✓\nTotal Variants Analyzed: 11\nPathogenic Variants: 2\nDrug Metabolism Variants: 7\nCritical Alerts: 3\n\nOverall Risk Category: MODERATE-HIGH\nCancer Risk: HIGH (45-87% by age 70)",
+        "data": {
+            "test_counts": {
+                "normal": 3,
+                "abnormal": 7,
+                "critical": 2
+            },
+            "tests": [
+                {
+                    "test_name": "CYP2D6",
+                    "value": "Gene Duplication",
+                    "unit": "*1/*1xN",
+                    "reference_range": "Wild-type",
+                    "abnormality": "abnormal",
+                    "status": "CAUTION"
+                },
+                {
+                    "test_name": "CYP2C19",
+                    "value": "Wild-type",
+                    "unit": "*1/*1",
+                    "reference_range": "Normal",
+                    "abnormality": "normal",
+                    "status": "OK"
+                },
+                {
+                    "test_name": "CYP2C9",
+                    "value": "Wild-type",
+                    "unit": "*1/*1",
+                    "reference_range": "Normal",
+                    "abnormality": "normal",
+                    "status": "OK"
+                },
+                {
+                    "test_name": "TPMT",
+                    "value": "Normal Activity",
+                    "unit": "*1/*1",
+                    "reference_range": "Normal",
+                    "abnormality": "normal",
+                    "status": "OK"
+                },
+                {
+                    "test_name": "NAT2",
+                    "value": "Rapid Acetylator",
+                    "unit": "*4/*4",
+                    "reference_range": "Normal",
+                    "abnormality": "abnormal",
+                    "status": "CAUTION"
+                },
+                {
+                    "test_name": "SLCO1B1",
+                    "value": "Reduced Function",
+                    "unit": "*5/*1",
+                    "reference_range": "Normal",
+                    "abnormality": "abnormal",
+                    "status": "CAUTION"
+                },
+                {
+                    "test_name": "UGT1A1",
+                    "value": "Gilbert Syndrome",
+                    "unit": "TA7/TA7",
+                    "reference_range": "Normal",
+                    "abnormality": "abnormal",
+                    "status": "HIGH RISK"
+                },
+                {
+                    "test_name": "BRCA2",
+                    "value": "Pathogenic Mutation",
+                    "unit": "c.9097C>T",
+                    "reference_range": "No mutation",
+                    "abnormality": "critical",
+                    "status": "CRITICAL"
+                },
+                {
+                    "test_name": "CHEK2",
+                    "value": "Pathogenic Mutation",
+                    "unit": "1100delC",
+                    "reference_range": "No mutation",
+                    "abnormality": "critical",
+                    "status": "CRITICAL"
+                },
+                {
+                    "test_name": "TP53",
+                    "value": "Normal",
+                    "unit": "Wild-type",
+                    "reference_range": "Normal",
+                    "abnormality": "normal",
+                    "status": "OK"
+                },
+                {
+                    "test_name": "HLA-A",
+                    "value": "*02:01",
+                    "unit": "Allele",
+                    "reference_range": "Any",
+                    "abnormality": "normal",
+                    "status": "OK"
+                }
+            ],
+            "analysis": {
+                "test_summary": {
+                    "normal": 3,
+                    "abnormal": 7,
+                    "critical": 2
+                },
+                "critical_findings": [
+                    {
+                        "test": "BRCA2",
+                        "value": "c.9097C>T",
+                        "unit": "Frameshift (nonsense)",
+                        "reference": "No mutation",
+                        "deviation_percent": 100,
+                        "severity": "critical"
+                    },
+                    {
+                        "test": "CHEK2",
+                        "value": "1100delC",
+                        "unit": "Frameshift deletion",
+                        "reference": "No mutation",
+                        "deviation_percent": 100,
+                        "severity": "critical"
+                    },
+                    {
+                        "test": "UGT1A1",
+                        "value": "TA7/TA7",
+                        "unit": "Homozygous",
+                        "reference": "TA6/TA7 or TA6/TA6",
+                        "deviation_percent": 100,
+                        "severity": "high"
+                    }
+                ],
+                "detected_conditions": [
+                    {
+                        "disease": "Hereditary Breast Cancer",
+                        "severity": "critical",
+                        "risk_score": 0.87,
+                        "gene": "BRCA2",
+                        "recommendation": "Genetic counseling within 2 weeks, enhanced cancer screening"
+                    },
+                    {
+                        "disease": "Elevated Breast Cancer Risk",
+                        "severity": "high",
+                        "risk_score": 0.36,
+                        "gene": "CHEK2",
+                        "recommendation": "Family screening recommended"
+                    },
+                    {
+                        "disease": "Gilbert Syndrome",
+                        "severity": "high",
+                        "risk_score": 1.0,
+                        "gene": "UGT1A1",
+                        "recommendation": "Avoid irinotecan and 5-fluorouracil"
+                    }
+                ],
+                "pharmacogenomics": {
+                    "genetic_markers_detected": True,
+                    "cyp_profile": "Rapid Metabolizer (CYP2D6)",
+                    "metabolism_efficiency": "150-200% of normal",
+                    "drug_interaction_risk": "MODERATE",
+                    "metabolism_note": "Pain medications (tramadol, codeine) ineffective at standard doses",
+                    "specific_recommendations": [
+                        {
+                            "rank": "1",
+                            "specific_drug": "Tramadol",
+                            "category": "Opioid Pain Reliever",
+                            "action": "INCREASE DOSE",
+                            "initial_dose": "150mg daily",
+                            "target_dose": "150-200mg daily",
+                            "titration": "Standard pain management titration",
+                            "monitoring": "Assess pain control at each visit",
+                            "expected_outcome": "Adequate pain relief with increased dosing",
+                            "genetic_score": 0.95
+                        },
+                        {
+                            "rank": "2",
+                            "specific_drug": "Atorvastatin",
+                            "category": "Statin (Cholesterol)",
+                            "action": "REDUCE DOSE",
+                            "initial_dose": "10mg daily",
+                            "target_dose": "10mg daily (not 20mg)",
+                            "titration": "Start low, monitor lipids in 6 weeks",
+                            "monitoring": "Check lipid panel, watch for muscle pain",
+                            "expected_outcome": "Cholesterol control with reduced toxicity risk",
+                            "genetic_score": 0.70
+                        },
+                        {
+                            "rank": "3",
+                            "specific_drug": "Sertraline",
+                            "category": "Antidepressant (SSRI)",
+                            "action": "STANDARD DOSING",
+                            "initial_dose": "50mg daily",
+                            "target_dose": "50-100mg daily",
+                            "titration": "Standard SSRI titration schedule",
+                            "monitoring": "Serotonin levels, drug interactions with tramadol",
+                            "expected_outcome": "Standard response expected",
+                            "genetic_score": 1.0
+                        }
+                    ]
+                },
+                "drug_interaction_risk": {
+                    "liver_function_concern": False,
+                    "kidney_function_concern": False,
+                    "risk_level": "moderate",
+                    "drug_interactions": [
+                        "Tramadol + Sertraline - Monitor serotonin levels",
+                        "Atorvastatin + Grapefruit - Avoid grapefruit juice",
+                        "Codeine + CNS depressants - Monitor sedation",
+                        "Sulfamethoxazole + Warfarin - May increase bleeding risk",
+                        "Atorvastatin + Muscle pain - Monitor for rhabdomyolysis",
+                        "Sertraline + NSAIDs - Increased GI bleeding risk",
+                        "Tramadol + SNRIs - Serotonin syndrome risk",
+                        "Codeine efficacy + genetics - Reduced efficacy expected"
+                    ]
+                },
+                "recommendations": [
+                    "Schedule genetic counselor consultation within 2 weeks (URGENT)",
+                    "Adjust pain medication: Use 150-200mg tramadol daily instead of standard 50-100mg",
+                    "Reduce statin dose: Start atorvastatin at 10mg daily (not 20mg) due to SLCO1B1 mutation",
+                    "Baseline lipid panel and liver function tests",
+                    "Inform oncology of UGT1A1 status - AVOID irinotecan and 5-FU",
+                    "Enhanced cancer screening: Annual mammography + MRI starting immediately",
+                    "Family genetic testing coordination for BRCA2 and CHEK2",
+                    "Annual enhanced cancer screening with semi-annual clinical exams",
+                    "Medication compliance monitoring and lifestyle modification support",
+                    "6-month genetic counselor follow-up"
+                ]
+            }
+        }
+    }
+
+# ============================================
 # ENDPOINT 6: Serve Dashboard
 # ============================================
 @app.get("/")
