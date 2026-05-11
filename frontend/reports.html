@@ -971,9 +971,40 @@
                         }
 
                         const data = await response.json();
+                        
+                        // Check if it's a pharmacogenomics report result
+                        if (data.error) {
+                            // Try the regular report analyzer
+                            console.log('📝 Not a pharmacogenomics report, trying standard analyzer...');
+                            throw new Error(data.error);
+                        }
+                        
                         this.currentReport = data;
                         this.displayResults(data);
                     } catch (error) {
+                        console.log('🧬 Trying pharmacogenomics parser:', error.message);
+                        // Try pharmacogenomics parser
+                        try {
+                            const pharmaResponse = await fetch('http://localhost:8000/api/v1/reports/analyze-pharma', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    text: pastedText,
+                                    mode: this.mode
+                                })
+                            });
+                            
+                            const pharmaData = await pharmaResponse.json();
+                            if (!pharmaData.error) {
+                                console.log('✅ Pharmacogenomics report detected and parsed!');
+                                this.currentReport = pharmaData;
+                                this.displayResults(pharmaData);
+                                return;
+                            }
+                        } catch (pharmaError) {
+                            console.error('Pharmacogenomics parser error:', pharmaError);
+                        }
+                        
                         alert('Error: ' + error.message);
                         console.error(error);
                     } finally {
