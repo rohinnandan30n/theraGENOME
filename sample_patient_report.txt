@@ -1,0 +1,235 @@
+================================================================================
+                    CLINICAL PHARMACOGENOMICS REPORT
+================================================================================
+
+PATIENT INFORMATION
+-------------------
+Patient ID:           PAT-001-2026
+Patient Name:         John Doe
+Date of Birth:        March 15, 1985
+Age:                  41 years old
+Sex:                  Male
+Ethnicity:            European
+
+SEQUENCING INFORMATION
+----------------------
+Sequencing Date:      May 1, 2026
+Sequencing Type:      Whole Exome Sequencing (WXS)
+Laboratory:           Clinical Genomics Laboratory
+Report Date:          May 11, 2026
+Certified By:         Dr. Sarah Johnson, MD, Clinical Geneticist
+CLIA Number:          12D2159587
+
+
+================================================================================
+                        GENETIC PROFILE SUMMARY
+================================================================================
+
+PHARMACOGENES (Drug Metabolism)
+---------------------------------
+
+1. CYP2D6 - Intermediate Metabolizer
+   Variant:    p.G169R
+   Genotype:   *4/*41
+   Impact:     Reduced metabolism of ~25% of drugs
+   Affected Drugs: Codeine, tramadol, antidepressants
+   Recommendation: Standard dosing with monitoring
+
+2. CYP2C19 - Poor Metabolizer ⚠️ CRITICAL
+   Variant:    rs4244285
+   Genotype:   *2/*2
+   Impact:     REDUCED METABOLISM - Poor drug clearance
+   Affected Drugs: Clopidogrel, omeprazole, escitalopram
+   Recommendation: DOSE ADJUSTMENT REQUIRED
+
+3. CYP2C9 - Intermediate Metabolizer ⚠️
+   Variant:    rs1057910
+   Genotype:   *1/*3
+   Impact:     Reduced warfarin metabolism
+   Affected Drugs: Warfarin (anticoagulant)
+   Recommendation: INR MONITORING REQUIRED - Bleeding risk
+
+4. TPMT - Intermediate Activity
+   Variant:    rs1142345
+   Genotype:   *3A/*1
+   Impact:     Intermediate risk for thiopurine toxicity
+   Affected Drugs: Thiopurine compounds
+   Recommendation: Standard dosing with monitoring
+
+5. HLA-B - Carrier 🛑 CONTRAINDICATION
+   Variant:    rs9264942
+   Genotype:   *5701
+   Impact:     ABSOLUTE CONTRAINDICATION for abacavir
+   Affected Drugs: Abacavir (HIV medication)
+   Recommendation: AVOID COMPLETELY - Use alternative antiretroviral
+
+6. DPYD - Deficient 🛑 CONTRAINDICATION
+   Variant:    rs3918290
+   Genotype:   *2A/wt
+   Impact:     SEVERE TOXICITY RISK with fluoropyrimidines
+   Affected Drugs: 5-Fluorouracil, capecitabine (chemotherapy)
+   Recommendation: ABSOLUTE AVOIDANCE - High risk of death
+
+7. G6PD - G6PD Deficiency ⚠️
+   Variant:    rs1050828
+   Genotype:   A-/wt
+   Impact:     Risk of hemolysis with oxidative stressors
+   Affected Drugs: Sulfonamides, dapsone, antimalarials
+   Recommendation: AVOID oxidative stressors
+
+8. SLCO1B1 - Carrier
+   Variant:    rs6917289
+   Genotype:   *5
+   Impact:     Increased statin levels in blood
+   Affected Drugs: Statins (cholesterol medications)
+   Recommendation: Consider alternative statin or lower dose
+
+9. NAT2 - Slow Acetylator
+   Variant:    rs1801280
+   Genotype:   *5/*4
+   Impact:     Slow drug clearance for acetylated drugs
+   Affected Drugs: Isoniazid, sulfamethoxazole
+   Recommendation: Prolonged dosing interval recommended
+
+
+CLINICAL VARIANTS (Disease Risk)
+---------------------------------
+
+1. TP53 - Tumor Suppressor Gene
+   Variant:    p.R175H
+   RS ID:      rs121912664
+   Genotype:   Heterozygous
+   Pathogenicity: Likely Pathogenic
+   Clinical Significance: Associated with increased cancer risk
+   Allele Frequency: 0.01% (rare)
+   Recommendation: Genetic counseling recommended
+
+2. BRCA1 - Breast Cancer Susceptibility ⚠️ HIGH RISK
+   Variant:    c.68_69delAG (Frameshift)
+   RS ID:      rs80357906
+   Genotype:   Frameshift mutation
+   Pathogenicity: PATHOGENIC
+   Clinical Significance: INCREASED BREAST/OVARIAN CANCER RISK
+   Allele Frequency: 0.005% (very rare)
+   Recommendation: Genetic counseling and surveillance recommended
+
+
+================================================================================
+                      MEDICATION RECOMMENDATIONS
+================================================================================
+
+✅ RECOMMENDED MEDICATIONS
+---------------------------
+
+Antidepressant - Sertraline
+  Standard Dose:   50mg daily
+  Reason:          Partial CYP2D6 substrate - suitable for intermediate metabolizer
+  Interactions:    Warfarin (monitor INR)
+  Monitoring:      Therapeutic drug level check at 4 weeks
+
+⚠️ REQUIRES MONITORING
+------------------------
+
+Anticoagulant - Warfarin
+  Individualized:  5-7mg daily (based on INR)
+  Reason:          CYP2C9*3 variant reduces metabolism - INCREASED BLEEDING RISK
+  Interactions:    NSAIDs (GI bleeding risk), Sertraline
+  Monitoring:      INR check weekly for first month, then every 4 weeks
+
+🛑 CONTRAINDICATED - ABSOLUTE AVOIDANCE
+------------------------------------------
+
+HIV Medication - Abacavir
+  Reason:          HLA-B*5701 positive - ABSOLUTE CONTRAINDICATION
+  Alternative:     Use Bictegravir or Dolutegravir instead
+
+Chemotherapy - Fluorouracil (5-FU) or Capecitabine
+  Reason:          DPYD*2A deficient - HIGH RISK OF SEVERE TOXICITY
+  Toxicity Risk:   Severe neutropenia, diarrhea, death
+  Alternative:     Use taxanes or platinum-based chemotherapy
+
+⚠️ USE WITH CAUTION - REDUCED EFFICACY
+------------------------------------------
+
+Opioid - Codeine
+  Recommendation:  NOT RECOMMENDED
+  Reason:          CYP2D6 intermediate metabolizer - reduced analgesic effect
+  Alternative:     Use morphine, oxycodone, or non-opioid analgesics instead
+
+
+================================================================================
+                           RISK SUMMARY
+================================================================================
+
+Overall Risk Level:          HIGH
+Metabolizer Status:          Intermediate CYP2D6, Poor CYP2C19
+Major Contraindications:     3 (Abacavir, Fluorouracil, Capecitabine)
+Known Drug Interactions:     8
+Disease Risk Variants:       2 (TP53, BRCA1)
+
+CRITICAL NOTES:
+===============
+⚠️ URGENT: Review medication list with clinical pharmacist
+   This patient has compound pharmacogenetic issues requiring careful drug selection.
+
+⚠️ CYP2C19 poor metabolizer status requires dose reduction for:
+   - Clopidogrel (Plavix) - antiplatelet agent
+   - Escitalopram (Lexapro) - antidepressant
+   - Omeprazole (Prilosec) - proton pump inhibitor
+
+🛑 HLA-B*5701 positivity is ABSOLUTE contraindication for abacavir
+   - Even minimal exposure can cause severe hypersensitivity reaction
+   - Must use alternative antiretroviral therapy
+
+🛑 DPYD deficiency precludes fluoropyrimidine use
+   - Risk of severe toxicity with 5-FU and capecitabine
+   - Discuss alternative chemotherapy options if cancer treatment needed
+
+⚠️ BRCA1 frameshift mutation indicates elevated cancer risk
+   - Recommend genetic counseling
+   - Consider enhanced cancer surveillance protocols
+
+
+================================================================================
+                        CLINICAL RECOMMENDATIONS
+================================================================================
+
+1. PHARMACIST CONSULTATION: ESSENTIAL
+   - Review current medications against genetic profile
+   - Optimize doses based on metabolism status
+   - Plan alternative therapies for contraindicated drugs
+
+2. CARDIOLOGY CONSULTATION (if on warfarin)
+   - Establish baseline INR
+   - Create warfarin dosing schedule with frequent monitoring
+   - Consider alternative anticoagulants if INR unstable
+
+3. ONCOLOGY CONSULTATION
+   - Discuss chemotherapy alternatives given DPYD deficiency
+   - Plan immunotherapy or non-chemotherapy options if applicable
+
+4. GENETIC COUNSELING
+   - TP53 and BRCA1 positive results warrant counseling
+   - Consider familial screening
+   - Discuss cancer surveillance and prevention strategies
+
+5. PREVENTIVE MEDICINE
+   - Avoid oxidative stressors (NSAIDs, sulfonamides) due to G6PD deficiency
+   - Monitor statin therapy closely
+   - Baseline cancer screening per BRCA1 guidelines
+
+
+================================================================================
+                     REPORT CERTIFICATION
+================================================================================
+
+This report certifies that the genetic analysis and pharmacogenomic recommendations
+contained herein are based on current clinical standards and peer-reviewed literature.
+
+Certified By:    Dr. Sarah Johnson, MD, Clinical Geneticist
+Certification:   May 11, 2026
+CLIA License:    12D2159587
+
+================================================================================
+                            END OF REPORT
+================================================================================

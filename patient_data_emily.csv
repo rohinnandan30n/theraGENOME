@@ -1,0 +1,11 @@
+Patient ID,Gene,Variant,Genotype,Phenotype,Clinical Significance,Recommendation
+PAT-002-2026,BRCA2,c.9097C>T,Heterozygous,Pathogenic,INCREASED BREAST/OVARIAN/PANCREATIC CANCER RISK,GENETIC COUNSELING URGENT - Enhanced surveillance
+PAT-002-2026,CHEK2,1100delC,Heterozygous,Pathogenic,INCREASED BREAST CANCER RISK (2-3x population),GENETIC COUNSELING - Family screening recommended
+PAT-002-2026,CYP2D6,*1/*1xN,Gene Duplication,Rapid Metabolizer,INCREASED drug metabolism - standard doses may be ineffective,HIGHER THAN STANDARD DOSES MAY BE NEEDED for codeine/tramadol
+PAT-002-2026,CYP2C19,*1/*1,Wild-type,Normal Metabolizer,Normal drug clearance,Standard dosing appropriate
+PAT-002-2026,CYP2C9,*1/*1,Wild-type,Normal Metabolizer,Normal warfarin metabolism,Standard dosing appropriate
+PAT-002-2026,UGT1A1,TA7/TA7,Homozygous,Gilbert Syndrome,REDUCED BILIRUBIN CONJUGATION,IRINOTECAN CONTRAINDICATED - Use alternatives or 75% dose reduction
+PAT-002-2026,SLCO1B1,*5/*1,Heterozygous,Reduced Function,Reduced statin metabolism,START LOW statin doses - Consider pravastatin alternative
+PAT-002-2026,NAT2,*4/*4,Rapid Acetylator,Rapid Acetylation,Fast clearance of acetylated drugs,Standard to higher doses may be appropriate
+PAT-002-2026,HLA-A,*02:01,Heterozygous,Normal,No contraindications,Standard prescribing
+PAT-002-2026,ATM,c.1456C>T,Heterozygous,Unknown,Possible increased cancer risk (requires further study),Clinical correlation recommended

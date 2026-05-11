@@ -281,12 +281,17 @@ async def get_current_user(session_token: Optional[str] = Cookie(None)):
 
 
 @auth_router.post("/logout")
-async def logout(response: Response):
+async def logout(response: Response, session_token: Optional[str] = Cookie(None)):
     """
     Logout endpoint
     
-    Clears session cookie
+    Clears session cookie and invalidates session on server
     """
+    # Remove session from server
+    if session_token and session_token in sessions:
+        del sessions[session_token]
+    
+    # Delete cookie from client
     response.delete_cookie("session_token")
     return {"success": True, "message": "Logged out successfully"}
 

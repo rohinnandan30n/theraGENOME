@@ -8,16 +8,38 @@ from datetime import datetime
 import os
 import sys
 
+# Import routers from main app
+try:
+    from backend.auth_api import auth_router
+    from backend.chatbot.controller import api_router
+    from backend.chatbot.demo_api import demo_router
+    from backend.chatbot.report_api import report_router
+except ImportError:
+    auth_router = None
+    api_router = None
+    demo_router = None
+    report_router = None
+
 app = FastAPI(title="TheraGenome Hackathon", version="1.0")
 
 # Enable CORS for frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:8001", "http://127.0.0.1:8001", "http://localhost", "http://127.0.0.1", "*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include auth and chatbot routers
+if auth_router:
+    app.include_router(auth_router)
+if api_router:
+    app.include_router(api_router)
+if demo_router:
+    app.include_router(demo_router)
+if report_router:
+    app.include_router(report_router)
 
 # In-memory database mock (for demo/testing without PostgreSQL)
 MOCK_DATABASE = {
