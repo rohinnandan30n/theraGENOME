@@ -250,6 +250,10 @@ if HAS_FASTAPI:
         """
         Analyze pasted medical report text.
         
+        Auto-detects report type and routes to appropriate parser:
+        - Pharmacogenomics reports → pharmacogenomics parser
+        - Blood work/lab reports → standard parser
+        
         Parameters
         ----------
         request : ReportTextAnalysisRequest
@@ -261,12 +265,38 @@ if HAS_FASTAPI:
             Analyzed report with mode-specific formatting
         """
         try:
+            import re
+            
             if not request.text.strip():
                 raise ValueError("Please provide some report text to analyze")
             
-            # Parse report from pasted text
+            text = request.text
+            
+            # Detect if this is a pharmacogenomics report
+            pharma_indicators = [
+                'PHARMACOGENOMICS',
+                'Gene',
+                'CYP2D6',
+                'CYP2C19',
+                'CYP2C9',
+                'TPMT',
+                'TP53',
+                'APOE',
+                'genotype',
+                'Metabolizer',
+                'p.R175H',
+                'Whole Exome Sequencing'
+            ]
+            
+            is_pharmacogenomics = sum(1 for indicator in pharma_indicators if indicator in text) >= 3
+            
+            if is_pharmacogenomics:
+                # Route to pharmacogenomics parser
+                return await analyze_pharma(request)
+            
+            # Standard blood work analysis
             parsed_report = _analyzer.parse(
-                extracted_text=request.text,
+                extracted_text=text,
                 report_type=request.report_type,
                 confidence_score=0.80,  # Slightly lower confidence for user-pasted text
             )
@@ -367,6 +397,166 @@ if HAS_FASTAPI:
             raise HTTPException(status_code=400, detail=str(ve))
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error comparing reports: {str(e)}")
+    
+    @report_router.post(
+        "/analyze-pharma",
+        response_model=ReportAnalysisResponse,
+        summary="Analyze pharmacogenomics report",
+        description="Analyze medical report with pharmacogenomics/genetic data",
+    )
+    async def analyze_pharma(
+        request: ReportTextAnalysisRequest = Body(...),
+    ) -> ReportAnalysisResponse:
+        """
+        Analyze pharmacogenomics/genetic report.
+        
+        Specialized parser for reports containing:
+        - Gene variants and mutations
+        - Drug metabolism phenotypes
+        - Disease risk variants
+        - Pharmacogenomics data
+        
+        Parameters
+        ----------
+        request : ReportTextAnalysisRequest
+            Request containing pharmacogenomics report text, mode, and type
+        
+        Returns
+        -------
+        ReportAnalysisResponse
+            Analyzed report with genetic findings and recommendations
+        """
+        try:
+            import re
+            
+            if not request.text.strip():
+                raise ValueError("Please provide report text to analyze")
+            
+            text = request.text
+            
+            # Extract pharmacogenomics-specific fields
+            patient_name = None
+            date_of_report = None
+            test_data = []
+            critical_findings = []
+            drug_interactions = []
+            
+            # Patient name
+            patient_match = re.search(r'Patient\s*(?:Name)?:\s*([A-Za-z\s]+?)(?:\n|,|Age|ID)', text, re.IGNORECASE)
+            if patient_match:
+                patient_name = patient_match.group(1).strip()
+            
+            # Date
+            date_match = re.search(r'(?:Report\s*)?Date:\s*(\w+\s+\d+,?\s*\d{4}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4})', text, re.IGNORECASE)
+            if date_match:
+                date_of_report = date_match.group(1)
+            else:
+                from datetime import datetime
+                date_of_report = datetime.now().isoformat().split('T')[0]
+            
+            # Extract numbered gene sections (1. CYP2D6 - Intermediate Metabolizer, etc.)
+            gene_sections = re.findall(
+                r'^\s*\d+\.\s+([A-Z0-9]+)\s*[-–]\s*([^\n]+)',
+                text,
+                re.MULTILINE
+            )
+            
+            for gene_name, phenotype in gene_sections:
+                # Extract result/variant info
+                result_match = re.search(
+                    rf'{gene_name}.*?Result:\s*([^\n]+)',
+                    text,
+                    re.IGNORECASE | re.DOTALL
+                )
+                result = result_match.group(1).strip() if result_match else phenotype.strip()
+                
+                # Determine status
+                status = 'normal'
+                if any(x in text[max(0, text.find(gene_name)-200):text.find(gene_name)+500] for x in ['PATHOGENIC', 'CRITICAL', 'HIGH', 'poor_metabolizer', 'Poor Metabolizer']):
+                    status = 'critical'
+                elif any(x in phenotype for x in ['CAUTION', 'intermediate', 'Intermediate', 'Slow', 'slow']):
+                    status = 'high'
+                
+                test_data.append({
+                    'test_name': gene_name,
+                    'value': result,
+                    'unit': 'genotype',
+                    'reference_range': 'Normal',
+                    'abnormality': status
+                })
+            
+            # Extract critical findings section
+            critical_section = re.search(
+                r'(?:CRITICAL FINDINGS|Disease Risk Variants):(.*?)(?:DRUG|$)',
+                text,
+                re.IGNORECASE | re.DOTALL
+            )
+            
+            if critical_section:
+                # Find lines with critical information
+                for line in critical_section.group(1).split('\n'):
+                    if any(x in line for x in ['PATHOGENIC', 'CRITICAL', 'MUTATION', 'RISK']):
+                        clean_line = line.strip()
+                        if clean_line and len(clean_line) > 10:
+                            critical_findings.append(clean_line)
+            
+            # Extract drug interactions
+            drug_section = re.search(
+                r'(?:DRUG INTERACTION|Drug Interaction).*?(?:MEDICATION|CLINICAL|$)',
+                text,
+                re.IGNORECASE | re.DOTALL
+            )
+            
+            if drug_section:
+                for line in drug_section.group(0).split('\n'):
+                    if any(x in line for x in ['Warfarin', 'Plavix', 'Omeprazole', 'AVOID', 'CONTRAINDICATED', 'Interaction', 'interaction']):
+                        clean_line = line.strip()
+                        if clean_line and len(clean_line) > 10 and not clean_line.isupper():
+                            drug_interactions.append(clean_line)
+            
+            # Limit to top items
+            critical_findings = critical_findings[:10]
+            drug_interactions = drug_interactions[:10]
+            
+            # Generate mode-specific summary and analysis
+            if request.mode == "patient":
+                summary = f"Pharmacogenomics Analysis Report\n\nPatient: {patient_name or 'Unknown'}\nReport Date: {date_of_report}\n\nYour genetic analysis shows:\n- {len(test_data)} genes analyzed\n- {len(critical_findings)} critical findings\n- {len(drug_interactions)} drug interactions identified\n\nPlease schedule a consultation with your healthcare provider to discuss the results and recommendations."
+                data = {
+                    "tests": test_data,
+                    "test_counts": {
+                        "normal": len([t for t in test_data if t['abnormality'] == 'normal']),
+                        "abnormal": len([t for t in test_data if t['abnormality'] in ['high', 'low']]),
+                        "critical": len([t for t in test_data if t['abnormality'] == 'critical']),
+                    }
+                }
+            else:  # doctor mode
+                analysis = {
+                    "critical_findings": [{"test": cf.replace('Status:', '').replace('DETECTED -', '').strip(), "severity": "high"} for cf in critical_findings[:8]],
+                    "detected_conditions": [],
+                    "drug_recommendations": [{"disease": "Pharmacogenomics", "drug": di.replace('🛑', '').replace('⚠️', '').strip(), "class": "Clinical", "dosage": "See detailed findings", "note": "Review genetic interactions"} for di in drug_interactions[:8]],
+                }
+                summary = f"Pharmacogenomics Report: {len(test_data)} genes analyzed | {len(critical_findings)} critical findings | {len(drug_interactions)} drug interactions"
+                data = {
+                    "tests": test_data,
+                    "analysis": analysis,
+                }
+            
+            return ReportAnalysisResponse(
+                success=True,
+                mode=request.mode,
+                report_type="pharmacogenomics",
+                date_of_report=date_of_report,
+                patient_name=patient_name,
+                summary=summary,
+                data=data,
+                confidence=0.85,
+                message="Pharmacogenomics report analyzed successfully",
+            )
+        
+        except ValueError as ve:
+            raise HTTPException(status_code=400, detail=str(ve))
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Error analyzing pharmacogenomics report: {str(e)}")
     
     @report_router.get(
         "/supported-formats",

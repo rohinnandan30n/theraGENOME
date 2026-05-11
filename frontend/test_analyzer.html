@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Report Analyzer</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        textarea { width: 100%; height: 300px; }
+        button { padding: 10px 20px; font-size: 16px; }
+        .results { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
+        .error { color: red; }
+        .success { color: green; }
+    </style>
+</head>
+<body>
+    <h1>Report Analyzer Test</h1>
+    
+    <textarea id="reportText" placeholder="Paste report here..."></textarea>
+    <br>
+    <button onclick="analyzeReport()">Analyze</button>
+    <button onclick="loadSample()">Load Sample</button>
+    
+    <div id="results" class="results" style="display: none;"></div>
+    
+    <script>
+        async function loadSample() {
+            try {
+                // Try loading from the root directory
+                const response = await fetch('/../sample_patient_james_mitchell.txt');
+                const text = await response.text();
+                document.getElementById('reportText').value = text;
+            } catch(e) {
+                // Fallback: just show a message with sample text
+                alert('Loading from backend API directly. Click Analyze to test.');
+            }
+        }
+        
+        async function analyzeReport() {
+            const text = document.getElementById('reportText').value;
+            if (!text.trim()) {
+                alert('Please enter report text');
+                return;
+            }
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/v1/reports/analyze-text', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: text,
+                        mode: 'doctor',
+                        report_type: 'pasted_text'
+                    })
+                });
+                
+                const data = await response.json();
+                const resultsDiv = document.getElementById('results');
+                
+                if (data.success) {
+                    const tests = data.data.tests || [];
+                    let html = '<h2 class="success">✓ Analysis Successful!</h2>';
+                    html += '<p><strong>Patient:</strong> ' + data.patient_name + '</p>';
+                    html += '<p><strong>Date:</strong> ' + data.date_of_report + '</p>';
+                    html += '<p><strong>Report Type:</strong> ' + data.report_type + '</p>';
+                    html += '<p><strong>Tests Found:</strong> ' + tests.length + '</p>';
+                    
+                    if (tests.length > 0) {
+                        html += '<h3>Test Results:</h3><table border="1" cellpadding="10">';
+                        html += '<tr><th>Test Name</th><th>Value</th><th>Unit</th><th>Abnormality</th></tr>';
+                        tests.forEach(t => {
+                            html += '<tr>';
+                            html += '<td>' + t.test_name + '</td>';
+                            html += '<td>' + t.value + '</td>';
+                            html += '<td>' + t.unit + '</td>';
+                            html += '<td>' + t.abnormality + '</td>';
+                            html += '</tr>';
+                        });
+                        html += '</table>';
+                    }
+                    
+                    resultsDiv.innerHTML = html;
+                } else {
+                    resultsDiv.innerHTML = '<p class="error">Error: ' + data.message + '</p>';
+                }
+                resultsDiv.style.display = 'block';
+            } catch(e) {
+                document.getElementById('results').innerHTML = '<p class="error">Error: ' + e + '</p>';
+                document.getElementById('results').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
