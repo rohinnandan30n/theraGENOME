@@ -633,7 +633,7 @@
                         // Show success and redirect
                         this.showSuccess('patientSuccess', 'Login successful! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = './reports.html';
                         }, 1500);
                     } else {
                         this.showError('patientFormError', data.detail || 'Login failed. Please check your credentials.');
@@ -726,7 +726,7 @@
                         // Show success and redirect
                         this.showSuccess('doctorSignupSuccess', 'Registration successful! Your account is pending verification. Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = './reports.html';
                         }, 2000);
                     } else {
                         this.showError('doctorSignupFormError', data.detail || 'Registration failed. Please try again.');
@@ -777,7 +777,7 @@
                         // Show success and redirect
                         this.showSuccess('doctorSuccess', 'Registration successful! Your account is pending verification. Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = './reports.html';
                         }, 2000);
                     } else {
                         this.showError('doctorFormError', data.detail || 'Registration failed. Please try again.');
@@ -833,7 +833,7 @@
                 this.showLoading('patientSignupSubmit', true);
 
                 try {
-                    const response = await fetch(`${this.apiBase}/auth/register`, {
+                    const response = await fetch(`${this.apiBase}/auth/register-patient`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -858,7 +858,7 @@
                         // Show success and redirect
                         this.showSuccess('patientSignupSuccess', 'Account created successfully! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = './reports.html';
                         }, 1500);
                     } else {
                         this.showError('patientSignupFormError', data.detail || 'Registration failed. Please try again.');
@@ -915,7 +915,7 @@
                         // Show success and redirect
                         this.showSuccess('doctorLoginSuccess', 'Login successful! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = './reports.html';
                         }, 1500);
                     } else {
                         this.showError('doctorLoginFormError', data.detail || 'Login failed. Please check your credentials.');
