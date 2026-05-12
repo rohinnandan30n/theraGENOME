@@ -4,491 +4,755 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TheraGenome — AI-Powered Medical Genomics</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-            --primary: #14b8a6;
-            --primary-dark: #0d9488;
-            --secondary: #a855f7;
-            --accent: #f97316;
-            --danger: #ef4444;
-            --bg-dark: #0f1419;
-            --bg-card: #1a2332;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --border-light: rgba(148, 163, 184, 0.2);
+            --purple: #7c3aed;
+            --purple-dark: #5b21b6;
+            --purple-light: #ede9fe;
+            --pink: #ec4899;
+            --pink-light: #fce7f3;
+            --text: #18113a;
+            --text-mid: #4b5563;
+            --text-soft: #9ca3af;
+            --border: #e5e7eb;
+            --bg: #faf9ff;
+            --white: #ffffff;
+            --nav-bg: rgba(255,255,255,0.92);
+            --card-bg: #ffffff;
+            --hero-card-bg: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
+        }
+        [data-theme="dark"] {
+            --text: #f1f0ff;
+            --text-mid: #c4b5fd;
+            --text-soft: #7c6fad;
+            --border: #2d2050;
+            --bg: #0d0b1e;
+            --white: #16122e;
+            --nav-bg: rgba(13,11,30,0.96);
+            --card-bg: #1e1a38;
+            --hero-card-bg: linear-gradient(135deg, #1e1038 0%, #2d1042 100%);
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2f4a 100%);
-            color: var(--text-primary);
-            min-height: 100vh;
-            position: relative;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
         }
 
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.03) 0%, transparent 70%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 1400px;
+        .inner {
+            max-width: 1160px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 0 32px;
         }
 
-        /* Header */
-        .header {
+        /* ── NAV extras ── */
+        .nav-actions { display: flex; align-items: center; gap: 8px; }
+        .icon-btn {
+            width: 36px; height: 36px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-mid);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 16px; transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+        }
+        .icon-btn:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
+        .lang-select {
+            height: 36px; padding: 0 10px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-mid);
+            font-size: 13px; font-weight: 500;
+            cursor: pointer; transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+            appearance: none; -webkit-appearance: none;
+        }
+        .lang-select:hover { border-color: var(--purple); color: var(--purple); }
+        .lang-select:focus { outline: none; border-color: var(--purple); }
+        .navbar {
+            background: var(--nav-bg);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        /* DNA animation */
+        .dna-wrap { width: 100%; max-width: 440px; aspect-ratio: 1; display:flex; align-items:center; justify-content:center; background: var(--hero-card-bg); border-radius: 28px; border:1.5px solid rgba(124,58,237,0.12); box-shadow:0 16px 56px rgba(124,58,237,0.13); animation:float 5s ease-in-out infinite; overflow:hidden; }
+        .dna-svg { width: 60%; height: 60%; }
+        .dna-strand { animation: dnaRotate 4s linear infinite; transform-origin: center; }
+        .dna-strand-2 { animation: dnaRotate 4s linear infinite reverse; transform-origin: center; }
+        @keyframes dnaRotate { 0%{transform:rotateY(0deg)} 100%{transform:rotateY(360deg)} }
+        .dot { animation: pulse 2s ease-in-out infinite; }
+        .dot:nth-child(2n) { animation-delay: 0.3s; }
+        .dot:nth-child(3n) { animation-delay: 0.6s; }
+        @keyframes pulse { 0%,100%{opacity:0.6;r:4} 50%{opacity:1;r:6} }
+        .navbar .inner {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 60px;
-            flex-wrap: wrap;
-            gap: 20px;
+            justify-content: space-between;
+            height: 64px;
+            gap: 24px;
         }
-
         .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
-            font-size: 24px;
-            font-weight: 700;
+            gap: 10px;
             text-decoration: none;
-            color: var(--text-primary);
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--text);
+            letter-spacing: -0.4px;
         }
-
         .logo-icon {
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            border-radius: 9px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px;
+            flex-shrink: 0;
+            box-shadow: 0 3px 10px rgba(124,58,237,0.28);
         }
-
         .logo-text {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--purple), var(--pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
         .nav-links {
             display: flex;
-            gap: 40px;
+            gap: 32px;
             align-items: center;
+            flex: 1;
+            justify-content: center;
         }
-
         .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s ease;
-            font-size: 15px;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: var(--primary);
-        }
-
-        .header-buttons {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .btn-login {
-            padding: 10px 24px;
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--border-light);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            color: var(--text-mid);
             text-decoration: none;
             font-size: 14px;
+            font-weight: 500;
+            transition: color 0.18s;
+            position: relative;
+            padding-bottom: 2px;
         }
-
-        .btn-login:hover {
-            border-color: var(--primary);
-            color: var(--primary);
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px; left: 0;
+            width: 0; height: 2px;
+            background: var(--purple);
+            border-radius: 2px;
+            transition: width 0.18s;
         }
-
+        .nav-links a:hover, .nav-links a.active { color: var(--purple); }
+        .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
+        .nav-btns { display: flex; gap: 10px; align-items: center; }
+        .btn-login {
+            padding: 8px 20px;
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text);
+            font-size: 14px; font-weight: 600;
+            text-decoration: none;
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-login:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
         .btn-signup {
-            padding: 10px 24px;
-            background: linear-gradient(135deg, var(--primary), #0d9488);
-            color: #0f1419;
+            padding: 8px 20px;
             border: none;
             border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            background: var(--purple);
+            color: #fff;
+            font-size: 14px; font-weight: 600;
             text-decoration: none;
-            font-size: 14px;
+            transition: all 0.18s;
+            box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+            font-family: 'Inter', sans-serif;
         }
+        .btn-signup:hover { background: var(--purple-dark); transform: translateY(-1px); box-shadow: 0 6px 18px rgba(124,58,237,0.35); }
 
-        .btn-signup:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(20, 184, 166, 0.3);
+        /* ── HERO ── */
+        .hero-section {
+            width: 100%;
+            padding: 88px 0 80px;
+            background: var(--bg);
         }
-
-        /* Hero Section */
-        .hero {
+        .hero-section .inner {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 60px;
+            gap: 64px;
             align-items: center;
-            margin-bottom: 100px;
-            min-height: 600px;
         }
-
+        .hero-eyebrow {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--purple);
+            margin-bottom: 18px;
+        }
         .hero-content h1 {
-            font-size: 3.5rem;
-            line-height: 1.2;
-            margin-bottom: 30px;
-            color: var(--text-primary);
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            color: var(--text);
+            margin-bottom: 22px;
         }
-
         .hero-content h1 .highlight {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--purple) 30%, var(--pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
-
-        .hero-description {
-            font-size: 18px;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 40px;
+        .hero-desc {
+            font-size: 16px;
+            line-height: 1.75;
+            color: var(--text-mid);
+            margin-bottom: 36px;
+            max-width: 440px;
         }
-
-        .hero-description strong {
-            color: var(--primary);
-        }
-
-        .hero-buttons {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
+        .hero-desc strong { color: var(--purple); font-weight: 600; }
+        .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
         .btn {
-            padding: 14px 32px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 15px;
-            transition: all 0.3s ease;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 12px 26px;
+            border-radius: 9px;
+            font-size: 14px; font-weight: 600;
             text-decoration: none;
-            display: inline-block;
+            transition: all 0.18s;
+            border: none; cursor: pointer;
+            font-family: 'Inter', sans-serif;
         }
-
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), #0d9488);
-            color: #0f1419;
+            background: var(--purple); color: #fff;
+            box-shadow: 0 4px 14px rgba(124,58,237,0.32);
         }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 20px 40px rgba(20, 184, 166, 0.3);
+        .btn-primary:hover { background: var(--purple-dark); transform: translateY(-2px); box-shadow: 0 8px 22px rgba(124,58,237,0.38); }
+        .btn-ghost {
+            background: var(--white); color: var(--text);
+            border: 1.5px solid var(--border);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
         }
+        .btn-ghost:hover { border-color: var(--purple); color: var(--purple); background: var(--purple-light); }
 
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--border-light);
+        .hero-visual {
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .hero-image {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-        }
-
-        .hero-image-placeholder {
+        .hero-card {
             width: 100%;
-            max-width: 500px;
+            max-width: 440px;
             aspect-ratio: 1;
-            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(168, 85, 247, 0.1));
-            border: 2px solid var(--border-light);
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 80px;
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, #ede9fe 0%, #fce7f3 100%);
+            border-radius: 28px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 96px;
+            border: 1.5px solid rgba(124,58,237,0.12);
+            box-shadow: 0 16px 56px rgba(124,58,237,0.13), 0 2px 8px rgba(0,0,0,0.06);
+            animation: float 5s ease-in-out infinite;
+            position: relative; overflow: hidden;
         }
-
-        /* Features Section */
-        .features-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            background: rgba(20, 184, 166, 0.1);
-            border: 1px solid var(--primary);
-            border-radius: 20px;
-            color: var(--primary);
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 20px;
+        .hero-card::after {
+            content: '';
+            position: absolute;
+            bottom: -20%; right: -20%;
+            width: 55%; height: 55%;
+            background: radial-gradient(circle, rgba(236,72,153,0.15), transparent 70%);
+            border-radius: 50%;
         }
+        @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-14px)} }
 
-        .section-title {
-            font-size: 2.5rem;
-            margin-bottom: 50px;
-            color: var(--text-primary);
+        /* ── FEATURES ── */
+        .features-section {
+            width: 100%;
+            padding: 88px 0;
+            background: var(--white);
+            border-top: 1px solid var(--border);
         }
-
+        .section-header { margin-bottom: 52px; }
+        .section-label {
+            font-size: 12px; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.2px;
+            color: var(--pink);
+            margin-bottom: 12px;
+        }
+        .section-header h2 {
+            font-size: 2rem; font-weight: 800;
+            letter-spacing: -0.8px; color: var(--text);
+        }
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-bottom: 100px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
         }
-
         .feature-card {
-            background: rgba(26, 35, 50, 0.6);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-light);
+            background: var(--bg);
+            border: 1.5px solid var(--border);
             border-radius: 16px;
-            padding: 30px;
-            transition: all 0.3s ease;
+            padding: 28px 24px;
+            transition: all 0.22s;
+            position: relative;
+            overflow: hidden;
         }
-
-        .feature-card:hover {
-            background: rgba(26, 35, 50, 0.8);
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(20, 184, 166, 0.1);
+        .feature-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--purple), var(--pink));
+            opacity: 0; transition: opacity 0.22s;
         }
-
+        .feature-card:hover { transform: translateY(-6px); box-shadow: 0 14px 40px rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.2); }
+        .feature-card:hover::before { opacity: 1; }
         .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(20, 184, 166, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 20px;
+            width: 50px; height: 50px;
+            border-radius: 13px;
+            background: linear-gradient(135deg, var(--purple-light), var(--pink-light));
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px; margin-bottom: 18px;
         }
+        .feature-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+        .feature-card p { font-size: 13px; line-height: 1.65; color: var(--text-mid); }
 
-        .feature-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 12px;
-            color: var(--text-primary);
-        }
-
-        .feature-card p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-            font-size: 14px;
-        }
-
-        /* CTA Section */
+        /* ── CTA ── */
         .cta-section {
-            background: linear-gradient(135deg, rgba(20, 184, 166, 0.1), rgba(168, 85, 247, 0.1));
-            border: 1px solid var(--border-light);
-            border-radius: 20px;
-            padding: 60px;
+            width: 100%;
+            padding: 0 32px 80px;
+        }
+        .cta-inner {
+            max-width: 1160px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, var(--purple) 0%, #9333ea 55%, var(--pink) 100%);
+            border-radius: 24px;
+            padding: 72px 60px;
             text-align: center;
-            margin-bottom: 60px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 20px 60px rgba(124,58,237,0.3);
         }
-
-        .cta-section h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
+        .cta-inner::before {
+            content: '';
+            position: absolute; top: -60%; right: -5%;
+            width: 45%; height: 220%;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
         }
-
-        .cta-section p {
-            font-size: 18px;
-            color: var(--text-secondary);
-            margin-bottom: 30px;
+        .cta-inner h2 {
+            font-size: 2rem; font-weight: 800; color: #fff;
+            letter-spacing: -0.5px; margin-bottom: 14px; position: relative;
         }
+        .cta-inner p { font-size: 16px; color: rgba(255,255,255,0.78); margin-bottom: 32px; position: relative; }
+        .btn-white {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 13px 30px;
+            background: #fff; color: var(--purple);
+            border-radius: 9px; font-weight: 700; font-size: 14px;
+            text-decoration: none; position: relative;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transition: all 0.18s;
+            font-family: 'Inter', sans-serif;
+        }
+        .btn-white:hover { background: #f3f0ff; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.18); }
 
-        /* Footer */
+        /* ── FOOTER ── */
         .footer {
-            border-top: 1px solid var(--border-light);
-            padding-top: 40px;
+            width: 100%;
+            background: #130d2e;
+            color: rgba(255,255,255,0.7);
+        }
+        .footer-top {
+            padding: 64px 32px 48px;
+        }
+        .footer-top .inner {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1.2fr;
+            gap: 48px;
+        }
+        .footer-brand .logo {
+            display: flex; align-items: center; gap: 10px;
+            margin-bottom: 16px;
+            font-size: 17px; font-weight: 800; color: #fff;
+            text-decoration: none;
+        }
+        .footer-brand .logo-icon {
+            background: linear-gradient(135deg, var(--purple), var(--pink));
+            box-shadow: 0 3px 10px rgba(124,58,237,0.4);
+        }
+        .footer-brand .logo-text {
+            background: linear-gradient(135deg, #a78bfa, var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .footer-brand p {
+            font-size: 13px; line-height: 1.7;
+            color: rgba(255,255,255,0.45);
+            max-width: 240px;
+        }
+        .footer-col h4 {
+            font-size: 13px; font-weight: 700;
+            color: #fff; margin-bottom: 18px;
+            letter-spacing: 0.3px;
+        }
+        .footer-col a, .footer-col span {
+            display: block;
+            font-size: 13px;
+            color: rgba(255,255,255,0.45);
+            text-decoration: none;
+            margin-bottom: 11px;
+            transition: color 0.18s;
+        }
+        .footer-col a:hover { color: rgba(255,255,255,0.9); }
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.07);
+            padding: 20px 32px;
             text-align: center;
-            color: var(--text-secondary);
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
         }
 
+        /* ── RESPONSIVE ── */
         @media (max-width: 1024px) {
-            .hero {
-                grid-template-columns: 1fr;
-                margin-bottom: 60px;
-                min-height: auto;
-            }
-
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-
-            .nav-links {
-                gap: 20px;
-            }
-
-            .cta-section {
-                padding: 40px;
-            }
+            .hero-section .inner { grid-template-columns: 1fr; gap: 40px; padding-top: 60px; }
+            .features-grid { grid-template-columns: repeat(2, 1fr); }
+            .footer-top .inner { grid-template-columns: 1fr 1fr; gap: 32px; }
         }
-
         @media (max-width: 768px) {
-            .header {
-                flex-direction: column;
-                text-align: center;
-                margin-bottom: 40px;
-            }
-
-            .nav-links {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .header-buttons {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .hero-content h1 {
-                font-size: 2rem;
-            }
-
-            .hero-buttons {
-                justify-content: center;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .section-title {
-                font-size: 1.8rem;
-            }
+            .navbar .inner { gap: 12px; }
+            .nav-links { display: none; }
+            .hero-content h1 { font-size: 2.2rem; }
+            .features-grid { grid-template-columns: 1fr; }
+            .cta-inner { padding: 48px 28px; }
+            .cta-inner h2 { font-size: 1.6rem; }
+            .footer-top .inner { grid-template-columns: 1fr; gap: 28px; }
         }
     </style>
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
+
+    <!-- NAV -->
+    <nav class="navbar">
+        <div class="inner">
             <a href="home.html" class="logo">
                 <div class="logo-icon">🧬</div>
                 <span class="logo-text">TheraGenome</span>
             </a>
             <div class="nav-links">
                 <a href="home.html" class="active">Home</a>
-                <a href="index.html" onclick="alert('Please login first'); return false;">Report Analyzer</a>
-                <a href="index.html" onclick="alert('Please login first'); return false;">Education</a>
-                <a href="index.html" onclick="alert('Please login first'); return false;">Chatbot</a>
+                <a href="reports.html">Report Analyzer</a>
+                <a href="education.html">Education</a>
+                <a href="chatbot.html">Chatbot</a>
             </div>
-            <div class="header-buttons">
-                <a href="index.html" class="btn-login">Login</a>
-                <a href="index.html" class="btn-signup">Sign Up</a>
+            <div class="nav-btns">
+                <div class="nav-actions">
+                    <select class="lang-select" id="langSelect" onchange="switchLang(this.value)" title="Language">
+                        <option value="en">🌐 EN</option>
+                        <option value="kn">ಕನ್ನಡ</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="ta">தமிழ்</option>
+                        <option value="te">తెలుగు</option>
+                        <option value="mr">मराठी</option>
+                        <option value="bn">বাংলা</option>
+                        <option value="ml">മലയാളം</option>
+                    </select>
+                    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+                </div>
+                <a href="login.html" class="btn-login" id="nav-login">Login</a>
+                <a href="login.html" class="btn-signup" id="nav-signup">Sign Up</a>
             </div>
         </div>
+    </nav>
 
-        <!-- Hero Section -->
-        <div class="hero">
+    <!-- HERO -->
+    <section class="hero-section">
+        <div class="inner">
             <div class="hero-content">
-                <div class="features-badge">🚀 NEXT-GEN GENOMIC ANALYSIS</div>
-                
+                <p class="hero-eyebrow">Next-gen genomic analysis</p>
                 <h1>
-                    THE FUTURE OF<br>
-                    <span class="highlight">MEDICAL GENOMICS</span>
+                    The Future of<br>
+                    <span class="highlight">Medical Genomics</span>
                 </h1>
-
-                <p class="hero-description">
-                    TheraGenome revolutionizes healthcare with <strong>AI-powered medical report analysis and drug interaction prediction</strong>. 
-                    From comprehensive blood test analysis to personalized treatment recommendations powered by advanced genomic data.
+                <p class="hero-desc">
+                    TheraGenome makes sense of your health data — from <strong>AI-powered medical report analysis</strong> to drug interaction prediction and personalized treatment recommendations.
                 </p>
-
-                <div class="hero-buttons">
-                    <a href="index.html" class="btn btn-primary">📊 Start Analysis →</a>
-                    <a href="index.html" class="btn btn-secondary">📚 Learn More</a>
+                <div class="hero-btns">
+                    <a href="reports.html" class="btn btn-primary">Start Analysis →</a>
+                    <a href="education.html" class="btn btn-ghost">Learn More</a>
                 </div>
             </div>
-
-            <div class="hero-image">
-                <div class="hero-image-placeholder">🔬</div>
+            <div class="hero-visual">
+                <div class="dna-wrap">
+                    <svg class="dna-svg" viewBox="0 0 200 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Left strand -->
+                        <path class="dna-strand" d="M60 20 C60 60, 140 80, 140 120 C140 160, 60 180, 60 220 C60 260, 140 280, 140 300" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.85"/>
+                        <!-- Right strand -->
+                        <path class="dna-strand-2" d="M140 20 C140 60, 60 80, 60 120 C60 160, 140 180, 140 220 C140 260, 60 280, 60 300" stroke="#ec4899" stroke-width="3.5" stroke-linecap="round" fill="none" opacity="0.85"/>
+                        <!-- Rungs -->
+                        <line x1="60" y1="50" x2="140" y2="70" stroke="#a78bfa" stroke-width="2" opacity="0.6"/>
+                        <line x1="140" y1="100" x2="60" y2="120" stroke="#f9a8d4" stroke-width="2" opacity="0.6"/>
+                        <line x1="60" y1="150" x2="140" y2="170" stroke="#a78bfa" stroke-width="2" opacity="0.6"/>
+                        <line x1="140" y1="200" x2="60" y2="220" stroke="#f9a8d4" stroke-width="2" opacity="0.6"/>
+                        <line x1="60" y1="250" x2="140" y2="270" stroke="#a78bfa" stroke-width="2" opacity="0.6"/>
+                        <!-- Dots left -->
+                        <circle class="dot" cx="60" cy="50" r="5" fill="#7c3aed"/>
+                        <circle class="dot" cx="60" cy="120" r="5" fill="#7c3aed"/>
+                        <circle class="dot" cx="60" cy="150" r="5" fill="#7c3aed"/>
+                        <circle class="dot" cx="60" cy="220" r="5" fill="#7c3aed"/>
+                        <circle class="dot" cx="60" cy="250" r="5" fill="#7c3aed"/>
+                        <!-- Dots right -->
+                        <circle class="dot" cx="140" cy="70" r="5" fill="#ec4899"/>
+                        <circle class="dot" cx="140" cy="100" r="5" fill="#ec4899"/>
+                        <circle class="dot" cx="140" cy="170" r="5" fill="#ec4899"/>
+                        <circle class="dot" cx="140" cy="200" r="5" fill="#ec4899"/>
+                        <circle class="dot" cx="140" cy="270" r="5" fill="#ec4899"/>
+                    </svg>
+                </div>
             </div>
         </div>
+    </section>
 
-        <!-- Features Section -->
-        <div>
-            <div class="features-badge">CAPABILITIES</div>
-            <h2 class="section-title">Key Features</h2>
-
+    <!-- FEATURES -->
+    <section class="features-section">
+        <div class="inner">
+            <div class="section-header">
+                <p class="section-label">What we offer</p>
+                <h2>Key Features</h2>
+            </div>
             <div class="features-grid">
-                <!-- Feature 1 -->
                 <div class="feature-card">
                     <div class="feature-icon">📋</div>
                     <h3>Report Analysis</h3>
-                    <p>Advanced AI analysis of medical reports, lab results, and genetic data with instant clinical insights and recommendations.</p>
+                    <p>Advanced AI analysis of medical reports, lab results, and genetic data with instant clinical insights.</p>
                 </div>
-
-                <!-- Feature 2 -->
                 <div class="feature-card">
                     <div class="feature-icon">🤖</div>
                     <h3>AI Chatbot</h3>
-                    <p>Conversational AI assistant for real-time medical queries, personalized guidance, and health education support.</p>
+                    <p>Conversational AI for real-time medical queries, personalized guidance, and health education.</p>
                 </div>
-
-                <!-- Feature 3 -->
                 <div class="feature-card">
                     <div class="feature-icon">💊</div>
                     <h3>Drug Simulator</h3>
-                    <p>Predictive modeling of drug interactions and treatment outcomes based on individual genetic profiles and health data.</p>
+                    <p>Predictive modeling of drug interactions based on your individual genetic profile and health data.</p>
                 </div>
-
-                <!-- Feature 4 -->
                 <div class="feature-card">
                     <div class="feature-icon">📚</div>
                     <h3>Education Hub</h3>
-                    <p>Comprehensive learning resources about genes, medical conditions, treatments, and genomic science.</p>
+                    <p>Learning resources about genes, medical conditions, treatments, and genomic science.</p>
                 </div>
             </div>
         </div>
+    </section>
 
-        <!-- CTA Section -->
-        <div class="cta-section">
+    <!-- CTA -->
+    <section class="cta-section">
+        <div class="cta-inner">
             <h2>Ready to Transform Your Healthcare?</h2>
             <p>Start analyzing your medical reports with TheraGenome's AI-powered platform</p>
-            <a href="index.html" class="btn btn-primary">Get Started Now →</a>
+            <a href="reports.html" class="btn-white">Get Started Now →</a>
         </div>
+    </section>
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>&copy; 2026 TheraGenome. Advanced medical genomics powered by AI.</p>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-top">
+            <div class="inner">
+                <div class="footer-brand">
+                    <a href="home.html" class="logo">
+                        <div class="logo-icon">🧬</div>
+                        <span class="logo-text">TheraGenome</span>
+                    </a>
+                    <p>Advanced medical report analysis powered by genomic intelligence. Built for patients and doctors alike.</p>
+                </div>
+                <div class="footer-col">
+                    <h4>Platform</h4>
+                    <a href="#">Report Analyzer</a>
+                    <a href="#">AI Chatbot</a>
+                    <a href="#">Education Hub</a>
+                    <a href="#">Drug Simulator</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Use</a>
+                    <a href="#">Blog</a>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <span>contact@theragenome.ai</span>
+                    <span>support@theragenome.ai</span>
+                </div>
+            </div>
         </div>
-    </div>
+        <div class="footer-bottom">
+            <p>© 2026 TheraGenome. Advanced medical genomics powered by AI.</p>
+        </div>
+    </footer>
+
+<script>
+// ── DARK MODE ──
+const html = document.documentElement;
+const themeBtn = document.getElementById('themeToggle');
+
+function applyTheme(dark) {
+    html.setAttribute('data-theme', dark ? 'dark' : 'light');
+    themeBtn.textContent = dark ? '☀️' : '🌙';
+    localStorage.setItem('theme', dark ? 'dark' : 'light');
+}
+
+function toggleTheme() {
+    applyTheme(html.getAttribute('data-theme') !== 'dark');
+}
+
+// Load saved preference — default is dark unless user explicitly saved 'light'
+applyTheme(localStorage.getItem('theme') !== 'light');
+
+// ── LANGUAGE ──
+const translations = {
+    en: {
+        navLogin:'Login', navSignup:'Sign Up', eyebrow:'Next-gen genomic analysis',
+        h1a:'The Future of', h1b:'Medical Genomics',
+        heroDesc:'TheraGenome makes sense of your health data — from <strong>AI-powered medical report analysis</strong> to drug interaction prediction and personalized treatment recommendations.',
+        btnStart:'Start Analysis →', btnLearn:'Learn More', featLabel:'What we offer', featTitle:'Key Features',
+        f1t:'Report Analysis', f1d:'Advanced AI analysis of medical reports, lab results, and genetic data with instant clinical insights.',
+        f2t:'AI Chatbot', f2d:'Conversational AI for real-time medical queries, personalized guidance, and health education.',
+        f3t:'Drug Simulator', f3d:'Predictive modeling of drug interactions based on your individual genetic profile.',
+        f4t:'Education Hub', f4d:'Learning resources about genes, medical conditions, treatments, and genomic science.',
+        ctaH:'Ready to Transform Your Healthcare?', ctaP:"Start analyzing your medical reports with TheraGenome's AI-powered platform",
+        ctaBtn:'Get Started Now →', footDesc:'Advanced medical report analysis powered by genomic intelligence.',
+        footCopy:'© 2026 TheraGenome. Advanced medical genomics powered by AI.'
+    },
+    kn: {
+        navLogin:'ಲಾಗಿನ್', navSignup:'ಸೈನ್ ಅಪ್', eyebrow:'ಮುಂದಿನ ತಲೆಮಾರಿನ ಜೀನೋಮಿಕ್ ವಿಶ್ಲೇಷಣೆ',
+        h1a:'ಭವಿಷ್ಯ', h1b:'ವೈದ್ಯಕೀಯ ಜೀನೋಮಿಕ್ಸ್',
+        heroDesc:'TheraGenome ನಿಮ್ಮ ಆರೋಗ್ಯ ಡೇಟಾವನ್ನು ಅರ್ಥ ಮಾಡಿಕೊಳ್ಳುತ್ತದೆ — <strong>AI-ಚಾಲಿತ ವೈದ್ಯಕೀಯ ವರದಿ ವಿಶ್ಲೇಷಣೆ</strong> ಯಿಂದ ಔಷಧ ಪರಸ್ಪರ ಕ್ರಿಯೆ ಊಹೆ ವರೆಗೆ.',
+        btnStart:'ವಿಶ್ಲೇಷಣೆ ಪ್ರಾರಂಭಿಸಿ →', btnLearn:'ಇನ್ನಷ್ಟು ತಿಳಿಯಿರಿ', featLabel:'ನಾವು ನೀಡುವುದು', featTitle:'ಪ್ರಮುಖ ವೈಶಿಷ್ಟ್ಯಗಳು',
+        f1t:'ವರದಿ ವಿಶ್ಲೇಷಣೆ', f1d:'ವೈದ್ಯಕೀಯ ವರದಿಗಳು, ಲ್ಯಾಬ್ ಫಲಿತಾಂಶಗಳ AI ವಿಶ್ಲೇಷಣೆ.',
+        f2t:'AI ಚಾಟ್‌ಬಾಟ್', f2d:'ತಕ್ಷಣದ ವೈದ್ಯಕೀಯ ಪ್ರಶ್ನೆಗಳಿಗೆ ಸಂಭಾಷಣ AI.',
+        f3t:'ಔಷಧ ಸಿಮ್ಯುಲೇಟರ್', f3d:'ನಿಮ್ಮ ಜೆನೆಟಿಕ್ ಪ್ರೊಫೈಲ್ ಆಧರಿಸಿ ಔಷಧ ಪರಸ್ಪರ ಕ್ರಿಯೆ ಊಹೆ.',
+        f4t:'ಶಿಕ್ಷಣ ಕೇಂದ್ರ', f4d:'ಜೀನ್, ರೋಗಗಳು ಮತ್ತು ಚಿಕಿತ್ಸೆಗಳ ಬಗ್ಗೆ ಕಲಿಕೆ.',
+        ctaH:'ನಿಮ್ಮ ಆರೋಗ್ಯ ಬದಲಿಸಲು ಸಿದ್ಧರಿದ್ದೀರಾ?', ctaP:"TheraGenome ನ AI ಪ್ಲಾಟ್‌ಫಾರ್ಮ್‌ನೊಂದಿಗೆ ವರದಿ ವಿಶ್ಲೇಷಿಸಿ",
+        ctaBtn:'ಈಗ ಪ್ರಾರಂಭಿಸಿ →', footDesc:'ಜೀನೋಮಿಕ್ ಬುದ್ಧಿಮತ್ತೆಯಿಂದ ಚಾಲಿತ ವೈದ್ಯಕೀಯ ವರದಿ ವಿಶ್ಲೇಷಣೆ.',
+        footCopy:'© 2026 TheraGenome. AI ಚಾಲಿತ ವೈದ್ಯಕೀಯ ಜೀನೋಮಿಕ್ಸ್.'
+    },
+    hi: {
+        navLogin:'लॉगिन', navSignup:'साइन अप', eyebrow:'अगली पीढ़ी का जीनोमिक विश्लेषण',
+        h1a:'का भविष्य', h1b:'मेडिकल जीनोमिक्स',
+        heroDesc:'TheraGenome आपके स्वास्थ्य डेटा को समझता है — <strong>AI-संचालित मेडिकल रिपोर्ट विश्लेषण</strong> से दवा इंटरैक्शन पूर्वानुमान तक।',
+        btnStart:'विश्लेषण शुरू करें →', btnLearn:'अधिक जानें', featLabel:'हम क्या प्रदान करते हैं', featTitle:'मुख्य विशेषताएं',
+        f1t:'रिपोर्ट विश्लेषण', f1d:'मेडिकल रिपोर्ट और लैब परिणाम का AI विश्लेषण।',
+        f2t:'AI चैटबॉट', f2d:'रियल-टाइम मेडिकल प्रश्नों के लिए संवादात्मक AI।',
+        f3t:'दवा सिम्युलेटर', f3d:'आपके जेनेटिक प्रोफाइल के आधार पर दवा इंटरैक्शन का पूर्वानुमान।',
+        f4t:'शिक्षा केंद्र', f4d:'जीन, बीमारियों और उपचारों के बारे में संसाधन।',
+        ctaH:'अपना स्वास्थ्य बदलने के लिए तैयार हैं?', ctaP:'TheraGenome के AI प्लेटफॉर्म से रिपोर्ट विश्लेषण करें',
+        ctaBtn:'अभी शुरू करें →', footDesc:'जीनोमिक इंटेलिजेंस द्वारा संचालित मेडिकल रिपोर्ट विश्लेषण।',
+        footCopy:'© 2026 TheraGenome. AI संचालित उन्नत मेडिकल जीनोमिक्स।'
+    },
+    ta: {
+        navLogin:'உள்நுழை', navSignup:'பதிவு செய்', eyebrow:'அடுத்த தலைமுறை மரபணு பகுப்பாய்வு',
+        h1a:'எதிர்காலம்', h1b:'மருத்துவ மரபணுவியல்',
+        heroDesc:'TheraGenome உங்கள் உடல்நல தரவை புரிந்துகொள்கிறது — <strong>AI-இயக்கும் மருத்துவ அறிக்கை பகுப்பாய்வு</strong> முதல் மருந்து தொடர்பு கணிப்பு வரை.',
+        btnStart:'பகுப்பாய்வு தொடங்கு →', btnLearn:'மேலும் அறிய', featLabel:'நாம் வழங்குவது', featTitle:'முக்கிய அம்சங்கள்',
+        f1t:'அறிக்கை பகுப்பாய்வு', f1d:'மருத்துவ அறிக்கைகள் மற்றும் ஆய்வக முடிவுகளின் AI பகுப்பாய்வு.',
+        f2t:'AI சாட்பாட்', f2d:'நேரடி மருத்துவ கேள்விகளுக்கு உரையாடல் AI.',
+        f3t:'மருந்து சிமுலேட்டர்', f3d:'உங்கள் மரபணு சுயவிவரத்தின் அடிப்படையில் கணிப்பு.',
+        f4t:'கல்வி மையம்', f4d:'மரபணுக்கள், நோய்கள் மற்றும் சிகிச்சைகளைப் பற்றி அறியுங்கள்.',
+        ctaH:'உங்கள் உடல்நலத்தை மாற்ற தயாரா?', ctaP:'TheraGenome AI மூலம் உங்கள் அறிக்கைகளை பகுப்பாய்வு செய்யுங்கள்',
+        ctaBtn:'இப்போது தொடங்கு →', footDesc:'மரபணு நுண்ணறிவால் இயக்கப்படும் மருத்துவ அறிக்கை பகுப்பாய்வு.',
+        footCopy:'© 2026 TheraGenome. AI இயக்கும் மருத்துவ மரபணுவியல்.'
+    },
+    te: {
+        navLogin:'లాగిన్', navSignup:'సైన్ అప్', eyebrow:'తదుపరి తరం జీనోమిక్ విశ్లేషణ',
+        h1a:'భవిష్యత్తు', h1b:'వైద్య జీనోమిక్స్',
+        heroDesc:'TheraGenome మీ ఆరోగ్య డేటాను అర్థం చేసుకుంటుంది — <strong>AI-ఆధారిత వైద్య నివేదిక విశ్లేషణ</strong> నుండి మందుల పరస్పర చర్య అంచనా వరకు.',
+        btnStart:'విశ్లేషణ ప్రారంభించు →', btnLearn:'మరింత తెలుసుకో', featLabel:'మేము అందించేది', featTitle:'ముఖ్య లక్షణాలు',
+        f1t:'నివేదిక విశ్లేషణ', f1d:'వైద్య నివేదికలు మరియు లాబ్ ఫలితాల AI విశ్లేషణ.',
+        f2t:'AI చాట్‌బాట్', f2d:'రియల్-టైమ్ వైద్య ప్రశ్నలకు సంభాషణ AI.',
+        f3t:'మందుల సిమ్యులేటర్', f3d:'మీ జన్యు ప్రొఫైల్ ఆధారంగా మందుల పరస్పర చర్య అంచనా.',
+        f4t:'విద్యా కేంద్రం', f4d:'జన్యువులు, వ్యాధులు మరియు చికిత్సల గురించి నేర్చుకోండి.',
+        ctaH:'మీ ఆరోగ్యాన్ని మార్చుకోవడానికి సిద్ధంగా ఉన్నారా?', ctaP:'TheraGenome AI తో మీ నివేదికలను విశ్లేషించండి',
+        ctaBtn:'ఇప్పుడు ప్రారంభించు →', footDesc:'జీనోమిక్ ఇంటెలిజెన్స్ ద్వారా వైద్య నివేదిక విశ్లేషణ.',
+        footCopy:'© 2026 TheraGenome. AI ఆధారిత వైద్య జీనోమిక్స్.'
+    },
+    mr: {
+        navLogin:'लॉगिन', navSignup:'साइन अप', eyebrow:'पुढील पिढीचे जीनोमिक विश्लेषण',
+        h1a:'भविष्य', h1b:'वैद्यकीय जीनोमिक्स',
+        heroDesc:'TheraGenome तुमचा आरोग्य डेटा समजून घेतो — <strong>AI-चालित वैद्यकीय अहवाल विश्लेषण</strong> पासून औषध परस्परक्रिया अंदाजापर्यंत.',
+        btnStart:'विश्लेषण सुरू करा →', btnLearn:'अधिक जाणून घ्या', featLabel:'आम्ही काय देतो', featTitle:'मुख्य वैशिष्ट्ये',
+        f1t:'अहवाल विश्लेषण', f1d:'वैद्यकीय अहवाल, लॅब निकालांचे AI विश्लेषण.',
+        f2t:'AI चॅटबॉट', f2d:'रियल-टाइम वैद्यकीय प्रश्नांसाठी संवादी AI.',
+        f3t:'औषध सिम्युलेटर', f3d:'तुमच्या जेनेटिक प्रोफाइलवर आधारित औषध परस्परक्रिया अंदाज.',
+        f4t:'शिक्षण केंद्र', f4d:'जीन, आजार आणि उपचारांबद्दल शिका.',
+        ctaH:'तुमचे आरोग्य बदलण्यासाठी तयार आहात?', ctaP:'TheraGenome च्या AI प्लॅटफॉर्मवर अहवाल विश्लेषण करा',
+        ctaBtn:'आता सुरू करा →', footDesc:'जीनोमिक बुद्धिमत्तेद्वारे वैद्यकीय अहवाल विश्लेषण.',
+        footCopy:'© 2026 TheraGenome. AI चालित प्रगत वैद्यकीय जीनोमिक्स.'
+    },
+    bn: {
+        navLogin:'লগইন', navSignup:'সাইন আপ', eyebrow:'পরবর্তী প্রজন্মের জিনোমিক বিশ্লেষণ',
+        h1a:'ভবিষ্যৎ', h1b:'চিকিৎসা জিনোমিক্স',
+        heroDesc:'TheraGenome আপনার স্বাস্থ্য ডেটা বোঝে — <strong>AI-চালিত চিকিৎসা প্রতিবেদন বিশ্লেষণ</strong> থেকে ওষুধ মিথস্ক্রিয়া পূর্বাভাস পর্যন্ত।',
+        btnStart:'বিশ্লেষণ শুরু করুন →', btnLearn:'আরও জানুন', featLabel:'আমরা যা অফার করি', featTitle:'মূল বৈশিষ্ট্য',
+        f1t:'প্রতিবেদন বিশ্লেষণ', f1d:'চিকিৎসা প্রতিবেদন এবং ল্যাব ফলাফলের AI বিশ্লেষণ।',
+        f2t:'AI চ্যাটবট', f2d:'রিয়েল-টাইম চিকিৎসা প্রশ্নের জন্য AI।',
+        f3t:'ওষুধ সিমুলেটর', f3d:'আপনার জিনগত প্রোফাইলের উপর ভিত্তি করে পূর্বাভাস।',
+        f4t:'শিক্ষা কেন্দ্র', f4d:'জিন, রোগ এবং চিকিৎসা সম্পর্কে শিখুন।',
+        ctaH:'আপনার স্বাস্থ্য পরিবর্তন করতে প্রস্তুত?', ctaP:'TheraGenome-এর AI প্ল্যাটফর্মে প্রতিবেদন বিশ্লেষণ করুন',
+        ctaBtn:'এখনই শুরু করুন →', footDesc:'জিনোমিক বুদ্ধিমত্তা দ্বারা চালিত চিকিৎসা প্রতিবেদন বিশ্লেষণ।',
+        footCopy:'© 2026 TheraGenome. AI-চালিত উন্নত চিকিৎসা জিনোমিক্স।'
+    },
+    ml: {
+        navLogin:'ലോഗിൻ', navSignup:'സൈൻ അപ്പ്', eyebrow:'അടുത്ത തലമുറ ജീനോമിക് വിശകലനം',
+        h1a:'ഭാവി', h1b:'വൈദ്യ ജീനോമിക്സ്',
+        heroDesc:'TheraGenome നിങ്ങളുടെ ആരോഗ്യ ഡേറ്റ മനസ്സിലാക്കുന്നു — <strong>AI-പ്രവർത്തിത വൈദ്യ റിപ്പോർട്ട് വിശകലനം</strong> മുതൽ മരുന്ന് ഇടപ്പെടൽ പ്രവചനം വരെ.',
+        btnStart:'വിശകലനം ആരംഭിക്കുക →', btnLearn:'കൂടുതൽ അറിയുക', featLabel:'ഞങ്ങൾ നൽകുന്നത്', featTitle:'പ്രധാന സവിശേഷതകൾ',
+        f1t:'റിപ്പോർട്ട് വിശകലനം', f1d:'വൈദ്യ റിപ്പോർട്ടുകളുടെ AI വിശകലനം.',
+        f2t:'AI ചാറ്റ്ബോട്ട്', f2d:'റിയൽ-ടൈം വൈദ്യ ചോദ്യങ്ങൾക്ക് AI.',
+        f3t:'മരുന്ന് സിമുലേറ്റർ', f3d:'ജനിതക പ്രൊഫൈൽ അടിസ്ഥാനമാക്കിയ പ്രവചനം.',
+        f4t:'വിദ്യാഭ്യാസ കേന്ദ്രം', f4d:'ജീനുകൾ, രോഗങ്ങൾ, ചികിത്സകൾ എന്നിവ പഠിക്കുക.',
+        ctaH:'ആരോഗ്യം മാറ്റാൻ തയ്യാറോ?', ctaP:'TheraGenome-ന്റെ AI-ൽ റിപ്പോർട്ടുകൾ വിശകലനം ചെയ്യൂ',
+        ctaBtn:'ഇപ്പോൾ ആരംഭിക്കുക →', footDesc:'ജീനോമിക് ബുദ്ധിമത്ത ഉപയോഗിച്ച് വൈദ്യ വിശകലനം.',
+        footCopy:'© 2026 TheraGenome. AI-പ്രവർത്തിത വൈദ്യ ജീനോമിക്സ്.'
+    }
+};
+
+window.applyTranslations = function(lang) {
+    const t = translations[lang] || translations.en;
+    localStorage.setItem('lang', lang);
+    const s = (id, val) => { const el = document.getElementById(id); if(el) el.innerHTML = val; };
+    const q = (sel, val) => { const el = document.querySelector(sel); if(el) el.innerHTML = val; };
+    s('nav-login', t.navLogin); s('nav-signup', t.navSignup);
+    q('.hero-eyebrow', t.eyebrow);
+    q('.hero-content h1', `${t.h1a}<br><span class="highlight">${t.h1b}</span>`);
+    q('.hero-desc', t.heroDesc);
+    q('.hero-btns .btn-primary', t.btnStart);
+    q('.hero-btns .btn-ghost', t.btnLearn);
+    q('.section-label', t.featLabel);
+    q('.section-header h2', t.featTitle);
+    const cards = document.querySelectorAll('.feature-card');
+    if(cards[0]) { cards[0].querySelector('h3').textContent = t.f1t; cards[0].querySelector('p').textContent = t.f1d; }
+    if(cards[1]) { cards[1].querySelector('h3').textContent = t.f2t; cards[1].querySelector('p').textContent = t.f2d; }
+    if(cards[2]) { cards[2].querySelector('h3').textContent = t.f3t; cards[2].querySelector('p').textContent = t.f3d; }
+    if(cards[3]) { cards[3].querySelector('h3').textContent = t.f4t; cards[3].querySelector('p').textContent = t.f4d; }
+    q('.cta-inner h2', t.ctaH); q('.cta-inner p', t.ctaP); q('.btn-white', t.ctaBtn);
+    q('.footer-brand p', t.footDesc); q('.footer-bottom p', t.footCopy);
+};
+// alias
+function switchLang(lang) { window.applyTranslations(lang); }
+
+// Load saved language
+const savedLang = localStorage.getItem('lang') || 'en';
+document.getElementById('langSelect').value = savedLang;
+window.applyTranslations(savedLang);
+</script>
 </body>
 </html>

@@ -1,0 +1,235 @@
+/*
+ * TheraGENOME — Central Theme Override
+ * Applies when shared.js sets data-theme="light" on <html>.
+ * Dark defaults are set per-page in :root.
+ */
+
+/* ═══════════════════════════════════════════
+   LIGHT MODE — pages using --bg-dark / --bg-card
+   (chatbot.html, reports.html, test_analyzer.html, home.html)
+   ═══════════════════════════════════════════ */
+html[data-theme="light"] {
+  --bg-dark:       #f4f2ff;
+  --bg-card:       #ffffff;
+  --bg-hover:      #ede9fe;
+  --text-primary:  #1a1640;
+  --text-secondary:#5b4fa0;
+  --border:        #ddd5fc;
+  --border-light:  rgba(124, 58, 237, 0.2);
+  --primary:       #7c3aed;
+  --primary-dark:  #5b21b6;
+  --secondary:     #db2777;
+  --accent:        #8b5cf6;
+  --danger:        #dc2626;
+  --success:       #059669;
+  --warning:       #d97706;
+}
+
+/* Body background override for pages using inline gradient */
+html[data-theme="light"] body {
+  background: linear-gradient(135deg, #f4f2ff 0%, #fdf2ff 100%) !important;
+  color: #1a1640 !important;
+}
+
+/* Glow blob override */
+html[data-theme="light"] body::before {
+  background: radial-gradient(circle, rgba(124,58,237,0.05) 0%, transparent 60%) !important;
+}
+html[data-theme="light"] body::after {
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(124,58,237,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 50% at 85% 90%, rgba(236,72,153,0.05) 0%, transparent 70%) !important;
+}
+
+/* ═══════════════════════════════════════════
+   LIGHT MODE — education.html (uses --bg / --teal / --text)
+   ═══════════════════════════════════════════ */
+html[data-theme="light"] {
+  --bg:       #f4f2ff;
+  --bg1:      #ffffff;
+  --bg2:      #f0effe;
+  --bg3:      #e8e3fd;
+  --surface:  #ede9fe;
+  --surface2: #ddd5fc;
+  --text:     #1a1640;
+  --text-muted: #5b4fa0;
+  --text-dim:   #8b7ec8;
+}
+
+/* ═══════════════════════════════════════════
+   CARD / SURFACE overrides
+   ═══════════════════════════════════════════ */
+html[data-theme="light"] .card,
+html[data-theme="light"] header,
+html[data-theme="light"] .chatbot-main,
+html[data-theme="light"] .message-input-container,
+html[data-theme="light"] .dna-visualization {
+  background: rgba(255,255,255,0.9) !important;
+  border-color: rgba(124,58,237,0.2) !important;
+}
+
+/* Chatbot header always keeps the purple gradient — never white */
+html[data-theme="light"] .chatbot-header {
+  background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%) !important;
+  color: #fff !important;
+}
+html[data-theme="light"] .chatbot-header h1,
+html[data-theme="light"] .chatbot-header p,
+html[data-theme="light"] .chatbot-header .mode-btn-group label,
+html[data-theme="light"] .chatbot-header span {
+  color: #fff !important;
+}
+
+html[data-theme="light"] .card:hover {
+  box-shadow: 0 8px 40px rgba(124,58,237,0.12) !important;
+}
+
+/* Textarea / inputs */
+html[data-theme="light"] textarea,
+html[data-theme="light"] .paste-textarea,
+html[data-theme="light"] input[type="text"],
+html[data-theme="light"] input[type="email"],
+html[data-theme="light"] input[type="password"],
+html[data-theme="light"] select {
+  background: #f8f6ff !important;
+  color: #1a1640 !important;
+  border-color: rgba(124,58,237,0.25) !important;
+}
+
+html[data-theme="light"] textarea::placeholder,
+html[data-theme="light"] .paste-textarea::placeholder {
+  color: #8b7ec8 !important;
+}
+
+/* Upload zone */
+html[data-theme="light"] .upload-zone {
+  background: rgba(124,58,237,0.03) !important;
+  border-color: rgba(124,58,237,0.25) !important;
+}
+
+/* Tables */
+html[data-theme="light"] .test-table thead {
+  background: rgba(124,58,237,0.08) !important;
+}
+html[data-theme="light"] .test-table td,
+html[data-theme="light"] .test-table th {
+  border-color: rgba(124,58,237,0.12) !important;
+  color: #1a1640 !important;
+}
+html[data-theme="light"] .test-table tr:hover {
+  background: rgba(124,58,237,0.04) !important;
+}
+
+/* Nav / sticky headers */
+html[data-theme="light"] nav,
+html[data-theme="light"] .nav-tabs {
+  background: rgba(248,246,255,0.95) !important;
+  border-color: rgba(124,58,237,0.15) !important;
+}
+
+html[data-theme="light"] .tab-btn,
+html[data-theme="light"] .nav-link {
+  color: #5b4fa0 !important;
+}
+html[data-theme="light"] .tab-btn.active,
+html[data-theme="light"] .tab-btn:hover {
+  color: #7c3aed !important;
+}
+
+/* Education header */
+html[data-theme="light"] header {
+  background: rgba(244,242,255,0.95) !important;
+}
+html[data-theme="light"] .organ-info-panel,
+html[data-theme="light"] .pdb-side-info {
+  background: #ffffff !important;
+  border-color: rgba(124,58,237,0.15) !important;
+}
+html[data-theme="light"] .gene-card {
+  background: #fff !important;
+  border-color: rgba(124,58,237,0.18) !important;
+}
+html[data-theme="light"] .glass-card {
+  background: rgba(255,255,255,0.95) !important;
+  border-color: rgba(124,58,237,0.2) !important;
+}
+
+/* Summary / analysis boxes */
+html[data-theme="light"] .summary-box {
+  background: rgba(124,58,237,0.04) !important;
+  color: #1a1640 !important;
+}
+html[data-theme="light"] .analysis-item {
+  background: rgba(124,58,237,0.04) !important;
+  color: #1a1640 !important;
+}
+
+/* Mode selector */
+html[data-theme="light"] .mode-selector {
+  background: rgba(124,58,237,0.08) !important;
+}
+html[data-theme="light"] .mode-btn {
+  color: #5b4fa0 !important;
+}
+html[data-theme="light"] .mode-btn.active {
+  color: #fff !important;
+}
+
+/* Chatbot messages */
+html[data-theme="light"] .message.assistant .message-content {
+  background: #f0effe !important;
+  color: #1a1640 !important;
+}
+html[data-theme="light"] .message.user .message-content {
+  background: var(--primary) !important;
+  color: #fff !important;
+}
+
+/* Result box in test analyzer */
+html[data-theme="light"] .result-box {
+  background: #f8f6ff !important;
+  color: #1a1640 !important;
+}
+
+/* Theme toggle button itself */
+html[data-theme="light"] .theme-toggle-btn,
+html[data-theme="light"] #themeToggle {
+  border-color: rgba(124,58,237,0.25) !important;
+  color: #7c3aed !important;
+}
+
+/* Home page light mode */
+html[data-theme="light"] .navbar {
+  background: rgba(248,246,255,0.95) !important;
+}
+html[data-theme="light"] .feature-card {
+  background: #fff !important;
+  border-color: rgba(124,58,237,0.18) !important;
+}
+html[data-theme="light"] .section-label { color: #7c3aed !important; }
+html[data-theme="light"] .hero-desc,
+html[data-theme="light"] .feature-card p { color: #5b4fa0 !important; }
+
+/* Footer ALWAYS stays dark — dark footer is standard UX regardless of theme */
+.footer {
+  background: #0f0a24 !important;
+  color: rgba(255,255,255,0.7) !important;
+}
+.footer .footer-col h4,
+.footer-brand .logo { color: #fff !important; }
+.footer .footer-col a,
+.footer .footer-col span,
+.footer-brand p {
+  color: rgba(255,255,255,0.45) !important;
+}
+.footer .footer-col a:hover { color: rgba(255,255,255,0.9) !important; }
+.footer .footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.07) !important;
+  color: rgba(255,255,255,0.35) !important;
+}
+.footer .logo-text {
+  background: linear-gradient(135deg, #a78bfa, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}

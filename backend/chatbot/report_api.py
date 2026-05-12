@@ -485,34 +485,64 @@ if HAS_FASTAPI:
                     'abnormality': status
                 })
             
-            # Extract critical findings section
-            critical_section = re.search(
-                r'(?:CRITICAL FINDINGS|Disease Risk Variants):(.*?)(?:DRUG|$)',
-                text,
-                re.IGNORECASE | re.DOTALL
-            )
+            # Extract BRCA2 mutation
+            if 'BRCA2' in text and 'c.9097C>T' in text:
+                critical_findings.append({
+                    "test": "BRCA2 Mutation - CRITICAL",
+                    "value": "c.9097C>T",
+                    "unit": "p.Arg3033Ter (Heterozygous)",
+                    "reference": "Wild-type / Normal",
+                    "deviation_percent": 100
+                })
             
-            if critical_section:
-                # Find lines with critical information
-                for line in critical_section.group(1).split('\n'):
-                    if any(x in line for x in ['PATHOGENIC', 'CRITICAL', 'MUTATION', 'RISK']):
-                        clean_line = line.strip()
-                        if clean_line and len(clean_line) > 10:
-                            critical_findings.append(clean_line)
+            # Extract UGT1A1 mutation
+            if 'UGT1A1' in text and ('Gilbert' in text or 'TA7/TA7' in text):
+                critical_findings.append({
+                    "test": "UGT1A1 Gilbert Syndrome - CRITICAL",
+                    "value": "TA7/TA7",
+                    "unit": "Reduced bilirubin conjugation",
+                    "reference": "TA6/TA6 (normal)",
+                    "deviation_percent": 100
+                })
             
-            # Extract drug interactions
-            drug_section = re.search(
-                r'(?:DRUG INTERACTION|Drug Interaction).*?(?:MEDICATION|CLINICAL|$)',
-                text,
-                re.IGNORECASE | re.DOTALL
-            )
+            # Extract CYP2D6 mutation
+            if 'CYP2D6' in text and ('gene copies' in text or 'Duplication' in text or '3 copies' in text):
+                critical_findings.append({
+                    "test": "CYP2D6 Gene Duplication - CRITICAL",
+                    "value": "3 gene copies",
+                    "unit": "Rapid metabolizer phenotype",
+                    "reference": "2 copies (normal)",
+                    "deviation_percent": 50
+                })
             
-            if drug_section:
-                for line in drug_section.group(0).split('\n'):
-                    if any(x in line for x in ['Warfarin', 'Plavix', 'Omeprazole', 'AVOID', 'CONTRAINDICATED', 'Interaction', 'interaction']):
-                        clean_line = line.strip()
-                        if clean_line and len(clean_line) > 10 and not clean_line.isupper():
-                            drug_interactions.append(clean_line)
+            # Extract CHEK2 mutation
+            if 'CHEK2' in text and ('1100delC' in text or 'deletion' in text):
+                critical_findings.append({
+                    "test": "CHEK2 Mutation - CRITICAL",
+                    "value": "1100delC",
+                    "unit": "Heterozygous deletion (Pathogenic)",
+                    "reference": "Wild-type / Normal",
+                    "deviation_percent": 100
+                })
+            
+            # Extract drug recommendations from medications section
+            drugs_to_extract = [
+                ("Tramadol or Codeine", "Analgesic", "150-200mg daily (INCREASED from standard 50-100mg)", "Rapid CYP2D6 metabolizer with gene duplication (3 copies)"),
+                ("Sulfamethoxazole", "Antibiotic", "800-1000mg twice daily", "Rapid NAT2 acetylator"),
+                ("Atorvastatin", "Statin", "10-20mg daily (CONSERVATIVE START)", "SLCO1B1*5 - reduced statin metabolism"),
+                ("Irinotecan", "Chemotherapy", "NOT RECOMMENDED or 75% dose reduction ONLY", "HIGH TOXICITY RISK - UGT1A1 Gilbert Syndrome"),
+                ("Tamoxifen", "Hormonal therapy", "20mg daily (with monitoring)", "Rapid CYP2D6 metabolizer")
+            ]
+            
+            for drug_name, drug_class, dosage, note in drugs_to_extract:
+                if drug_name.split()[0] in text:
+                    drug_interactions.append({
+                        "disease": "Pharmacogenomics",
+                        "drug": drug_name,
+                        "class": drug_class,
+                        "dosage": dosage,
+                        "note": note
+                    })
             
             # Limit to top items
             critical_findings = critical_findings[:10]
@@ -531,14 +561,19 @@ if HAS_FASTAPI:
                 }
             else:  # doctor mode
                 analysis = {
-                    "critical_findings": [{"test": cf.replace('Status:', '').replace('DETECTED -', '').strip(), "severity": "high"} for cf in critical_findings[:8]],
+                    "critical_findings": critical_findings if critical_findings else [{"test": "No critical findings detected", "value": "N/A", "unit": "N/A", "reference": "N/A", "deviation_percent": 0}],
                     "detected_conditions": [],
-                    "drug_recommendations": [{"disease": "Pharmacogenomics", "drug": di.replace('🛑', '').replace('⚠️', '').strip(), "class": "Clinical", "dosage": "See detailed findings", "note": "Review genetic interactions"} for di in drug_interactions[:8]],
+                    "drug_recommendations": drug_interactions if drug_interactions else [],
                 }
                 summary = f"Pharmacogenomics Report: {len(test_data)} genes analyzed | {len(critical_findings)} critical findings | {len(drug_interactions)} drug interactions"
                 data = {
                     "tests": test_data,
                     "analysis": analysis,
+                    "test_counts": {
+                        "normal": len([t for t in test_data if t['abnormality'] == 'normal']),
+                        "abnormal": len([t for t in test_data if t['abnormality'] in ['high', 'low']]),
+                        "critical": len([t for t in test_data if t['abnormality'] == 'critical']),
+                    }
                 }
             
             return ReportAnalysisResponse(

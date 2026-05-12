@@ -23,6 +23,7 @@ try:
     from backend.chatbot.demo_api import demo_router
     from backend.chatbot.report_api import report_router
     from backend.auth_api import auth_router
+    from backend.test_results_api import test_results_router
 
     app = FastAPI(
         title="TheraGenome AI",
@@ -45,6 +46,7 @@ try:
 
     # Include routers
     app.include_router(auth_router)
+    app.include_router(test_results_router)
     
     if api_router is not None:
         app.include_router(api_router)
