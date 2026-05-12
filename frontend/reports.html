@@ -611,10 +611,6 @@
                 <p style="color: var(--text-secondary); margin-top: 5px;">AI-powered medical report analysis</p>
             </div>
             <div style="display: flex; gap: 20px; align-items: center;">
-                <div class="mode-selector">
-                    <button class="mode-btn active" data-mode="doctor">👨‍⚕️ Doctor</button>
-                    <button class="mode-btn" data-mode="patient">👤 Patient</button>
-                </div>
                 <button onclick="window.location.href='chatbot.html'" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
                     🧠 Chatbot Interface
                 </button>
@@ -659,7 +655,6 @@
                 <div class="button-group" style="margin-top: 20px;">
                     <button class="btn btn-primary" id="analyzeBtn" disabled>🔬 Analyze Report</button>
                     <button class="btn btn-secondary" id="clearBtn">🔄 Clear</button>
-                    <button class="btn btn-success" id="demoBtn" style="background: linear-gradient(135deg, #22c55e, #16a34a);">🎬 Load Demo Results</button>
                 </div>
 
                     <div style="margin-top: 20px; padding: 15px; background: rgba(168, 85, 247, 0.05); border-radius: 8px; border-left: 3px solid var(--secondary);">
@@ -783,7 +778,7 @@
                 if (!data.authenticated) {
                     // Redirect to login if not authenticated
                     console.log('Not authenticated, redirecting to login...');
-                    window.location.href = '/theraGENOME/frontend/login.html';
+                    window.location.href = '/theraGENOME/frontend/index.html';
                     return;
                 }
                 
@@ -838,15 +833,10 @@
                 
                 // Clear session and redirect
                 sessionStorage.clear();
-                window.location.href = '/theraGENOME/frontend/login.html';
+                window.location.href = '/theraGENOME/frontend/index.html';
             }
 
             setupEventListeners() {
-                // Mode selector
-                document.querySelectorAll('.mode-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => this.setMode(e.target.dataset.mode));
-                });
-
                 // Upload
                 const uploadZone = document.getElementById('uploadZone');
                 const fileInput = document.getElementById('fileInput');
@@ -878,14 +868,17 @@
                     }
                 });
 
+                // Enable button when text is pasted
+                document.getElementById('pasteTextarea').addEventListener('input', (e) => {
+                    const hasText = e.target.value.trim().length > 0;
+                    document.getElementById('analyzeBtn').disabled = !hasText;
+                });
+
                 // Analyze
                 document.getElementById('analyzeBtn').addEventListener('click', () => this.analyzeReport());
 
                 // Clear
                 document.getElementById('clearBtn').addEventListener('click', () => this.clearResults());
-
-                // Demo Results
-                document.getElementById('demoBtn').addEventListener('click', () => this.loadDemoResults());
 
                 // Tabs
                 document.querySelectorAll('.tab-btn').forEach(btn => {

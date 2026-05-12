@@ -44,7 +44,7 @@
 
         .content {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             min-height: 600px;
         }
 
@@ -52,7 +52,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 50px 40px;
-            display: flex;
+            display: none;
             flex-direction: column;
             justify-content: center;
             align-items: center;
@@ -633,7 +633,7 @@
                         sessionStorage.setItem('userEmail', email);
                         this.showSuccess('patientLoginSuccess', 'Login successful! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = '/frontend/reports.html';
                         }, 1500);
                     } else {
                         this.showError('patientLoginFormError', data.detail || 'Login failed. Please check your credentials.');
@@ -700,7 +700,7 @@
                         sessionStorage.setItem('userEmail', email);
                         this.showSuccess('patientRegisterSuccess', 'Registration successful! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = '/frontend/reports.html';
                         }, 1500);
                     } else {
                         this.showError('patientRegisterFormError', data.detail || 'Registration failed. Please try again.');
@@ -756,7 +756,7 @@
                         sessionStorage.setItem('userEmail', email);
                         this.showSuccess('doctorLoginSuccess', 'Login successful! Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = '/frontend/reports.html';
                         }, 1500);
                     } else {
                         this.showError('doctorLoginFormError', data.detail || 'Login failed. Please check your credentials.');
@@ -852,7 +852,7 @@
                         sessionStorage.setItem('userEmail', email);
                         this.showSuccess('doctorRegisterSuccess', 'Registration successful! Your account is pending verification. Redirecting...');
                         setTimeout(() => {
-                            window.location.href = '/reports.html';
+                            window.location.href = '/frontend/reports.html';
                         }, 2000);
                     } else {
                         this.showError('doctorRegisterFormError', data.detail || 'Registration failed. Please try again.');
