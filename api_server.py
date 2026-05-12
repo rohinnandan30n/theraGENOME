@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.responses import JSONResponse, FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -11,12 +11,12 @@ import re
 
 # Import routers from main app
 try:
-    from backend.auth_api import auth_router
+    # from backend.auth_api import auth_router  # Using simple inline endpoints instead
     from backend.chatbot.controller import api_router
     from backend.chatbot.demo_api import demo_router
     from backend.chatbot.report_api import report_router
 except ImportError:
-    auth_router = None
+    # auth_router = None
     api_router = None
     demo_router = None
     report_router = None
@@ -33,8 +33,8 @@ app.add_middleware(
 )
 
 # Include auth and chatbot routers
-if auth_router:
-    app.include_router(auth_router)
+# if auth_router:
+#     app.include_router(auth_router)
 if api_router:
     app.include_router(api_router)
 if demo_router:
@@ -103,7 +103,8 @@ def parse_pharmacogenomics_report(text: str) -> dict:
 # In-memory database mock (for demo/testing without PostgreSQL)
 MOCK_DATABASE = {
     "variants": [],
-    "audit_logs": []
+    "audit_logs": [],
+    "users": {}  # Store users for auth
 }
 
 # Database connection
@@ -123,6 +124,201 @@ async def health():
         "version": "1.0-hackathon",
         "timestamp": datetime.utcnow().isoformat()
     }
+
+# ============================================
+# AUTHENTICATION ENDPOINTS (Simple Demo Auth)
+# ============================================
+
+@app.post("/api/v1/auth/login")
+async def login(request: Request):
+    """Login endpoint for both patients and doctors"""
+    try:
+        payload = await request.json()
+        email = payload.get("email", "").lower().strip()
+        password = payload.get("password", "")
+        role = payload.get("role", "patient")
+        
+        print(f"DEBUG: Login attempt - email={email}, password={password}, role={role}")
+        
+        if not email or not password:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Email and password are required"}
+            )
+        
+        db = get_db()
+        print(f"DEBUG: Current users in DB: {list(db['users'].keys())}")
+        
+        # Check if user exists
+        if email in db["users"]:
+            user = db["users"][email]
+            print(f"DEBUG: User exists. Stored password={user.get('password')}, role={user.get('role')}")
+            # Simple password check (in production, use proper hashing)
+            if user.get("password") == password and user.get("role") == role:
+                return {
+                    "status": "success",
+                    "message": "Login successful",
+                    "user": {
+                        "email": user["email"],
+                        "role": user["role"],
+                        "full_name": user.get("full_name", "User")
+                    }
+                }
+            else:
+                # User exists but password or role doesn't match
+                print(f"DEBUG: Password or role mismatch!")
+                return JSONResponse(
+                    status_code=401,
+                    content={"detail": "Invalid email or password"}
+                )
+        
+        # For demo purposes, create user on first login
+        print(f"DEBUG: Creating new user")
+        db["users"][email] = {
+            "email": email,
+            "password": password,
+            "role": role,
+            "full_name": email.split("@")[0].title(),
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        return {
+            "status": "success",
+            "message": "Login successful",
+            "user": {
+                "email": email,
+                "role": role,
+                "full_name": email.split("@")[0].title()
+            }
+        }
+        
+    except Exception as e:
+        print(f"DEBUG: Exception - {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Login failed: {str(e)}"}
+        )
+
+
+@app.post("/api/v1/auth/register-patient")
+async def register_patient(request: Request):
+    """Patient registration endpoint"""
+    try:
+        payload = await request.json()
+        email = payload.get("email", "").lower().strip()
+        password = payload.get("password", "")
+        full_name = payload.get("full_name", "")
+        phone = payload.get("phone", "")
+        
+        if not email or not password:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Email and password are required"}
+            )
+        
+        if len(password) < 6:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Password must be at least 6 characters"}
+            )
+        
+        db = get_db()
+        
+        # Check if user already exists
+        if email in db["users"]:
+            return JSONResponse(
+                status_code=409,
+                content={"detail": "User with this email already exists"}
+            )
+        
+        # Create new patient
+        db["users"][email] = {
+            "email": email,
+            "password": password,
+            "role": "patient",
+            "full_name": full_name or email.split("@")[0],
+            "phone": phone,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        return {
+            "status": "success",
+            "message": "Patient registration successful",
+            "user": {
+                "email": email,
+                "role": "patient",
+                "full_name": full_name or email.split("@")[0]
+            }
+        }
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Registration failed: {str(e)}"}
+        )
+
+
+@app.post("/api/v1/auth/register-doctor")
+async def register_doctor(request: Request):
+    """Doctor registration endpoint"""
+    try:
+        payload = await request.json()
+        email = payload.get("email", "").lower().strip()
+        password = payload.get("password", "")
+        full_name = payload.get("full_name", "")
+        license_number = payload.get("license_number", "")
+        specialization = payload.get("specialization", "")
+        
+        if not email or not password:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Email and password are required"}
+            )
+        
+        if len(password) < 6:
+            return JSONResponse(
+                status_code=400,
+                content={"detail": "Password must be at least 6 characters"}
+            )
+        
+        db = get_db()
+        
+        # Check if user already exists
+        if email in db["users"]:
+            return JSONResponse(
+                status_code=409,
+                content={"detail": "User with this email already exists"}
+            )
+        
+        # Create new doctor
+        db["users"][email] = {
+            "email": email,
+            "password": password,
+            "role": "doctor",
+            "full_name": full_name or email.split("@")[0],
+            "license_number": license_number,
+            "specialization": specialization,
+            "is_verified": False,
+            "created_at": datetime.utcnow().isoformat()
+        }
+        
+        return {
+            "status": "success",
+            "message": "Doctor registration successful. Pending verification.",
+            "user": {
+                "email": email,
+                "role": "doctor",
+                "full_name": full_name or email.split("@")[0],
+                "license_number": license_number,
+                "specialization": specialization
+            }
+        }
+        
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Registration failed: {str(e)}"}
+        )
 
 # ============================================
 # ENDPOINT 2: Upload & Classify Variants
