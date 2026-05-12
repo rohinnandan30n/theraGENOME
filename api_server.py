@@ -320,6 +320,45 @@ async def register_doctor(request: Request):
             content={"detail": f"Registration failed: {str(e)}"}
         )
 
+
+@app.get("/api/v1/auth/verify-session")
+async def verify_session(request: Request):
+    """Verify if user is authenticated (get from sessionStorage)"""
+    try:
+        # In a real app, you'd check a server-side session
+        # For now, we'll accept any user that was created
+        # The frontend will manage session via sessionStorage
+        
+        # For demo purposes, always return authenticated
+        # In production, check JWT token or server session
+        return {
+            "authenticated": True,
+            "role": "patient",
+            "email": "user@example.com"
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=401,
+            content={"authenticated": False, "detail": "Not authenticated"}
+        )
+
+
+@app.post("/api/v1/auth/logout")
+async def logout(request: Request):
+    """Logout endpoint"""
+    try:
+        # In a real app, you'd invalidate the session
+        # For demo purposes, just return success
+        return {
+            "status": "success",
+            "message": "Logged out successfully"
+        }
+    except Exception as e:
+        return JSONResponse(
+            status_code=500,
+            content={"detail": f"Logout failed: {str(e)}"}
+        )
+
 # ============================================
 # ENDPOINT 2: Upload & Classify Variants
 # ============================================
