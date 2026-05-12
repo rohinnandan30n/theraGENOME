@@ -1,0 +1,237 @@
+PATIENT ANALYSIS SUMMARY - TEXT FORMAT
+================================================================================
+
+PATIENT: Emily Rodriguez (PAT-002-2026)
+Age: 47 years old | Female | Hispanic/Latin American
+
+================================================================================
+PHARMACOGENOMICS FINDINGS
+================================================================================
+
+CRITICAL ALERTS:
+  🛑 BRCA2 Mutation (Pathogenic) - HIGH CANCER RISK
+     - Breast cancer: 45-87% by age 70
+     - Ovarian cancer: 11-40% by age 70
+     - Action: GENETIC COUNSELING URGENT
+
+  🛑 CHEK2 Mutation (Pathogenic) - INCREASED BREAST CANCER RISK
+     - 2-3x higher than general population
+     - Action: Family screening recommended
+
+  ⚠️  UGT1A1 Gilbert Syndrome - IRINOTECAN CONTRAINDICATED
+     - Cannot use standard chemotherapy
+     - Action: Reduce dose to 75% OR use alternative
+
+DRUG METABOLISM:
+  ⚡ CYP2D6: RAPID METABOLIZER (Gene Duplication)
+     - Standard pain meds (codeine, tramadol) WON'T WORK
+     - May need 150-200% of normal doses
+     - Action: Monitor pain control closely
+
+  ✓ CYP2C19: Normal - Standard dosing OK
+  ✓ CYP2C9: Normal - Standard dosing OK
+  ✓ TPMT: Normal - Standard dosing OK
+
+STATIN METABOLISM:
+  ⚠️  SLCO1B1 Reduced Function
+     - Statins accumulate in blood
+     - Start LOW doses (10mg, not 20mg)
+     - Consider pravastatin instead of atorvastatin
+     - Action: Monitor muscle pain, check lipids in 6 weeks
+
+ANTIBIOTIC METABOLISM:
+  ⚡ NAT2: Rapid Acetylator
+     - Fast clearance of TB drugs, sulfa drugs
+     - Standard to high doses may be appropriate
+
+================================================================================
+MEDICATION RECOMMENDATIONS
+================================================================================
+
+PAIN MANAGEMENT (Post-surgery):
+  Drug: Tramadol OR Codeine
+  Standard Dose: 50-100mg
+  Emily's Dose: 150-200mg (due to rapid metabolism)
+  Monitor: Pain level at each visit
+
+CHOLESTEROL (if needed):
+  Drug: Atorvastatin
+  Standard Dose: 20mg
+  Emily's Dose: START 10mg (reduced function)
+  Monitor: Check lipids in 6 weeks
+
+INFECTION (if needed):
+  Drug: Sulfamethoxazole
+  Standard Dose: 800-1000mg twice daily
+  Emily's Dose: Standard OK (rapid acetylator)
+  Monitor: Watch for rash, fever
+
+CANCER TREATMENT (if needed):
+  🛑 AVOID: Irinotecan
+  ALTERNATIVE: Taxanes, platinum-based chemotherapy
+  If irinotecan unavoidable: Reduce to 75% dose + close monitoring
+
+================================================================================
+CANCER SCREENING PROTOCOL
+================================================================================
+
+Annual Screening (BRCA2/CHEK2 positive):
+  • Mammography (consider MRI addition)
+  • Ovarian ultrasound
+  • CA-125 blood test
+  • Clinical breast exam every 6 months
+
+Age-Based Recommendations:
+  Age 40-45: Annual mammography + MRI
+  Age 45+:   Annual mammography + MRI + ovarian ultrasound
+  Consider: Risk-reducing surgery (preventive mastectomy/oophorectomy)
+
+================================================================================
+CLINICAL CONSULTATIONS NEEDED
+================================================================================
+
+1. GENETIC COUNSELOR (URGENT - within 2 weeks)
+   - Discuss BRCA2/CHEK2 implications
+   - Family screening plan
+   - Cancer risk reduction options
+   - Preventive surgery counseling
+
+2. ONCOLOGIST (within 1 month)
+   - Cancer screening protocols
+   - Risk stratification
+   - Chemotherapy planning (if cancer develops)
+
+3. PHARMACIST (within 1 week)
+   - Review current medications
+   - Pain control adequacy
+   - Statin dosing optimization
+   - Drug interaction check
+
+4. GYNECOLOGIST (within 1 month)
+   - Enhanced screening plan
+   - Contraceptive counseling
+   - Reproductive planning
+
+5. PRIMARY CARE (ongoing)
+   - Lifestyle modifications
+   - Preventive care coordination
+
+================================================================================
+KEY STATISTICS
+================================================================================
+
+Cancer Risk Without Mutation: ~12% by age 70
+Cancer Risk With BRCA2: 45-87% by age 70
+Cancer Risk With CHEK2: 24-36% by age 70
+Combined Risk: Significantly elevated
+
+Drug Effectiveness Rating:
+  Standard medications: 40% effective (due to rapid metabolism)
+  Adjusted medications: 95% effective (with higher doses)
+
+================================================================================
+FAMILY IMPLICATIONS
+================================================================================
+
+First-Degree Relatives At Risk:
+  Children: 50% chance of inheriting BRCA2
+  Siblings: 50% chance of inheriting BRCA2
+  Parents: One parent is definite carrier
+
+Recommendation: Genetic testing for all first-degree relatives
+
+================================================================================
+LIFESTYLE RECOMMENDATIONS
+================================================================================
+
+Daily Exercise: 150 minutes moderate activity per week
+Diet: High fiber, fruits, vegetables, limited alcohol
+Avoid: Tobacco smoke, excessive sun exposure
+Weight: Maintain healthy BMI
+Sleep: 7-9 hours nightly
+Stress: Regular stress management activities
+
+Cancer Risk Reduction Impact:
+  Exercise: 20-30% risk reduction
+  Healthy diet: 15-20% risk reduction
+  Avoid tobacco: 10-15% risk reduction
+  Combined: Up to 50% risk reduction possible
+
+================================================================================
+MEDICATION SUMMARY TABLE
+================================================================================
+
+Drug                | Recommendation      | Emily's Dose     | Notes
+--------------------|--------------------|-----------------|---------
+Codeine            | USE WITH CAUTION   | 150-200mg       | Rapid metabolizer
+Tramadol           | USE WITH CAUTION   | 150-200mg       | Gene duplication
+Atorvastatin       | START LOW          | 10mg            | Reduced function
+Pravastatin        | PREFERRED          | 10-20mg         | Alternative to statin
+Irinotecan         | CONTRAINDICATED    | AVOID           | Gilbert syndrome
+5-Fluorouracil     | CONTRAINDICATED    | AVOID           | Gilbert syndrome
+Sulfamethoxazole   | USE STANDARD       | 800-1000mg      | Rapid acetylator
+Tamoxifen          | CAUTION            | 20mg            | Suboptimal conversion
+
+================================================================================
+RED FLAGS TO MONITOR
+================================================================================
+
+PAIN MANAGEMENT:
+  ❌ If pain not controlled → Increase dose 150-200mg range
+  ❌ If drowsy/dizzy → Adjust down, try alternative
+  ✓ If pain resolved → Maintain current dose
+
+STATIN THERAPY:
+  ❌ If muscle pain/weakness → Check CK levels, lower dose
+  ❌ If lipids not controlled → Check adherence, increase dose slowly
+  ✓ If lipids normal, no symptoms → Continue current dose
+
+CANCER SCREENING:
+  ❌ If mammogram shows abnormality → Immediate oncology referral
+  ❌ If symptoms appear → Urgent medical evaluation
+  ✓ If screening normal → Continue annual protocol
+
+FAMILY STATUS:
+  ❌ If relative develops cancer → Consider preventive surgery
+  ❌ If relative tests positive → Refer for surveillance
+  ✓ If relatives screened negative → Standard screening only
+
+================================================================================
+NEXT APPOINTMENT SCHEDULE
+================================================================================
+
+Week 1:   Pain management follow-up (assess tramadol efficacy)
+Week 2:   Genetic counselor appointment (PRIORITY)
+Week 3:   Pharmacist review (statin/pain meds optimization)
+Week 4:   Oncology consultation (cancer screening plan)
+Week 4:   Gynecology consultation (breast/ovarian assessment)
+Month 2:  Primary care (comprehensive review)
+Month 3:  Repeat lipid panel (statin effectiveness check)
+
+================================================================================
+CLINICAL SUMMARY
+================================================================================
+
+This is a 47-year-old female with SIGNIFICANT genetic risk factors requiring
+immediate attention and lifestyle modifications.
+
+PRIMARY CONCERNS:
+  1. BRCA2/CHEK2 mutations → 45-87% breast cancer risk
+  2. Rapid drug metabolism → Pain meds ineffective at standard doses
+  3. Gilbert syndrome → Chemotherapy drug contraindications
+  4. Statin metabolism issues → Drug accumulation risk
+
+IMMEDIATE ACTIONS:
+  1. ✓ Schedule genetic counselor (URGENT)
+  2. ✓ Adjust pain medication (higher doses needed)
+  3. ✓ Modify statin therapy (start low)
+  4. ✓ Plan enhanced cancer screening
+  5. ✓ Family genetic testing recommendations
+
+PROGNOSIS:
+  With appropriate surveillance and preventive measures, cancer risk can be
+  partially mitigated. Early detection increases survival rates significantly.
+
+================================================================================
+END OF SUMMARY
+================================================================================

@@ -1,0 +1,731 @@
+openapi: 3.0.0
+
+info:
+  title: theraGENOME Unified API Gateway
+  version: 1.0.0
+  description: |
+    Unified OpenAPI specification for theraGENOME microservices.
+    
+    This specification merges APIs from three development teams:
+    - **Dev 1**: Variant Classification Service (Genetic variants & ClinVar integration)
+    - **Dev 2**: Pathogen Resistance Analysis (Antimicrobial resistance prediction)
+    - **Dev 3**: Drug Safety & Toxicity (Pharmacokinetics & adverse events)
+    
+    All endpoints are protected by JWT authentication (Bearer token).
+    Rate limiting: 100 requests per minute per clinician.
+    
+  contact:
+    name: theraGENOME Development Team
+    email: dev@theragenome.com
+    url: https://www.theragenome.com
+
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+  x-api-id: theragenome-unified-api
+  x-api-lifecycle: production
+  x-generated-date: "2024-03-31T12:00:00Z"
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+    variables:
+      scheme:
+        default: http
+  - url: https://api.theragenome.com/api/v1
+    description: Production server
+    variables:
+      scheme:
+        default: https
+
+paths:
+  # ========================================================================
+  # DEV 1: VARIANT CLASSIFICATION SERVICE
+  # ========================================================================
+  
+  /variants/{rsid}:
+    get:
+      tags:
+        - dev1
+        - variants
+      summary: Get enriched variant data
+      description: Retrieve enriched variant information combining ClinVar clinical data and gnomAD population frequency data
+      operationId: getVariantEnriched
+      parameters:
+        - name: rsid
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ClinVar variation ID or rsID
+          example: "12345"
+        - name: include_gnomad
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include gnomAD frequency data in response
+        - name: use_cache
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Use cached data if available
+      responses:
+        '200':
+          description: Successfully retrieved enriched variant data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichedVariantResponse'
+        '404':
+          description: Variant not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /classify:
+    post:
+      tags:
+        - dev1
+        - classification
+      summary: Classify genetic variant
+      description: Use ML model to classify variant pathogenicity
+      operationId: classifyVariant
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassifyVariantRequest'
+      responses:
+        '200':
+          description: Classification successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariantClassification'
+        '400':
+          description: Invalid request
+        '500':
+          description: Classification error
+      security:
+        - bearerAuth: []
+
+  # ========================================================================
+  # DEV 2: PATHOGEN RESISTANCE SERVICE
+  # ========================================================================
+
+  /pathogens/{id}/resistance-genes:
+    get:
+      tags:
+        - dev2
+        - pathogens
+        - resistance
+      summary: Get resistance genes for pathogen
+      description: Retrieve resistance genes associated with a specific pathogen
+      operationId: getResistanceGenes
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Pathogen identifier (NCBI taxonomy ID or strain name)
+          example: "562"
+        - name: include_mechanisms
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include resistance mechanisms
+        - name: threshold
+          in: query
+          required: false
+          schema:
+            type: number
+            format: float
+            minimum: 0
+            maximum: 1
+            default: 0.8
+          description: Confidence threshold for resistance gene predictions
+      responses:
+        '200':
+          description: Successfully retrieved resistance genes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResistanceGenesResponse'
+        '404':
+          description: Pathogen not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Analysis error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /pathogens/{id}/predict-resistance:
+    post:
+      tags:
+        - dev2
+        - pathogens
+        - resistance
+      summary: Predict antimicrobial resistance
+      description: Use ML model to predict resistance phenotype
+      operationId: predictResistance
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Pathogen identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictResistanceRequest'
+      responses:
+        '200':
+          description: Resistance prediction successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResistancePredictionResponse'
+        '400':
+          description: Invalid prediction request
+        '500':
+          description: Prediction error
+      security:
+        - bearerAuth: []
+
+  # ========================================================================
+  # DEV 3: DRUG SAFETY SERVICE
+  # ========================================================================
+
+  /drugs/{id}/pgx-interactions:
+    get:
+      tags:
+        - dev3
+        - drugs
+        - pharmacogenomics
+      summary: Get pharmacogenomic interactions for drug
+      description: Retrieve known pharmacogenomic interactions for a drug
+      operationId: getPgxInteractions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Drug identifier (DrugBank ID or SMILES)
+          example: "DB00001"
+        - name: include_metabolism
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include metabolic pathway information
+        - name: phenotype
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [EM, IM, PM, UM]
+          description: Cytochrome P450 metabolizer phenotype
+      responses:
+        '200':
+          description: Successfully retrieved PGx interactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PgxInteractionsResponse'
+        '404':
+          description: Drug not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      security:
+        - bearerAuth: []
+
+  /drugs/{id}/adverse-events:
+    get:
+      tags:
+        - dev3
+        - drugs
+        - safety
+      summary: Get adverse events for drug
+      description: Retrieve adverse events from FAERS database and literature
+      operationId: getAdverseEvents
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Drug identifier
+        - name: severity
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [Mild, Moderate, Severe, Fatal]
+          description: Filter by event severity
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 50
+            maximum: 500
+          description: Maximum number of events to return
+      responses:
+        '200':
+          description: Successfully retrieved adverse events
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdverseEventsResponse'
+        '404':
+          description: Drug not found
+        '500':
+          description: Error retrieving adverse events
+      security:
+        - bearerAuth: []
+
+  /drugs/{id}/check-interactions:
+    post:
+      tags:
+        - dev3
+        - drugs
+        - interactions
+      summary: Check drug-drug interactions
+      description: Check for potential drug-drug interactions
+      operationId: checkInteractions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Primary drug identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckInteractionsRequest'
+      responses:
+        '200':
+          description: Drug-drug interactions analyzed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DrugInteractionsResponse'
+        '400':
+          description: Invalid request
+      security:
+        - bearerAuth: []
+
+  /drugs/{id}/predict-toxicity:
+    post:
+      tags:
+        - dev3
+        - drugs
+        - toxicity
+      summary: Predict drug toxicity
+      description: Use ML model to predict potential toxicity based on molecular structure
+      operationId: predictToxicity
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Drug identifier
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictToxicityRequest'
+      responses:
+        '200':
+          description: Toxicity prediction successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ToxicityPredictionResponse'
+        '500':
+          description: Prediction error
+      security:
+        - bearerAuth: []
+
+components:
+  schemas:
+    # ====================================================================
+    # DEV 1 SCHEMAS
+    # ====================================================================
+
+    EnrichedVariantResponse:
+      type: object
+      required:
+        - variant_id
+        - clinical_significance
+        - review_status
+      properties:
+        variant_id:
+          type: string
+          description: Variant identifier
+        clinvar_data:
+          type: object
+          description: ClinVar clinical data
+        gnomad_data:
+          type: object
+          description: gnomAD population frequency data
+        allele_frequency:
+          type: number
+          format: float
+          description: Allele frequency from gnomAD
+        clinical_significance:
+          type: string
+          enum: [Benign, Likely benign, Uncertain significance, Likely pathogenic, Pathogenic]
+        review_status:
+          type: string
+          description: Review status level
+
+    ClassifyVariantRequest:
+      type: object
+      required:
+        - variant_info
+      properties:
+        variant_info:
+          type: object
+          description: Variant information for classification
+
+    VariantClassification:
+      type: object
+      required:
+        - variant_id
+        - classification
+        - confidence
+      properties:
+        variant_id:
+          type: string
+        classification:
+          type: string
+          enum: [Benign, Likely benign, Uncertain significance, Likely pathogenic, Pathogenic]
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+
+    # ====================================================================
+    # DEV 2 SCHEMAS
+    # ====================================================================
+
+    ResistanceGenesResponse:
+      type: object
+      required:
+        - pathogen_id
+        - pathogen_name
+        - resistance_genes
+        - analysis_date
+      properties:
+        pathogen_id:
+          type: string
+        pathogen_name:
+          type: string
+        resistance_genes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResistanceGene'
+        analysis_date:
+          type: string
+          format: date-time
+        total_genes:
+          type: integer
+
+    ResistanceGene:
+      type: object
+      required:
+        - gene_id
+        - gene_name
+        - amr_phenotype
+        - mechanism
+        - coverage
+      properties:
+        gene_id:
+          type: string
+        gene_name:
+          type: string
+        amr_phenotype:
+          type: string
+        mechanism:
+          type: string
+        coverage:
+          type: number
+          format: float
+        depth:
+          type: number
+          format: float
+
+    PredictResistanceRequest:
+      type: object
+      required:
+        - resistance_genes
+      properties:
+        resistance_genes:
+          type: array
+          items:
+            type: object
+
+    ResistancePredictionResponse:
+      type: object
+      required:
+        - pathogen_id
+        - predictions
+        - model_version
+        - prediction_date
+      properties:
+        pathogen_id:
+          type: string
+        predictions:
+          type: array
+          items:
+            type: object
+            properties:
+              antibiotic:
+                type: string
+              predicted_resistance:
+                type: string
+                enum: [Susceptible, Resistant, Intermediate]
+              confidence:
+                type: number
+                format: float
+        model_version:
+          type: string
+        prediction_date:
+          type: string
+          format: date-time
+
+    # ====================================================================
+    # DEV 3 SCHEMAS
+    # ====================================================================
+
+    PgxInteractionsResponse:
+      type: object
+      required:
+        - drug_id
+        - drug_name
+        - pgx_interactions
+      properties:
+        drug_id:
+          type: string
+        drug_name:
+          type: string
+        pgx_interactions:
+          type: array
+          items:
+            type: object
+        metabolic_pathways:
+          type: array
+          items:
+            type: object
+        last_updated:
+          type: string
+          format: date-time
+
+    AdverseEventsResponse:
+      type: object
+      required:
+        - drug_id
+        - drug_name
+        - adverse_events
+      properties:
+        drug_id:
+          type: string
+        drug_name:
+          type: string
+        adverse_events:
+          type: array
+          items:
+            type: object
+        total_events:
+          type: integer
+        data_source:
+          type: string
+
+    CheckInteractionsRequest:
+      type: object
+      required:
+        - concomitant_drugs
+      properties:
+        concomitant_drugs:
+          type: array
+          items:
+            type: object
+
+    DrugInteractionsResponse:
+      type: object
+      required:
+        - primary_drug
+        - interactions
+      properties:
+        primary_drug:
+          type: string
+        interactions:
+          type: array
+          items:
+            type: object
+        total_interactions:
+          type: integer
+
+    PredictToxicityRequest:
+      type: object
+      required:
+        - patient_factors
+      properties:
+        patient_factors:
+          type: object
+
+    ToxicityPredictionResponse:
+      type: object
+      required:
+        - drug_id
+        - drug_name
+        - toxicity_risk
+        - risk_score
+      properties:
+        drug_id:
+          type: string
+        drug_name:
+          type: string
+        toxicity_risk:
+          type: string
+          enum: [Low, Moderate, High, Critical]
+        risk_score:
+          type: number
+          format: float
+        predicted_adverse_effects:
+          type: array
+          items:
+            type: object
+        recommendations:
+          type: array
+          items:
+            type: string
+        model_version:
+          type: string
+
+    # ====================================================================
+    # COMMON SCHEMAS
+    # ====================================================================
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - status
+      properties:
+        error:
+          type: string
+          description: Error message
+        status:
+          type: integer
+          description: HTTP status code
+        timestamp:
+          type: string
+          format: date-time
+          description: Error timestamp
+        request_id:
+          type: string
+          description: Request ID for debugging
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT Bearer token authentication (OAuth2 + PKCE flow compatible)
+        
+        JWKS Endpoint: https://auth.theragenome.com/.well-known/jwks.json
+        
+        Token Requirements:
+        - Signing Algorithm: RS256
+        - Claims: sub (clinician ID), iss (issuer), aud (audience), scope
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: dev1
+    description: Dev 1 - Variant Classification Service
+    externalDocs:
+      url: https://github.com/rohinnandan30n/theraGENOME/tree/dev1
+  
+  - name: dev2
+    description: Dev 2 - Pathogen Resistance Analysis
+    externalDocs:
+      url: https://github.com/rohinnandan30n/theraGENOME/tree/dev2
+  
+  - name: dev3
+    description: Dev 3 - Drug Safety & Toxicity
+    externalDocs:
+      url: https://github.com/rohinnandan30n/theraGENOME/tree/dev3
+  
+  - name: variants
+    description: Genetic variants and classification
+  
+  - name: pathogens
+    description: Pathogen resistance analysis
+  
+  - name: drugs
+    description: Drug safety and interactions
+  
+  - name: classification
+    description: Variant classification operations
+  
+  - name: resistance
+    description: Antimicrobial resistance prediction
+  
+  - name: pharmacogenomics
+    description: Pharmacogenomic gene-drug interactions
+  
+  - name: safety
+    description: Drug safety data
+  
+  - name: toxicity
+    description: Drug toxicity prediction
+  
+  - name: interactions
+    description: Drug-drug interaction checking
+
+externalDocs:
+  url: https://theragenome.com/api-docs
+  description: Complete API documentation

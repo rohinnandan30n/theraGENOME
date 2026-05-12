@@ -1,0 +1,30 @@
+[
+  {
+    "gene": "TP53",
+    "mutation": "p.R175H frameshift"
+  },
+  {
+    "gene": "BRCA1",
+    "mutation": "c.68_69delAG frameshift"
+  },
+  {
+    "gene": "EGFR",
+    "mutation": "p.L858R missense"
+  },
+  {
+    "gene": "CYP2D6",
+    "mutation": "c.100C>T missense"
+  },
+  {
+    "gene": "TP53",
+    "mutation": "p.Y234* nonsense"
+  },
+  {
+    "gene": "BRCA1",
+    "mutation": "c.5266dupC frameshift"
+  },
+  {
+    "gene": "EGFR",
+    "mutation": "p.G719A benign"
+  }
+]

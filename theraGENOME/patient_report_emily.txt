@@ -1,0 +1,309 @@
+================================================================================
+                    CLINICAL PHARMACOGENOMICS REPORT
+================================================================================
+
+PATIENT INFORMATION
+-------------------
+Patient ID:           PAT-002-2026
+Patient Name:         Emily Rodriguez
+Date of Birth:        September 22, 1978
+Age:                  47 years old
+Sex:                  Female
+Ethnicity:            Hispanic/Latin American
+Medical Status:       Post-surgery recovery
+
+SEQUENCING INFORMATION
+----------------------
+Sequencing Date:      May 8, 2026
+Sequencing Type:      Whole Exome Sequencing (WXS)
+Laboratory:           Advanced Genetic Diagnostics Inc.
+Report Date:          May 10, 2026
+Certified By:         Dr. Michael Chen, MD, PhD - Clinical Genetics
+CLIA Number:          12D2159588
+
+
+================================================================================
+                        GENETIC PROFILE SUMMARY
+================================================================================
+
+PHARMACOGENES (Drug Metabolism)
+---------------------------------
+
+1. CYP2D6 - Rapid Metabolizer ⚡
+   Variant:    *1/*1xN
+   Genotype:   Duplication with 3 gene copies
+   Impact:     INCREASED metabolism - drugs processed very quickly
+   Affected Drugs: Codeine, tramadol, antidepressants, antipsychotics
+   Recommendation: HIGHER THAN STANDARD DOSES MAY BE NEEDED
+
+2. CYP2C19 - Normal Metabolizer
+   Variant:    rs4244285
+   Genotype:   *1/*1
+   Impact:     Normal drug clearance
+   Affected Drugs: Clopidogrel, omeprazole, escitalopram
+   Recommendation: Standard dosing appropriate
+
+3. CYP2C9 - Normal Metabolizer
+   Variant:    rs1057910
+   Genotype:   *1/*1
+   Impact:     Normal warfarin metabolism
+   Affected Drugs: Warfarin (anticoagulant)
+   Recommendation: Standard dosing appropriate
+
+4. CYP3A4/5 - Normal Activity
+   Variant:    None detected
+   Genotype:   Wild-type
+   Impact:     Normal metabolism
+   Affected Drugs: Statins, calcium channel blockers, immunosuppressants
+   Recommendation: Standard dosing appropriate
+
+5. TPMT - Normal Activity
+   Variant:    rs1142345
+   Genotype:   *1/*1
+   Impact:     Normal thiopurine metabolism
+   Affected Drugs: Azathioprine, 6-mercaptopurine
+   Recommendation: Standard dosing appropriate
+
+6. NAT2 - Rapid Acetylator
+   Variant:    rs1801280
+   Genotype:   *4/*4
+   Impact:     Fast drug clearance for acetylated drugs
+   Affected Drugs: Isoniazid, sulfamethoxazole, procainamide
+   Recommendation: May need standard to higher doses
+
+7. SLCO1B1 - Reduced Function
+   Variant:    rs6917289
+   Genotype:   *5/*1
+   Impact:     Slightly reduced statin metabolism
+   Affected Drugs: Statins (cholesterol medications)
+   Recommendation: Consider lower statin doses; monitor cholesterol
+
+8. UGT1A1 - Gilbert Syndrome ⚠️
+   Variant:    rs8175347
+   Genotype:   TA7/TA7
+   Impact:     Reduced bilirubin conjugation - mild hyperbilirubinemia
+   Affected Drugs: Irinotecan (chemotherapy)
+   Recommendation: AVOID irinotecan or use reduced dose with monitoring
+
+9. HLA-A - Normal
+   Variant:    None detected
+   Genotype:   HLA-A*02:01
+   Impact:     No contraindications identified
+   Recommendation: Standard prescribing
+
+
+CLINICAL VARIANTS (Disease Risk)
+---------------------------------
+
+1. BRCA2 - Heterozygous Carrier ⚠️
+   Variant:    c.9097C>T (p.Arg3033Ter)
+   RS ID:      rs80202993
+   Genotype:   Heterozygous mutation
+   Pathogenicity: PATHOGENIC
+   Clinical Significance: INCREASED BREAST/OVARIAN/PANCREATIC CANCER RISK
+   Allele Frequency: 0.0001% (very rare)
+   Recommendation: Genetic counseling and enhanced surveillance recommended
+
+2. CHEK2 - Heterozygous Carrier ⚠️
+   Variant:    1100delC (c.1100delC)
+   RS ID:      rs555607708
+   Genotype:   Heterozygous deletion
+   Pathogenicity: PATHOGENIC
+   Clinical Significance: Associated with increased breast cancer risk
+   Allele Frequency: 0.1% (rare in European populations)
+   Recommendation: Genetic counseling recommended
+
+3. PTEN - Normal
+   Variant:    None detected
+   Genotype:   Wild-type
+   Impact:     No increased risk of Cowden syndrome
+   Recommendation: Standard screening
+
+4. TP53 - Normal
+   Variant:    None detected
+   Genotype:   Wild-type
+   Impact:     No increased cancer predisposition
+   Recommendation: Standard screening
+
+
+================================================================================
+                      MEDICATION RECOMMENDATIONS
+================================================================================
+
+✅ RECOMMENDED MEDICATIONS
+---------------------------
+
+Pain Management - Tramadol or Codeine (WITH DOSE ADJUSTMENT)
+  Standard Dose:   50-100mg daily (PATIENT MAY NEED 150-200mg)
+  Reason:          Rapid CYP2D6 metabolizer - standard doses may be ineffective
+  Interactions:    Monitor with other CNS depressants
+  Monitoring:      Assess pain control at each visit; may need titration upward
+  NOTE:            Due to gene duplication (3 copies), expect faster clearance
+
+Antibiotic - Sulfamethoxazole (if needed for infection)
+  Standard Dose:   800-1000mg twice daily
+  Reason:          Rapid acetylator phenotype - standard dosing may be appropriate
+  Interactions:    Monitor for rash, fever, joint pain
+  Monitoring:      Watch for adverse reactions; dose may be at upper end
+
+Cholesterol Management - Atorvastatin
+  Standard Dose:   10-20mg daily
+  Reason:          SLCO1B1*5 - reduced statin metabolism, start conservative
+  Interactions:    Avoid grapefruit juice; monitor CK levels
+  Monitoring:      Check lipid panel in 6 weeks; may need dose adjustment downward
+  NOTE:            Consider pravastatin as alternative (not SLCO1B1 dependent)
+
+⚠️ REQUIRES MONITORING
+------------------------
+
+Chemotherapy - Irinotecan (IF CANCER TREATMENT NEEDED) 🛑 CRITICAL
+  Standard Dose:   NOT RECOMMENDED without dose reduction
+  Reason:          UGT1A1 Gilbert Syndrome (TA7/TA7) - HIGH TOXICITY RISK
+  Alternative:     Use other chemotherapy agents; if irinotecan necessary, reduce to 75% of standard dose
+  Monitoring:      Baseline bilirubin level; monitor CBC for neutropenia, diarrhea
+  Toxicity Risk:   Severe neutropenia, severe diarrhea, hospitalization needed
+
+Hormonal Therapy - Tamoxifen (if breast cancer treatment needed)
+  Standard Dose:   20mg daily
+  Reason:          Converted by CYP2D6 to active metabolites; rapid metabolizer status
+  Interactions:    Check for drug interactions with other medications
+  Monitoring:      Therapeutic drug level may be suboptimal; consider alternative or combination therapy
+
+Cancer Screening - Enhanced Protocol ⚠️
+  Recommendation:  Due to BRCA2 and CHEK2 mutations
+  Screening Plan:
+    - Mammography: Annually (consider MRI for supplemental screening)
+    - Ovarian ultrasound: Annually starting age 45
+    - CA-125 monitoring: Annually
+    - Clinical breast exams: Every 6 months
+    - Genetic counseling: Recommended for family planning
+
+
+================================================================================
+                           RISK SUMMARY
+================================================================================
+
+Overall Risk Level:          MODERATE-HIGH
+Cancer Predisposition:       HIGH (BRCA2 + CHEK2 mutations)
+Metabolizer Status:          Rapid CYP2D6, Rapid NAT2 Acetylator
+Major Alerts:                2 (Irinotecan contraindication, Cancer risk)
+Drug-Gene Interactions:      8
+Disease Risk Variants:       2 (BRCA2, CHEK2)
+
+CRITICAL NOTES:
+===============
+⚠️ URGENT: Genetic counseling ESSENTIAL
+   This patient has pathogenic mutations in BRCA2 and CHEK2 indicating increased
+   cancer predisposition. Family planning and enhanced surveillance crucial.
+
+⚠️ Rapid CYP2D6 metabolizer status (gene duplication)
+   - Standard pain medication doses may be ineffective
+   - May need 150-200% of normal doses for codeine/tramadol
+   - Monitor therapeutic response carefully
+
+🛑 UGT1A1 Gilbert Syndrome - Irinotecan CONTRAINDICATED
+   - High risk of severe toxicity if irinotecan used
+   - If cancer treatment needed, use alternative chemotherapy
+   - If irinotecan unavoidable, reduce dose to 75% and monitor closely
+
+⚠️ BRCA2 pathogenic mutation - Increased cancer risk
+   - Breast cancer risk: 45-87% by age 70
+   - Ovarian cancer risk: 11-40% by age 70
+   - Pancreatic cancer risk: 5-10%
+   - Prostate cancer risk: 4-8% (if male relatives affected)
+
+⚠️ CHEK2 heterozygous mutation
+   - Breast cancer risk approximately 2-3x general population
+   - Combined with BRCA2 increases overall risk
+
+⚠️ SLCO1B1 reduced function
+   - Start low with statins, titrate slowly
+   - Monitor for muscle pain/weakness
+   - Consider pravastatin alternative
+
+
+================================================================================
+                        CLINICAL RECOMMENDATIONS
+================================================================================
+
+1. GENETIC COUNSELING: URGENT PRIORITY
+   - Discuss BRCA2 and CHEK2 mutations implications
+   - Family screening recommendations
+   - Discuss options: surveillance, preventive surgery, lifestyle modifications
+   - Cancer risk reduction strategies
+   - Reproductive planning if applicable
+
+2. ONCOLOGY CONSULTATION: RECOMMENDED
+   - Enhanced cancer screening protocols
+   - Family history assessment
+   - Risk stratification and counseling
+   - Discuss chemotherapy implications of UGT1A1 deficiency if cancer develops
+
+3. PHARMACIST CONSULTATION: RECOMMENDED
+   - Review current medications against rapid metabolizer status
+   - Assess adequacy of pain control if on codeine/tramadol
+   - Evaluate statin dosing with SLCO1B1 variant
+   - Plan drug interactions prevention
+
+4. GYNECOLOGY CONSULTATION: RECOMMENDED
+   - Annual screening mammography + MRI
+   - Ovarian ultrasound surveillance protocol
+   - Discuss risk-reducing mastectomy/salpingo-oophorectomy
+   - Contraceptive counseling if applicable
+
+5. LIFESTYLE MODIFICATIONS
+   - Exercise: 150 minutes moderate activity per week (cancer risk reduction)
+   - Diet: High fiber, fruits/vegetables, limited alcohol
+   - Avoid tobacco exposure
+   - Maintain healthy BMI
+   - Stress management and sleep optimization
+
+6. FOLLOW-UP SCHEDULE
+   - Genetic counselor: Within 2 weeks
+   - Oncology: Within 1 month
+   - Gynecology/Primary Care: Within 1 month for screening plan
+   - Pharmacist: Within 1 week if starting new medications
+
+
+================================================================================
+                           SPECIAL NOTES
+================================================================================
+
+FAMILY SCREENING IMPLICATIONS:
+  - First-degree relatives (children, siblings, parents) have 50% risk of inheriting BRCA2 mutation
+  - Recommend genetic testing for family members
+  - If children are carriers, increased screening needed starting in early adulthood
+
+PREGNANCY PLANNING:
+  - If considering pregnancy, discuss implications with genetic counselor
+  - BRCA2 mutations increase pregnancy-related complications in some studies
+  - Chemotherapy during pregnancy carries significant risks
+
+CANCER SCREENING SCHEDULE:
+  Age 25-29:    Clinical breast exam every 6-12 months
+  Age 30-39:    Annual mammography, MRI, clinical breast exam every 6 months
+  Age 40+:      Annual mammography, MRI, consider preventive surgery discussion
+  Ovarian:      Annual ultrasound and CA-125 starting age 40-45
+
+
+================================================================================
+                     REPORT CERTIFICATION
+================================================================================
+
+This report certifies that the genetic analysis and pharmacogenomic recommendations
+contained herein are based on current clinical standards, peer-reviewed literature,
+and interpretation of genomic variants according to ACMG guidelines.
+
+Certified By:    Dr. Michael Chen, MD, PhD - Clinical Geneticist
+Certification:   May 10, 2026
+CLIA License:    12D2159588
+Reviewed By:     Dr. Sarah Johnson, MD - Oversight Physician
+
+INTERPRETATION NOTE:
+This report contains pathogenic variants with significant clinical implications.
+It is strongly recommended that results be reviewed with a genetic counselor
+before clinical action is taken.
+
+================================================================================
+                            END OF REPORT
+================================================================================

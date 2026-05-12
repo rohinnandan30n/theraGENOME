@@ -1,0 +1,200 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: theragenome-ingress
+  namespace: theragenome
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-protocols: "TLSv1.2 TLSv1.3"
+    nginx.ingress.kubernetes.io/ssl-ciphers: "ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-by-ip: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/hsts: "true"
+    nginx.ingress.kubernetes.io/hsts-max-age: "31536000"
+    nginx.ingress.kubernetes.io/hsts-include-subdomains: "true"
+    nginx.ingress.kubernetes.io/hsts-preload: "true"
+spec:
+  tls:
+  - hosts:
+    - theragenome.example.com
+    - api.theragenome.example.com
+    secretName: theragenome-tls
+  - hosts:
+    - variant-api.theragenome.example.com
+    secretName: variant-api-tls
+  rules:
+  - host: theragenome.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: theragenome-api
+            port:
+              number: 8000
+  - host: api.theragenome.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: theragenome-api
+            port:
+              number: 8000
+  - host: variant-api.theragenome.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: variant-api
+            port:
+              number: 3000
+---
+# Service for variant API with TLS support
+apiVersion: v1
+kind: Service
+metadata:
+  name: variant-api
+  namespace: theragenome
+  labels:
+    app: variant-api
+spec:
+  type: ClusterIP
+  selector:
+    app: variant-api
+  ports:
+  - name: https
+    port: 443
+    targetPort: 3000
+    protocol: TCP
+  - name: http
+    port: 3000
+    targetPort: 3000
+    protocol: TCP
+---
+# Deployment for Variant API (TypeScript/Deno)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: variant-api
+  namespace: theragenome
+  labels:
+    app: variant-api
+    version: v1
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: variant-api
+  template:
+    metadata:
+      labels:
+        app: variant-api
+        version: v1
+    spec:
+      serviceAccountName: theragenome-api
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      
+      containers:
+      - name: variant-api
+        image: theragenome/variant-api:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: http
+          containerPort: 3000
+          protocol: TCP
+        
+        env:
+        - name: TLS_ENABLED
+          value: "true"
+        - name: TLS_CERT_PATH
+          value: "/etc/tls/certs/tls.crt"
+        - name: TLS_KEY_PATH
+          value: "/etc/tls/certs/tls.key"
+        - name: DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: theragenome-config
+              key: DB_HOST_TLS
+        - name: DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: theragenome-config
+              key: DB_PORT_TLS
+        - name: DB_SSL_MODE
+          value: "require"
+        - name: ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: theragenome-config
+              key: ENVIRONMENT
+        
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 3
+        
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 2
+        
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+        
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: tls-certs
+          mountPath: /etc/tls/certs
+          readOnly: true
+      
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: tls-certs
+        secret:
+          secretName: variant-api-tls
+      
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - variant-api
+              topologyKey: kubernetes.io/hostname

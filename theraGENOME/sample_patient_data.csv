@@ -1,0 +1,12 @@
+Patient ID,Gene,Variant,Genotype,Phenotype,Clinical Significance,Recommendation
+PAT-001-2026,CYP2D6,p.G169R,*4/*41,Intermediate Metabolizer,Reduced metabolism of codeine/tramadol/antidepressants,Standard dosing with monitoring
+PAT-001-2026,CYP2C19,rs4244285,*2/*2,Poor Metabolizer,REDUCED METABOLISM - affects clopidogrel/omeprazole,DOSE ADJUSTMENT REQUIRED
+PAT-001-2026,CYP2C9,rs1057910,*1/*3,Intermediate Metabolizer,Reduced warfarin metabolism,INR MONITORING REQUIRED
+PAT-001-2026,TPMT,rs1142345,*3A/*1,Intermediate Activity,Intermediate risk for thiopurine toxicity,Standard dosing with monitoring
+PAT-001-2026,HLA-B,rs9264942,*5701,Carrier,ABACAVIR CONTRAINDICATION,ABSOLUTE AVOIDANCE - Use alternative antiretroviral
+PAT-001-2026,DPYD,rs3918290,*2A/wt,Deficient,5-FU/CAPECITABINE CONTRAINDICATION,ABSOLUTE AVOIDANCE - Risk of severe toxicity
+PAT-001-2026,G6PD,rs1050828,A-/wt,G6PD Deficiency,Risk of hemolysis with oxidative stressors,AVOID sulfonamides/dapsone/antimalarials
+PAT-001-2026,SLCO1B1,rs6917289,*5,Carrier,Increased statin levels,Consider alternative statin or lower dose
+PAT-001-2026,NAT2,rs1801280,*5/*4,Slow Acetylator,Slow drug clearance for isoniazid/sulfamethoxazole,Prolonged dosing interval recommended
+PAT-001-2026,TP53,p.R175H,Heterozygous,Likely Pathogenic,Associated with increased cancer risk,Recommend genetic counseling
+PAT-001-2026,BRCA1,c.68_69delAG,Frameshift,Pathogenic,INCREASED BREAST/OVARIAN CANCER RISK,Recommend genetic counseling and surveillance

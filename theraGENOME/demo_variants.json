@@ -1,0 +1,7 @@
+[
+  {"gene": "TP53", "mutation": "p.R175H", "type": "missense"},
+  {"gene": "BRCA1", "mutation": "c.68_69delAG", "type": "frameshift"},
+  {"gene": "EGFR", "mutation": "p.L858R", "type": "missense"},
+  {"gene": "CYP2D6", "mutation": "p.G169R", "type": "missense"},
+  {"gene": "TP53", "mutation": "p.Y234X", "type": "nonsense"}
+]

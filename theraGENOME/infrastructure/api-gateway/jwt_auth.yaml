@@ -1,0 +1,305 @@
+# Kong JWT Plugin Configuration for TheraGenome API Gateway
+# 
+# This configuration applies JWT authentication at the API Gateway level.
+# All 4 microservices sit behind this gateway and trust pre-authenticated requests.
+# 
+# Endpoints:
+# - Service 1 (Dev 1): http://dev1-genomics-variant-api:8001
+# - Service 2 (Dev 2): http://dev2-pathogen-resistance-api:8002
+# - Service 3 (Dev 3): http://dev3-drug-safety-toxicity-api:8003
+# - Service 4 (Dev 4): http://dev4-core-platform-orchestration:8004
+
+# ============================================================================
+# KONG CONFIGURATION
+# ============================================================================
+
+_format_version: "3.0"
+_transform: true
+
+# ============================================================================
+# Services Definition
+# ============================================================================
+
+services:
+  # Service 1: Genomics Variant API
+  - name: dev1-genomics-api
+    url: http://dev1-genomics-variant-api:8001
+    host: dev1-genomics-variant-api
+    port: 8001
+    protocol: http
+    routes:
+      - name: variants_route
+        paths:
+          - /api/v1/variants
+        strip_path: true
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+
+  # Service 2: Pathogen Resistance API
+  - name: dev2-pathogen-api
+    url: http://dev2-pathogen-resistance-api:8002
+    host: dev2-pathogen-resistance-api
+    port: 8002
+    protocol: http
+    routes:
+      - name: resistance_route
+        paths:
+          - /api/v1/resistance
+        strip_path: true
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+
+  # Service 3: Drug Safety & Toxicity API
+  - name: dev3-drug-safety-api
+    url: http://dev3-drug-safety-toxicity-api:8003
+    host: dev3-drug-safety-toxicity-api
+    port: 8003
+    protocol: http
+    routes:
+      - name: toxicity_route
+        paths:
+          - /api/v1/toxicity
+        strip_path: true
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+
+  # Service 4: Core Platform Orchestration (includes auth)
+  - name: dev4-core-platform
+    url: http://dev4-core-platform-orchestration:8004
+    host: dev4-core-platform-orchestration
+    port: 8004
+    protocol: http
+    routes:
+      # Public auth endpoint (no JWT required)
+      - name: auth_login_route
+        paths:
+          - /api/v1/auth/login
+        strip_path: true
+        methods:
+          - POST
+      
+      # Protected routes
+      - name: chat_route
+        paths:
+          - /api/v1/chat
+        strip_path: true
+        methods:
+          - POST
+      
+      - name: voice_route
+        paths:
+          - /api/v1/voice
+        strip_path: true
+        methods:
+          - POST
+          - GET
+      
+      - name: reports_route
+        paths:
+          - /api/v1/reports
+        strip_path: true
+        methods:
+          - GET
+          - POST
+      
+      - name: patients_route
+        paths:
+          - /api/v1/patients
+        strip_path: true
+        methods:
+          - GET
+          - POST
+          - PUT
+          - DELETE
+
+# ============================================================================
+# Global Plugins (Applied to all services)
+# ============================================================================
+
+plugins:
+  # Rate limiting (apply to all services)
+  - name: rate-limiting
+    enabled: true
+    config:
+      minute: 1000
+      policy: cluster
+  
+  # CORS (apply to all services)
+  - name: cors
+    enabled: true
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - DELETE
+        - OPTIONS
+        - PATCH
+      allow_headers:
+        - Content-Type
+        - Authorization
+        - X-Language
+        - X-Internal-Service-Key
+
+# ============================================================================
+# Service-Specific JWT Plugin Configuration
+# ============================================================================
+
+# Note: Kong requires JWT plugin configuration at service level
+# Services with routes listed below require valid JWT tokens
+
+services_with_jwt_plugin:
+  # Dev 1: Genomics Variant API
+  # All endpoints require JWT with "doctor" role
+  - service_name: dev1-genomics-api
+    plugins:
+      - name: jwt
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+          audience: null
+          cookie_names: {}
+          header_names:
+            - Authorization
+          uri_param_names:
+            - jwt
+          skip_consumer_check: true
+
+  # Dev 2: Pathogen Resistance API
+  # All endpoints require JWT with "doctor" role
+  - service_name: dev2-pathogen-api
+    plugins:
+      - name: jwt
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+          audience: null
+
+  # Dev 3: Drug Safety & Toxicity API
+  # All endpoints require JWT with "doctor" role
+  - service_name: dev3-drug-safety-api
+    plugins:
+      - name: jwt
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+          audience: null
+
+  # Dev 4: Core Platform Orchestration
+  # Selective protection (some endpoints public, some protected)
+  - service_name: dev4-core-platform
+    plugins:
+      # Auth login endpoint: NO JWT required
+      - name: jwt
+        route: "auth_login_route"
+        enabled: false
+      
+      # Chat endpoint: JWT required (doctor or patient)
+      - name: jwt
+        route: "chat_route"
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+      
+      # Voice endpoint: JWT required (doctor or patient)
+      - name: jwt
+        route: "voice_route"
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+      
+      # Reports endpoint: JWT required (doctor or patient)
+      - name: jwt
+        route: "reports_route"
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+      
+      # Patients endpoint: JWT required (doctor only - enforced in service)
+      - name: jwt
+        route: "patients_route"
+        enabled: true
+        config:
+          key_claim_name: sub
+          secret_is_base64: false
+          algorithm: HS256
+          claims_to_verify:
+            - exp
+
+# ============================================================================
+# Implementation Notes
+# ============================================================================
+#
+# 1. JWT Validation at Gateway:
+#    - Token must be in Authorization header: "Bearer <token>"
+#    - Token signature is validated using HS256 algorithm
+#    - Token expiry is checked
+#    - Invalid tokens result in 401 Unauthorized
+#
+# 2. Role-Based Access Control:
+#    - JWT payload includes "role" claim (doctor or patient)
+#    - Gateway validates presence of token
+#    - Specific role enforcement happens in service layer:
+#      * Dev 1, 2, 3: All endpoints require "doctor" role
+#      * Dev 4: Mixed - chat/voice/reports allow both roles, 
+#               patients/admin allow only "doctor"
+#
+# 3. Token Claims:
+#    {
+#      "sub": "P_001",           ← User ID
+#      "role": "doctor",         ← User role
+#      "jti": "uuid",            ← JWT ID for revocation
+#      "iat": 1234567890,        ← Issued at
+#      "exp": 1234571490         ← Expiration
+#    }
+#
+# 4. Public Endpoints:
+#    - POST /api/v1/auth/login   ← No JWT required (guest access)
+#    - All other endpoints require valid JWT token
+#
+# 5. Internal Service Communication:
+#    - Uses X-Internal-Service-Key header (not JWT)
+#    - Only for service-to-service calls
+#    - Validated separately at service layer
+#
+# 6. Secret Key Management:
+#    - JWT_SECRET_KEY must match across all services
+#    - Store in environment variables, never in source code
+#    - Use: openssl rand -hex 32 to generate
+#
+# ============================================================================

@@ -1,0 +1,1474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Report Analyzer — TheraGenome AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #14b8a6;
+            --primary-dark: #0d9488;
+            --secondary: #a855f7;
+            --accent: #f97316;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #eab308;
+            --bg-dark: #0f1419;
+            --bg-card: #1a2332;
+            --bg-hover: #2d3e52;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --border: #374151;
+            --border-light: rgba(148, 163, 184, 0.2);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2f4a 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Background effects */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 10px;
+            background: rgba(20, 184, 166, 0.1);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        .mode-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .mode-btn:hover {
+            background: rgba(20, 184, 166, 0.2);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .results-container {
+            grid-column: 1 / -1;
+        }
+
+        .dna-visualization {
+            background: linear-gradient(135deg, rgba(15, 20, 25, 0.7), rgba(26, 35, 50, 0.5));
+            border: 2px solid rgba(20, 184, 166, 0.4);
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            min-height: 480px;
+            max-width: 100%;
+            position: relative;
+            overflow: hidden;
+            min-width: 0;
+        }
+
+        .dna-visualization h2 {
+            margin: 0 0 8px 0;
+            font-size: 1.1rem;
+            color: #14b8a6;
+            z-index: 10;
+            text-shadow: 0 0 10px rgba(20, 184, 166, 0.3);
+        }
+
+        #dnaCanvas {
+            width: 100%;
+            flex: 1;
+            min-height: 400px;
+            display: block;
+            background: rgba(15, 20, 25, 0.3);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Upload Card */
+        .card {
+            background: rgba(26, 35, 50, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-light);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s ease;
+            min-width: 0;
+        }
+
+        .card:hover {
+            background: rgba(26, 35, 50, 1);
+            border-color: var(--primary);
+            box-shadow: 0 20px 60px rgba(20, 184, 166, 0.15);
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-light);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(20, 184, 166, 0.02);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(20, 184, 166, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(20, 184, 166, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .upload-zone p {
+            color: var(--text-secondary);
+            margin: 10px 0;
+        }
+
+        .upload-zone strong {
+            color: var(--primary);
+        }
+
+        .file-input {
+            display: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border-light);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(20, 184, 166, 0.02);
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(20, 184, 166, 0.05);
+        }
+
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(20, 184, 166, 0.1);
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(20, 184, 166, 0.3);
+        }
+
+        .btn-secondary {
+            background: rgba(20, 184, 166, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(20, 184, 166, 0.2);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Results Section */
+        .results-container {
+            display: none;
+        }
+
+        .results-container.active {
+            display: block;
+        }
+
+        .result-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Summary Section */
+        .summary-box {
+            background: rgba(20, 184, 166, 0.05);
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            white-space: pre-wrap;
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* Test Results Table */
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .test-table thead {
+            background: rgba(20, 184, 166, 0.1);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .test-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .test-table td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .test-table tr:hover {
+            background: rgba(20, 184, 166, 0.05);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .status-normal {
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--success);
+        }
+
+        .status-low {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .status-high {
+            background: rgba(249, 115, 22, 0.2);
+            color: var(--accent);
+        }
+
+        .status-critical {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        /* Doctor Mode Analysis */
+        .analysis-section {
+            margin-bottom: 30px;
+        }
+
+        .analysis-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .analysis-item {
+            background: rgba(20, 184, 166, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .analysis-item strong {
+            color: var(--primary);
+        }
+
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 30px;
+            background: rgba(20, 184, 166, 0.02);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+        }
+
+        /* Integration Section */
+        .integration-section {
+            background: rgba(168, 85, 247, 0.05);
+            border: 1px solid var(--border-light);
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .integration-section h4 {
+            color: var(--secondary);
+            margin-bottom: 15px;
+        }
+
+        .integration-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-integration {
+            padding: 10px 16px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid var(--secondary);
+            color: var(--secondary);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .btn-integration:hover {
+            background: rgba(168, 85, 247, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Input Methods Grid */
+        .input-methods {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-method {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-method h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .paste-textarea {
+            width: 100%;
+            min-height: 180px;
+            padding: 16px;
+            background: rgba(20, 184, 166, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: 'Monaco', 'Courier New', monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .paste-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(20, 184, 166, 0.05);
+            box-shadow: 0 0 10px rgba(20, 184, 166, 0.2);
+        }
+
+        .paste-textarea::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Loading State */
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Error Messages */
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-left: 4px solid var(--danger);
+            color: #fca5a5;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Success Messages */
+        .success-box {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success);
+            border-left: 4px solid var(--success);
+            color: #86efac;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 20px 15px;
+            }
+
+            .content-grid {
+                gap: 20px;
+            }
+
+            .card {
+                padding: 20px;
+            }
+
+            .upload-zone {
+                padding: 30px 20px;
+            }
+
+            .input-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .test-table {
+                font-size: 0.9rem;
+            }
+
+            .test-table th,
+            .test-table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>📊 Report Analyzer</h1>
+                <p style="color: var(--text-secondary); margin-top: 5px;">AI-powered medical report analysis</p>
+            </div>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="doctor">👨‍⚕️ Doctor</button>
+                    <button class="mode-btn" data-mode="patient">👤 Patient</button>
+                </div>
+                <button onclick="window.location.href='chatbot.html'" style="padding: 10px 20px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
+                    🧠 Chatbot Interface
+                </button>
+                <button onclick="window.location.href='education.html'" style="padding: 10px 20px; background: var(--secondary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
+                    📚 Learning Hub
+                </button>
+                <button class="logout-btn" style="padding: 10px 20px; background: var(--danger); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.3s ease;">
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Upload Section -->
+            <div class="card">
+                <h2>📁 Report Input</h2>
+                
+                <!-- Input Methods Grid -->
+                <div class="input-methods">
+                    <!-- Method 1: Upload File -->
+                    <div class="input-method">
+                        <h3>📄 Upload File</h3>
+                        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click();">
+                            <div class="upload-icon">📄</div>
+                            <p><strong>Click to upload</strong> or drag and drop</p>
+                            <p style="font-size: 0.9rem;">PDF, PNG, or JPG (Max 50 MB)</p>
+                        </div>
+                        <input type="file" id="fileInput" class="file-input" accept=".pdf,.png,.jpg,.jpeg" />
+                    </div>
+
+                    <!-- Method 2: Paste Text -->
+                    <div class="input-method">
+                        <h3>📋 Paste Text</h3>
+                        <textarea 
+                            id="pasteTextarea" 
+                            class="paste-textarea" 
+                            placeholder="Paste your medical report here...&#10;&#10;Example:&#10;Patient: John Doe&#10;WHITE BLOOD CELL: 12.5 k/uL&#10;HEMOGLOBIN: 14.5 g/dL&#10;GLUCOSE: 105 mg/dL"></textarea>
+                    </div>
+                </div>
+                
+                <div class="button-group" style="margin-top: 20px;">
+                    <button class="btn btn-primary" id="analyzeBtn" disabled>🔬 Analyze Report</button>
+                    <button class="btn btn-secondary" id="clearBtn">🔄 Clear</button>
+                    <button class="btn btn-success" id="demoBtn" style="background: linear-gradient(135deg, #22c55e, #16a34a);">🎬 Load Demo Results</button>
+                </div>
+
+                    <div style="margin-top: 20px; padding: 15px; background: rgba(168, 85, 247, 0.05); border-radius: 8px; border-left: 3px solid var(--secondary);">
+                        <p style="font-size: 0.9rem; color: var(--text-secondary);">
+                            💡 <strong>Tip:</strong> Choose your input method:
+                        </p>
+                        <ul style="margin: 10px 0 0 20px; font-size: 0.9rem; color: var(--text-secondary);">
+                            <li><strong>Upload:</strong> Blood tests, lab reports, cardiac/imaging results in PDF or image format</li>
+                            <li><strong>Paste:</strong> Copy text directly from emails, web portals, or scanned documents</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="card results-container" id="resultsContainer">
+                <h2>✅ Analysis Results</h2>
+                
+                <div class="loading" id="loading">
+                    <div class="spinner"></div>
+                    <p>Analyzing report...</p>
+                </div>
+
+                <div id="resultsContent">
+                    <div class="result-tabs">
+                        <button class="tab-btn active" data-tab="summary">Summary</button>
+                        <button class="tab-btn" data-tab="tests">Test Results</button>
+                        <button class="tab-btn" data-tab="analysis">Clinical Analysis</button>
+                        <button class="tab-btn" data-tab="integration">Next Steps</button>
+                    </div>
+
+                    <!-- Summary Tab -->
+                    <div class="tab-content active" data-tab="summary">
+                        <div class="summary-box" id="summaryBox"></div>
+                    </div>
+
+                    <!-- Tests Tab -->
+                    <div class="tab-content" data-tab="tests">
+                        <div id="testsContainer">
+                            <table class="test-table">
+                                <thead>
+                                    <tr>
+                                        <th>Test Name</th>
+                                        <th>Value</th>
+                                        <th>Reference</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="testTableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Tab (Doctor Mode Only) -->
+                    <div class="tab-content" data-tab="analysis" id="analysisTab">
+                        <div id="analysisContent"></div>
+                    </div>
+
+                    <!-- Integration Tab -->
+                    <div class="tab-content" data-tab="integration" id="integrationTab">
+                        <div class="integration-section">
+                            <h4>🔗 Integration Options</h4>
+                            <p style="margin-bottom: 15px; color: var(--text-secondary);">Use this report data with other TheraGenome features:</p>
+                            <div class="integration-buttons">
+                                <button class="btn-integration" id="toSimulator">
+                                    🧪 Use in Drug Simulator
+                                </button>
+                                <button class="btn-integration" id="toEducation">
+                                    📚 View Related Genes
+                                </button>
+                                <button class="btn-integration" id="compareReports">
+                                    📊 Compare Reports
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Back -->
+        <div style="text-align: center; margin-top: 40px; display: none;">
+            <button class="btn btn-secondary" onclick="window.location.href='reports.html'" style="opacity: 0.7;">
+                ← Back to Chatbot
+            </button>
+        </div>
+    </div>
+
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Report Handler -->
+    <script>
+        // ===== AUTHENTICATION GUARD =====
+        async function checkAuthentication() {
+            try {
+                const userRole = sessionStorage.getItem('userRole');
+                const userEmail = sessionStorage.getItem('userEmail');
+                
+                console.log('Checking authentication...');
+                console.log('userRole:', userRole);
+                console.log('userEmail:', userEmail);
+                
+                // If user info is in sessionStorage (set by login.html), consider them authenticated
+                if (userRole && userEmail) {
+                    console.log(`✓ Authenticated as ${userRole}: ${userEmail}`);
+                    return;
+                }
+                
+                // Otherwise, try to verify with backend
+                const response = await fetch('http://localhost:8000/api/v1/auth/verify-session', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                console.log('verify-session response status:', response.status);
+                const data = await response.json();
+                console.log('verify-session data:', data);
+                
+                if (!data.authenticated) {
+                    // Redirect to login if not authenticated
+                    console.log('Not authenticated, redirecting to login...');
+                    window.location.href = '/theraGENOME/frontend/login.html';
+                    return;
+                }
+                
+                // Store user info in session
+                sessionStorage.setItem('userRole', data.role);
+                sessionStorage.setItem('userEmail', data.email);
+                
+                console.log(`✓ Authenticated as ${data.role}: ${data.email}`);
+            } catch (error) {
+                console.error('Auth check error:', error);
+                console.log('Error details:', error.message);
+                // For demo purposes, allow access even if verify-session fails
+                console.log('Allowing demo access despite auth error');
+            }
+        }
+
+        // Check authentication before initializing the app
+        document.addEventListener('DOMContentLoaded', checkAuthentication);
+
+        class ReportAnalyzerUI {
+            constructor() {
+                this.mode = sessionStorage.getItem('userRole') || 'doctor';
+                this.userEmail = sessionStorage.getItem('userEmail');
+                this.currentReport = null;
+                this.selectedFile = null;
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.restoreSavedMode();
+                this.setupLogout();
+            }
+
+            setupLogout() {
+                // Add logout button functionality
+                const logoutButtons = document.querySelectorAll('.logout-btn');
+                logoutButtons.forEach(btn => {
+                    btn.addEventListener('click', () => this.logout());
+                });
+            }
+
+            async logout() {
+                try {
+                    await fetch('http://localhost:8000/api/v1/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                } catch (error) {
+                    console.error('Logout error:', error);
+                }
+                
+                // Clear session and redirect
+                sessionStorage.clear();
+                window.location.href = '/theraGENOME/frontend/login.html';
+            }
+
+            setupEventListeners() {
+                // Mode selector
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.setMode(e.target.dataset.mode));
+                });
+
+                // Upload
+                const uploadZone = document.getElementById('uploadZone');
+                const fileInput = document.getElementById('fileInput');
+                const self = this; // Capture 'this' context
+
+                // Drag and drop
+                uploadZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    uploadZone.classList.add('dragover');
+                });
+                
+                uploadZone.addEventListener('dragleave', (e) => {
+                    e.preventDefault();
+                    uploadZone.classList.remove('dragover');
+                });
+                
+                uploadZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    uploadZone.classList.remove('dragover');
+                    self.handleFiles(e.dataTransfer.files);
+                });
+
+                // Handle file selection (from file input change)
+                fileInput.addEventListener('change', (e) => {
+                    if (e.target && e.target.files && e.target.files.length > 0) {
+                        self.handleFiles(e.target.files);
+                    }
+                });
+
+                // Analyze
+                document.getElementById('analyzeBtn').addEventListener('click', () => this.analyzeReport());
+
+                // Clear
+                document.getElementById('clearBtn').addEventListener('click', () => this.clearResults());
+
+                // Demo Results
+                document.getElementById('demoBtn').addEventListener('click', () => this.loadDemoResults());
+
+                // Tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => this.switchTab(e.target.dataset.tab));
+                });
+
+                // Integration buttons
+                document.getElementById('toSimulator').addEventListener('click', () => this.goToSimulator());
+                document.getElementById('toEducation').addEventListener('click', () => this.goToEducation());
+            }
+
+            setMode(mode) {
+                this.mode = mode;
+                localStorage.setItem('reportMode', mode);
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.mode === mode);
+                });
+            }
+
+            restoreSavedMode() {
+                // Use the actual user role, not saved report mode
+                const userRole = sessionStorage.getItem('userRole') || 'patient';
+                this.setMode(userRole);
+            }
+
+            handleFiles(files) {
+                const file = files[0];
+                if (!file) return;
+
+                const allowed = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+                if (!allowed.includes(file.type)) {
+                    alert('Please upload a PDF or image file');
+                    return;
+                }
+
+                this.selectedFile = file;
+                document.getElementById('uploadZone').innerHTML = `
+                    <div style="color: var(--primary); font-weight: 600;">
+                        ✅ ${file.name}
+                    </div>
+                    <p style="margin-top: 5px; font-size: 0.9rem; color: var(--text-secondary);">
+                        ${(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                `;
+
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+
+            async analyzeReport() {
+                const pastedText = document.getElementById('pasteTextarea').value.trim();
+                
+                // Check if file is selected
+                if (this.selectedFile) {
+                    // Use file upload logic
+                    const formData = new FormData();
+                    formData.append('file', this.selectedFile);
+                    formData.append('mode', this.mode);
+
+                    this.showLoading(true);
+
+                    try {
+                        const response = await fetch('http://localhost:8000/api/v1/reports/upload', {
+                            method: 'POST',
+                            body: formData,
+                        });
+
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(error.detail || 'Failed to analyze report');
+                        }
+
+                        const data = await response.json();
+                        this.currentReport = data;
+                        this.displayResults(data);
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                        console.error(error);
+                    } finally {
+                        this.showLoading(false);
+                    }
+                } 
+                // Check if text is pasted
+                else if (pastedText) {
+                    // Use text paste logic
+                    this.showLoading(true);
+
+                    try {
+                        const response = await fetch('http://localhost:8000/api/v1/reports/analyze-text', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                text: pastedText,
+                                mode: this.mode,
+                                report_type: 'pasted_text'
+                            })
+                        });
+
+                        if (!response.ok) {
+                            const error = await response.json();
+                            throw new Error(error.detail || 'Failed to analyze report');
+                        }
+
+                        const data = await response.json();
+                        
+                        // Check if it's a pharmacogenomics report result
+                        if (data.error) {
+                            // Try the regular report analyzer
+                            console.log('📝 Not a pharmacogenomics report, trying standard analyzer...');
+                            throw new Error(data.error);
+                        }
+                        
+                        this.currentReport = data;
+                        this.displayResults(data);
+                    } catch (error) {
+                        console.log('🧬 Trying pharmacogenomics parser:', error.message);
+                        // Try pharmacogenomics parser
+                        try {
+                            const pharmaResponse = await fetch('http://localhost:8000/api/v1/reports/analyze-pharma', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    text: pastedText,
+                                    mode: this.mode
+                                })
+                            });
+                            
+                            const pharmaData = await pharmaResponse.json();
+                            if (!pharmaData.error) {
+                                console.log('✅ Pharmacogenomics report detected and parsed!');
+                                this.currentReport = pharmaData;
+                                this.displayResults(pharmaData);
+                                return;
+                            }
+                        } catch (pharmaError) {
+                            console.error('Pharmacogenomics parser error:', pharmaError);
+                        }
+                        
+                        alert('Error: ' + error.message);
+                        console.error(error);
+                    } finally {
+                        this.showLoading(false);
+                    }
+                }
+                else {
+                    alert('Please upload a file or paste text first');
+                }
+            }
+
+            displayResults(report) {
+                document.getElementById('resultsContainer').classList.add('active');
+
+                // ===== CLEAR ALL TABS FIRST =====
+                document.getElementById('summaryBox').innerHTML = '';
+                document.getElementById('testsContainer').innerHTML = '';
+                document.getElementById('analysisContent').innerHTML = '';
+
+                // ===== SUMMARY TAB - ONLY SUMMARY TEXT =====
+                document.getElementById('summaryBox').textContent = report.summary;
+
+                // ===== TESTS TAB - ONLY TEST SUMMARY + TABLE =====
+                const testsContainer = document.getElementById('testsContainer');
+                let testHTML = '';
+                
+                // Get test counts
+                let testCounts = null;
+                if (report.data.test_counts) {
+                    testCounts = report.data.test_counts;
+                } else if (report.data.analysis && report.data.analysis.test_summary) {
+                    testCounts = report.data.analysis.test_summary;
+                }
+                
+                // Add test summary section at top
+                if (testCounts) {
+                    const total = testCounts.normal + testCounts.abnormal + (testCounts.critical || 0);
+                    testHTML += `
+                        <div class="analysis-section" style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border-color);">
+                            <h4>📊 Test Summary</h4>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                                <div><span style="color: var(--text-secondary);">Total Tests:</span> <strong>${total}</strong></div>
+                                <div><span style="color: var(--text-secondary);">Normal:</span> <strong style="color: var(--success);">${testCounts.normal}</strong></div>
+                                <div><span style="color: var(--text-secondary);">Abnormal:</span> <strong style="color: var(--warning);">${testCounts.abnormal + (testCounts.critical || 0)}</strong></div>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                // Add table
+                testHTML += `
+                    <table class="test-table">
+                        <thead>
+                            <tr>
+                                <th>Test Name</th>
+                                <th>Value</th>
+                                <th>Reference</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${report.data.tests.map(test => `
+                                <tr>
+                                    <td><strong>${test.test_name}</strong></td>
+                                    <td>${test.value} ${test.unit}</td>
+                                    <td>${test.reference_range} ${test.unit}</td>
+                                    <td>
+                                        <span class="status-badge status-${test.abnormality}">
+                                            ${test.abnormality.toUpperCase()}
+                                        </span>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                testsContainer.innerHTML = testHTML;
+
+                // ===== CLINICAL ANALYSIS TAB - ONLY ANALYSIS (DOCTOR MODE) =====
+                // Show/hide analysis tab button based on mode
+                const analysisTabBtn = document.querySelector('.tab-btn[data-tab="analysis"]');
+                if (this.mode === 'doctor' && report.data.analysis) {
+                    analysisTabBtn.style.display = 'inline-block';  // Show button
+                    this.displayAnalysis(report.data.analysis);
+                } else {
+                    analysisTabBtn.style.display = 'none';  // Hide button in patient mode
+                    // In patient mode, clear analysis content
+                    document.getElementById('analysisContent').innerHTML = '';
+                }
+            }
+
+            displayAnalysis(analysis) {
+                const analysisContent = document.getElementById('analysisContent');
+                analysisContent.innerHTML = ''; // Clear all previous content
+                let html = '';
+
+                // Critical Findings
+                if (analysis.critical_findings && analysis.critical_findings.length > 0) {
+                    html += `<div class="analysis-section"><h3>⚠️ Critical Findings</h3>`;
+                    analysis.critical_findings.forEach(finding => {
+                        html += `
+                            <div class="analysis-item">
+                                <strong>${finding.test}:</strong> ${finding.value} ${finding.unit}
+                                <br/><small>Ref: ${finding.reference} | Deviation: ${finding.deviation_percent}%</small>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // Detected Conditions (Diseases)
+                if (analysis.detected_conditions && analysis.detected_conditions.length > 0) {
+                    html += `<div class="analysis-section"><h3>🔍 Detected Medical Conditions</h3>`;
+                    analysis.detected_conditions.forEach(condition => {
+                        html += `
+                            <div class="analysis-item">
+                                <strong>${condition.disease}</strong> 
+                                <span style="color: var(--${condition.severity === 'critical' ? 'danger' : condition.severity === 'high' ? 'accent' : 'warning'});">
+                                    [${condition.severity.toUpperCase()}]
+                                </span>
+                                <br/><small>Risk Score: ${(condition.risk_score * 100).toFixed(1)}%</small>
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // Drug Recommendations
+                if (analysis.drug_recommendations && analysis.drug_recommendations.length > 0) {
+                    html += `<div class="analysis-section"><h3>💊 Disease-Specific Drug Recommendations</h3>`;
+                    
+                    // Group by disease
+                    const groupedByDisease = {};
+                    analysis.drug_recommendations.forEach(rec => {
+                        if (!groupedByDisease[rec.disease]) {
+                            groupedByDisease[rec.disease] = [];
+                        }
+                        groupedByDisease[rec.disease].push(rec);
+                    });
+                    
+                    Object.entries(groupedByDisease).forEach(([disease, drugs]) => {
+                        html += `<div style="margin-bottom: 15px; padding: 12px; background: rgba(20, 184, 166, 0.05); border-left: 3px solid var(--primary); border-radius: 4px;">
+                            <strong style="color: var(--primary);">${disease}</strong>
+                            <table style="width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 0.9rem;">
+                                <tr style="border-bottom: 1px solid rgba(20, 184, 166, 0.2);">
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Drug</th>
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Class</th>
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Dosage</th>
+                                    <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Note</th>
+                                </tr>`;
+                        
+                        drugs.forEach(drug => {
+                            html += `<tr style="border-bottom: 1px solid rgba(20, 184, 166, 0.1);">
+                                <td style="padding: 6px;"><strong>${drug.drug}</strong></td>
+                                <td style="padding: 6px;">${drug.class}</td>
+                                <td style="padding: 6px; color: var(--primary);">${drug.dosage}</td>
+                                <td style="padding: 6px; font-size: 0.85rem; color: var(--text-secondary);">${drug.note}</td>
+                            </tr>`;
+                        });
+                        
+                        html += `</table></div>`;
+                    });
+                    
+                    html += `</div>`;
+                }
+
+                // Resistance Analysis (NEW)
+                if (analysis.infection_analysis && analysis.infection_analysis.infection_detected) {
+                    const infectionData = analysis.infection_analysis.details;
+                    const resistanceData = analysis.infection_analysis.resistance_analysis;
+                    
+                    html += `<div class="analysis-section"><h3>🦠 Infection & Antibiotic Resistance Analysis</h3>`;
+                    
+                    if (infectionData) {
+                        html += `<div class="analysis-item" style="margin-bottom: 15px;">
+                            <strong style="color: var(--danger);">Infection Detected</strong><br/>
+                            <strong>Suspected Organism:</strong> ${infectionData.pathogen}<br/>
+                            <strong>WBC Count:</strong> ${infectionData.wbc_count} k/uL (${infectionData.wbc_severity.toUpperCase()} elevation)<br/>
+                            <strong>Source:</strong> ${infectionData.source}
+                        </div>`;
+                    }
+                    
+                    // Resistance Model Analysis
+                    if (resistanceData) {
+                        const overallRisk = resistanceData.overall_risk || 'MEDIUM';
+                        const riskColor = overallRisk === 'HIGH' ? 'var(--danger)' : overallRisk === 'MEDIUM' ? 'var(--accent)' : 'var(--success)';
+                        const riskScore = resistanceData.risk_score !== undefined ? (resistanceData.risk_score * 100).toFixed(1) : 'N/A';
+                        
+                        html += `<div style="margin-bottom: 15px; padding: 12px; background: rgba(168, 85, 247, 0.05); border-left: 3px solid var(--secondary); border-radius: 4px;">
+                            <strong style="color: var(--secondary);">Resistance Model Analysis</strong><br/>
+                            <strong>Overall Risk:</strong> <span style="color: ${riskColor}; font-weight: bold;">${overallRisk}</span><br/>
+                            <strong>Risk Score:</strong> ${riskScore}%
+                        </div>`;
+                        
+                        // Resistance Mechanisms
+                        if (resistanceData.resistance_mechanisms && Object.keys(resistanceData.resistance_mechanisms).length > 0) {
+                            html += `<div style="padding: 12px; background: rgba(168, 85, 247, 0.02); border: 1px solid var(--border-light); border-radius: 4px; margin-bottom: 15px;">
+                                <strong style="color: var(--secondary);">Detected Resistance Mechanisms:</strong>
+                                <ul style="margin-top: 8px; margin-left: 20px;">`;
+                            
+                            Object.entries(resistanceData.resistance_mechanisms).forEach(([gene, confidence]) => {
+                                html += `<li><strong>${gene}:</strong> ${confidence}</li>`;
+                            });
+                            
+                            html += `</ul></div>`;
+                        }
+                        
+                        // Susceptibilities / Antibiotic Recommendations
+                        if (resistanceData.susceptibilities && Object.keys(resistanceData.susceptibilities).length > 0) {
+                            html += `<div style="padding: 12px; background: rgba(34, 197, 94, 0.02); border: 1px solid var(--border-light); border-radius: 4px;">
+                                <strong style="color: var(--success);">Antibiotic Susceptibilities:</strong>
+                                <table style="width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 0.9rem;">
+                                    <tr style="border-bottom: 1px solid var(--border-light);">
+                                        <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Antibiotic</th>
+                                        <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Susceptible</th>
+                                        <th style="text-align: left; padding: 6px; color: var(--text-secondary);">Mechanism</th>
+                                    </tr>`;
+                            
+                            Object.entries(resistanceData.susceptibilities).forEach(([drug, status]) => {
+                                const susceptible = status.susceptible || false;
+                                const statusColor = susceptible ? 'var(--success)' : 'var(--danger)';
+                                const statusText = susceptible ? '✅ Susceptible' : '❌ Resistant';
+                                
+                                html += `<tr style="border-bottom: 1px solid var(--border-light);">
+                                    <td style="padding: 6px;"><strong>${drug}</strong></td>
+                                    <td style="padding: 6px; color: ${statusColor};">${statusText}</td>
+                                    <td style="padding: 6px; font-size: 0.85rem; color: var(--text-secondary);">${status.resistance_mechanism || 'None'}</td>
+                                </tr>`;
+                            });
+                            
+                            html += `</table></div>`;
+                        }
+                    }
+                    
+                    html += `</div>`;
+                }
+
+                // Organ Involvement
+                if (analysis.organ_involvement && Object.keys(analysis.organ_involvement).length > 0) {
+                    html += `<div class="analysis-section"><h3>🏥 Organ Involvement</h3>`;
+                    Object.entries(analysis.organ_involvement).forEach(([organ, tests]) => {
+                        html += `
+                            <div class="analysis-item">
+                                <strong>${organ.charAt(0).toUpperCase() + organ.slice(1)}:</strong> ${tests.join(', ')}
+                            </div>
+                        `;
+                    });
+                    html += `</div>`;
+                }
+
+                // Pharmacogenomics
+                if (analysis.pharmacogenomics) {
+                    html += `<div class="analysis-section"><h3>🧬 Pharmacogenomics Profile</h3>`;
+                    html += `
+                        <div class="analysis-item">
+                            Genetic Markers: ${analysis.pharmacogenomics.genetic_markers_detected ? '✅ Detected' : '⚠️ Not detected'}<br/>
+                            CYP Profile: <strong>${analysis.pharmacogenomics.cyp_profile}</strong><br/>
+                            Efficiency: ${analysis.pharmacogenomics.metabolism_efficiency || 'N/A'}<br/>
+                            Risk Level: <strong>${analysis.pharmacogenomics.drug_interaction_risk || 'N/A'}</strong><br/>
+                            <small style="color: var(--text-secondary);">${analysis.pharmacogenomics.metabolism_note}</small>
+                        </div>
+                    `;
+                    
+                    // Display specific drug recommendations
+                    if (analysis.pharmacogenomics.specific_recommendations && analysis.pharmacogenomics.specific_recommendations.length > 0) {
+                        html += `<div class="analysis-section"><h4>💊 Drug Recommendations</h4>`;
+                        analysis.pharmacogenomics.specific_recommendations.forEach(rec => {
+                            html += `
+                                <div class="analysis-item" style="border-left: 3px solid #00d9ff; padding-left: 10px; margin: 8px 0;">
+                                    <strong>${rec.rank || ''} - ${rec.specific_drug || rec.category || ''}</strong><br/>
+                                    Action: ${rec.action || ''}<br/>
+                                    Initial Dose: ${rec.initial_dose || 'N/A'}<br/>
+                                    Target Dose: ${rec.target_dose || 'N/A'}<br/>
+                                    Titration: <small>${rec.titration || 'N/A'}</small><br/>
+                                    Monitoring: <small>${rec.monitoring || 'N/A'}</small><br/>
+                                    ${rec.expected_outcome ? `Expected Outcome: <small>${rec.expected_outcome}</small><br/>` : ''}
+                                    ${rec.genetic_score ? `Genetic Score: <strong>${rec.genetic_score}</strong>` : ''}
+                                </div>
+                            `;
+                        });
+                        html += `</div>`;
+                    }
+                    
+                    html += `</div>`;
+                }
+
+                // Drug Interaction Risk
+                if (analysis.drug_interaction_risk) {
+                    html += `<div class="analysis-section"><h3>💊 Drug Interaction Assessment</h3>`;
+                    const risk = analysis.drug_interaction_risk;
+                    html += `
+                        <div class="analysis-item">
+                            Liver: ${risk.liver_function_concern ? '⚠️ Concern' : '✅ Normal'}<br/>
+                            Kidney: ${risk.kidney_function_concern ? '⚠️ Concern' : '✅ Normal'}<br/>
+                            Overall Risk: <strong>${risk.risk_level.toUpperCase()}</strong>
+                        </div>
+                    `;
+                    html += `</div>`;
+                }
+
+                // Recommendations
+                if (analysis.recommendations && analysis.recommendations.length > 0) {
+                    html += `<div class="analysis-section"><h3>📋 Clinical Recommendations</h3>`;
+                    analysis.recommendations.forEach(rec => {
+                        html += `<div class="analysis-item">✓ ${rec}</div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                if (html === '') {
+                    html = '<p style="color: var(--text-secondary);">No detailed analysis available for this report.</p>';
+                }
+                
+                analysisContent.innerHTML = html;
+            }
+
+            switchTab(tab) {
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.tab === tab);
+                });
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.toggle('active', content.dataset.tab === tab);
+                });
+            }
+
+            showLoading(show) {
+                document.getElementById('loading').classList.toggle('active', show);
+                document.getElementById('resultsContent').style.display = show ? 'none' : 'block';
+                if (show) {
+                    document.getElementById('resultsContainer').classList.add('active');
+                }
+            }
+
+            clearResults() {
+                this.selectedFile = null;
+                this.currentReport = null;
+                document.getElementById('uploadZone').innerHTML = `
+                    <div class="upload-icon">📄</div>
+                    <p><strong>Click to upload</strong> or drag and drop</p>
+                    <p style="font-size: 0.9rem;">PDF, PNG, or JPG (Max 50 MB)</p>
+                `;
+                document.getElementById('fileInput').value = '';
+                document.getElementById('pasteTextarea').value = '';
+                document.getElementById('analyzeBtn').disabled = true;
+                document.getElementById('resultsContainer').classList.remove('active');
+            }
+
+            async loadDemoResults() {
+                this.showLoading(true);
+                try {
+                    console.log('🎬 Loading demo results...');
+                    const response = await fetch('http://localhost:8000/api/v1/test-results', {
+                        method: 'GET',
+                        credentials: 'include'
+                    });
+
+                    if (!response.ok) {
+                        console.error('Response not OK:', response.status, response.statusText);
+                        throw new Error(`Failed to load demo results (${response.status})`);
+                    }
+
+                    const data = await response.json();
+                    console.log('✅ Demo results received:', data);
+                    console.log('📊 Test count:', data.data?.test_counts);
+                    console.log('🧪 Tests array:', data.data?.tests?.length, 'tests');
+                    
+                    this.currentReport = data;
+                    this.displayResults(data);
+                    
+                    // Clear file inputs
+                    document.getElementById('fileInput').value = '';
+                    document.getElementById('pasteTextarea').value = '';
+                    
+                    console.log('✓ Demo results displayed successfully!');
+                } catch (error) {
+                    console.error('❌ Error loading demo results:', error);
+                    alert('Error loading demo results: ' + error.message);
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            goToSimulator() {
+                if (this.currentReport) {
+                    sessionStorage.setItem('reportData', JSON.stringify(this.currentReport));
+                    window.location.href = 'simulator/index.html';
+                }
+            }
+
+            goToEducation() {
+                window.location.href = 'education.html';
+            }
+        }
+
+        // Helper to update analyze button state
+        function updateAnalyzeButtonState() {
+            const hasFile = document.getElementById('fileInput').files.length > 0;
+            const hasText = document.getElementById('pasteTextarea').value.trim().length > 0;
+            document.getElementById('analyzeBtn').disabled = !hasFile && !hasText;
+        }
+
+        // Input Mode Handler (unified)
+        function setupInputModeSwitcher() {
+            const fileInput = document.getElementById('fileInput');
+            const pasteTextarea = document.getElementById('pasteTextarea');
+            const clearBtn = document.getElementById('clearBtn');
+            const uploadZone = document.getElementById('uploadZone');
+
+            // Update button state when file changes
+            fileInput.addEventListener('change', updateAnalyzeButtonState);
+
+            // Update button state when text changes
+            pasteTextarea.addEventListener('input', updateAnalyzeButtonState);
+
+            // Clear button
+            clearBtn.addEventListener('click', () => {
+                fileInput.value = '';
+                pasteTextarea.value = '';
+                uploadZone.innerHTML = `
+                    <div class="upload-icon">📄</div>
+                    <p><strong>Click to upload</strong> or drag and drop</p>
+                    <p style="font-size: 0.9rem;">PDF, PNG, or JPG (Max 50 MB)</p>
+                `;
+                document.getElementById('resultsContainer').classList.remove('active');
+                updateAnalyzeButtonState();
+            });
+        }
+
+        // Simple helper to trigger file input
+        window.triggerFileInput = function() {
+            const fileInput = document.getElementById('fileInput');
+            if (fileInput) {
+                console.log('Triggering file input...');
+                fileInput.click();
+            } else {
+                console.error('File input element not found!');
+            }
+        };
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            new ReportAnalyzerUI();
+            setupInputModeSwitcher();
+        });
+
+    </script>
+</body>
+</html>

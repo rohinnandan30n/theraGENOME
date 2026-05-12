@@ -1,0 +1,42 @@
+[
+  {
+    "gene": "TP53",
+    "mutation": "p.R175H frameshift - pathogenic"
+  },
+  {
+    "gene": "BRCA1",
+    "mutation": "c.68_69delAG frameshift - pathogenic"
+  },
+  {
+    "gene": "TP53",
+    "mutation": "p.Y234* nonsense - pathogenic"
+  },
+  {
+    "gene": "EGFR",
+    "mutation": "p.L858R missense - VUS"
+  },
+  {
+    "gene": "CYP2D6",
+    "mutation": "c.100C>T missense - VUS"
+  },
+  {
+    "gene": "BRCA1",
+    "mutation": "c.5266dupC frameshift - pathogenic"
+  },
+  {
+    "gene": "EGFR",
+    "mutation": "p.G719A benign - benign"
+  },
+  {
+    "gene": "CYP2D6",
+    "mutation": "p.A201V benign - benign"
+  },
+  {
+    "gene": "UNKNOWN_GENE",
+    "mutation": "p.X100Y missense"
+  },
+  {
+    "gene": "TP53",
+    "mutation": "c.818_819insGGCCC frameshift"
+  }
+]

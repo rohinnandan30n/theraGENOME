@@ -1,0 +1,16 @@
+# Database & ORM
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9
+
+# API & Web Framework
+fastapi==0.109.2
+uvicorn[standard]==0.27.0
+httpx==0.25.2
+pydantic==2.5.3
+
+# Configuration & Utilities
+python-dotenv==1.0.0
+
+# Monitoring & Telemetry
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0

@@ -1,0 +1,305 @@
+{
+  "report_id": "RPT-2026-05-11-001",
+  "report_date": "2026-05-11",
+  "report_status": "COMPLETE",
+  "patient": {
+    "id": "PAT-002-2026",
+    "name": "Emily Rodriguez",
+    "age": 47,
+    "sex": "Female",
+    "ethnicity": "Hispanic/Latin American"
+  },
+  "analysis_summary": {
+    "total_variants": 11,
+    "pathogenic_variants": 2,
+    "disease_risk_variants": 2,
+    "drug_metabolism_variants": 7,
+    "overall_risk": "MODERATE-HIGH",
+    "cancer_risk": "HIGH",
+    "drug_interactions": 8,
+    "critical_alerts": 3
+  },
+  "pharmacogenomics_results": [
+    {
+      "gene": "CYP2D6",
+      "status": "ABNORMAL",
+      "phenotype": "Ultra-rapid metabolizer",
+      "genotype": "*1/*1xN",
+      "copy_number": 3,
+      "efficiency": 150,
+      "risk_level": "CAUTION",
+      "affected_drugs": ["Tramadol", "Codeine", "SSRIs"],
+      "recommendation": "Use 150-200% of standard dose",
+      "normal_percentage": 0,
+      "abnormal_percentage": 100
+    },
+    {
+      "gene": "CYP2C19",
+      "status": "NORMAL",
+      "phenotype": "Normal metabolizer",
+      "genotype": "*1/*1",
+      "efficiency": 100,
+      "risk_level": "LOW",
+      "affected_drugs": ["Clopidogrel", "Omeprazole"],
+      "recommendation": "Standard dosing appropriate",
+      "normal_percentage": 100,
+      "abnormal_percentage": 0
+    },
+    {
+      "gene": "CYP2C9",
+      "status": "NORMAL",
+      "phenotype": "Normal metabolizer",
+      "genotype": "*1/*1",
+      "efficiency": 100,
+      "risk_level": "LOW",
+      "recommendation": "Standard dosing appropriate",
+      "normal_percentage": 100,
+      "abnormal_percentage": 0
+    },
+    {
+      "gene": "SLCO1B1",
+      "status": "ABNORMAL",
+      "phenotype": "Reduced function",
+      "genotype": "*5/*1",
+      "efficiency": 70,
+      "risk_level": "CAUTION",
+      "affected_drugs": ["Atorvastatin", "Simvastatin"],
+      "recommendation": "Start low at 10mg daily",
+      "normal_percentage": 0,
+      "abnormal_percentage": 100
+    },
+    {
+      "gene": "UGT1A1",
+      "status": "ABNORMAL",
+      "phenotype": "Gilbert Syndrome",
+      "genotype": "TA7/TA7",
+      "efficiency": 40,
+      "risk_level": "HIGH",
+      "affected_drugs": ["Irinotecan", "5-Fluorouracil"],
+      "recommendation": "AVOID or use 75% dose reduction",
+      "normal_percentage": 0,
+      "abnormal_percentage": 100
+    },
+    {
+      "gene": "NAT2",
+      "status": "ABNORMAL",
+      "phenotype": "Rapid acetylator",
+      "genotype": "*4/*4",
+      "efficiency": 150,
+      "risk_level": "LOW",
+      "affected_drugs": ["Isoniazid", "Sulfamethoxazole"],
+      "recommendation": "May need standard to higher doses",
+      "normal_percentage": 0,
+      "abnormal_percentage": 100
+    }
+  ],
+  "disease_risk_variants": [
+    {
+      "gene": "BRCA2",
+      "mutation": "c.9097C>T (p.Arg3033Ter)",
+      "status": "PATHOGENIC",
+      "type": "Frameshift",
+      "cancer_risks": {
+        "breast": {
+          "risk_with_mutation": 65,
+          "risk_without_mutation": 12,
+          "note": "45-87% by age 70"
+        },
+        "ovarian": {
+          "risk_with_mutation": 25,
+          "risk_without_mutation": 1.5,
+          "note": "11-40% by age 70"
+        },
+        "pancreatic": {
+          "risk_with_mutation": 7,
+          "risk_without_mutation": 1,
+          "note": "5-10% by age 70"
+        }
+      },
+      "action": [
+        "Genetic counseling URGENT",
+        "Enhanced cancer screening",
+        "Family genetic testing",
+        "Consider preventive surgery"
+      ]
+    },
+    {
+      "gene": "CHEK2",
+      "mutation": "1100delC",
+      "status": "PATHOGENIC",
+      "type": "Frameshift deletion",
+      "cancer_risks": {
+        "breast": {
+          "risk_multiplier": 2.5,
+          "note": "24-36% by age 70"
+        }
+      },
+      "action": [
+        "Family screening recommended",
+        "Enhanced surveillance"
+      ]
+    }
+  ],
+  "medication_recommendations": [
+    {
+      "category": "RECOMMENDED",
+      "drug": "Sertraline",
+      "class": "Antidepressant",
+      "standard_dose": "50mg daily",
+      "patient_dose": "50mg daily",
+      "reason": "Normal CYP2D6 metabolism",
+      "status": "SAFE"
+    },
+    {
+      "category": "ADJUST_DOSE_UP",
+      "drug": "Tramadol",
+      "class": "Opioid analgesic",
+      "standard_dose": "50-100mg daily",
+      "patient_dose": "150-200mg daily",
+      "reason": "Rapid metabolizer - standard doses ineffective",
+      "status": "CAUTION",
+      "monitoring": "Pain control, sedation levels"
+    },
+    {
+      "category": "ADJUST_DOSE_DOWN",
+      "drug": "Atorvastatin",
+      "class": "Statin",
+      "standard_dose": "20mg daily",
+      "patient_dose": "10mg daily",
+      "reason": "Reduced statin metabolism - SLCO1B1*5",
+      "status": "CAUTION",
+      "monitoring": "Lipid panel in 6 weeks, muscle pain"
+    },
+    {
+      "category": "CONTRAINDICATED",
+      "drug": "Irinotecan",
+      "class": "Chemotherapy",
+      "reason": "UGT1A1 Gilbert Syndrome - HIGH TOXICITY RISK",
+      "alternative": "Taxanes, platinum-based chemotherapy",
+      "status": "AVOID",
+      "note": "If unavoidable, reduce to 75% dose with close monitoring"
+    },
+    {
+      "category": "CONTRAINDICATED",
+      "drug": "5-Fluorouracil",
+      "class": "Chemotherapy",
+      "reason": "UGT1A1 Gilbert Syndrome - HIGH TOXICITY RISK",
+      "alternative": "Alternative chemotherapy regimens",
+      "status": "AVOID"
+    }
+  ],
+  "drug_interactions": [
+    {
+      "interaction_id": 1,
+      "drug1": "Tramadol",
+      "drug2": "Sertraline",
+      "severity": "MODERATE",
+      "interaction": "Serotonin syndrome risk",
+      "recommendation": "Monitor mood and behavior changes"
+    },
+    {
+      "interaction_id": 2,
+      "drug1": "Atorvastatin",
+      "drug2": "Grapefruit",
+      "severity": "MODERATE",
+      "interaction": "Increased statin levels",
+      "recommendation": "AVOID grapefruit juice"
+    },
+    {
+      "interaction_id": 3,
+      "drug1": "Tramadol",
+      "drug2": "Alcohol",
+      "severity": "MODERATE",
+      "interaction": "CNS depression",
+      "recommendation": "Limit alcohol consumption"
+    }
+  ],
+  "cancer_screening_protocol": {
+    "indication": "BRCA2 and CHEK2 mutations detected",
+    "frequency": "Annual with semi-annual clinical exams",
+    "screening_plan": [
+      {
+        "test": "Mammography",
+        "frequency": "Annual",
+        "addition": "Consider MRI for supplemental imaging",
+        "start_age": 40
+      },
+      {
+        "test": "Ovarian ultrasound",
+        "frequency": "Annual",
+        "start_age": 45
+      },
+      {
+        "test": "CA-125 blood test",
+        "frequency": "Annual",
+        "start_age": 45
+      },
+      {
+        "test": "Clinical breast exam",
+        "frequency": "Every 6 months",
+        "start_age": 40
+      }
+    ],
+    "preventive_options": "Risk-reducing mastectomy and/or oophorectomy"
+  },
+  "clinical_consultations": [
+    {
+      "specialist": "Genetic Counselor",
+      "priority": "URGENT",
+      "timeline": "Within 2 weeks",
+      "topics": [
+        "BRCA2/CHEK2 implications",
+        "Family screening plan",
+        "Cancer risk reduction options",
+        "Preventive surgery counseling"
+      ]
+    },
+    {
+      "specialist": "Oncologist",
+      "priority": "HIGH",
+      "timeline": "Within 1 month",
+      "topics": [
+        "Cancer screening protocols",
+        "Risk stratification",
+        "Chemotherapy planning",
+        "UGT1A1 drug avoidance"
+      ]
+    },
+    {
+      "specialist": "Pharmacist",
+      "priority": "HIGH",
+      "timeline": "Within 1 week",
+      "topics": [
+        "Medication review",
+        "Pain control adequacy",
+        "Statin optimization",
+        "Drug interactions"
+      ]
+    },
+    {
+      "specialist": "Gynecologist",
+      "priority": "HIGH",
+      "timeline": "Within 1 month",
+      "topics": [
+        "Enhanced screening plan",
+        "Preventive surgery discussion",
+        "Reproductive planning"
+      ]
+    }
+  ],
+  "quality_metrics": {
+    "analysis_confidence": 99.2,
+    "coverage_depth": 156,
+    "variant_call_rate": 100,
+    "data_quality": "PASS",
+    "annotation_status": "Complete"
+  },
+  "certification": {
+    "analyzed_by": "Dr. Michael Chen, MD, PhD - Clinical Geneticist",
+    "reviewed_by": "Dr. Sarah Johnson, MD - Medical Director",
+    "clia_license": "12D2159588",
+    "date_generated": "2026-05-11",
+    "status": "APPROVED_FOR_CLINICAL_USE",
+    "validity_years": 5
+  }
+}

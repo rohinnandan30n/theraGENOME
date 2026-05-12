@@ -1,0 +1,267 @@
+openapi: 3.0.0
+info:
+  title: theraGENOME Variant Database API
+  description: API for accessing enriched variant data combining ClinVar and gnomAD information
+  version: 1.0.0
+  contact:
+    name: theraGENOME Support
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://api.theragenome.com/api/v1
+    description: Production server
+
+paths:
+  /variants/{rsid}:
+    get:
+      summary: Get enriched variant data
+      description: |
+        Retrieve enriched variant information combining ClinVar clinical data 
+        and gnomAD population frequency data. Results are cached for 24 hours.
+      operationId: getVariantEnriched
+      parameters:
+        - name: rsid
+          in: path
+          required: true
+          schema:
+            type: string
+          description: ClinVar variation ID or rsID
+          example: "12345"
+        - name: include_gnomad
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Include gnomAD frequency data in response
+        - name: use_cache
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Use cached data if available
+      responses:
+        '200':
+          description: Successfully retrieved enriched variant data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichedVariantResponse'
+              example:
+                variant_id: "12345"
+                clinvar_data:
+                  variation_id: "12345"
+                  rcv_id: "RCV000000001"
+                  gene_symbol: "BRCA1"
+                  hgvs_expression: "NC_000017.11:g.41244394T>G"
+                  clinical_significance: "Pathogenic"
+                  review_status: "4"
+                  variant_type: "Substitution"
+                gnomad_data:
+                  variant_id: "17-41244394-T-G"
+                  chrom: "17"
+                  pos: 41244394
+                  ref: "T"
+                  alt: "G"
+                  exome_af: 0.0001234
+                  genome_af: 0.0000567
+                allele_frequency: 0.0000567
+                clinical_significance: "Pathogenic"
+                review_status: "4"
+                enriched_metadata:
+                  last_updated: "2024-03-30T12:00:00Z"
+                  data_sources: ["ClinVar", "gnomAD"]
+        '404':
+          description: Variant not found in ClinVar database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /variants/frequency/{chrom}/{pos}/{ref}/{alt}:
+    get:
+      summary: Get allele frequency by coordinates
+      description: |
+        Query allele frequency data for a specific variant by genomic coordinates.
+        Returns data from local cache or queries gnomAD live API.
+      operationId: getAlleleFrequency
+      parameters:
+        - name: chrom
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Chromosome (1-22, X, Y, MT)
+          example: "17"
+        - name: pos
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Genomic position (1-based)
+          example: 41244394
+        - name: ref
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Reference allele
+          example: "T"
+        - name: alt
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Alternate allele
+          example: "G"
+        - name: use_cache
+          in: query
+          required: false
+          schema:
+            type: boolean
+            default: true
+          description: Use cached data if available
+      responses:
+        '200':
+          description: Successfully retrieved allele frequency data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GnomADFrequencyResponse'
+        '404':
+          description: Variant not found in gnomAD
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  schemas:
+    ClinVarData:
+      type: object
+      properties:
+        variation_id:
+          type: string
+          description: ClinVar variation ID
+        rcv_id:
+          type: string
+          description: ClinVar RCV accession
+        gene_symbol:
+          type: string
+          description: HGNC gene symbol
+        hgvs_expression:
+          type: string
+          description: HGVS nomenclature for the variant
+        variant_type:
+          type: string
+          description: Type of variant (e.g., Substitution, Deletion)
+        clinical_significance:
+          type: string
+          description: Clinical significance classification
+        review_status:
+          type: string
+          description: ClinVar review status score
+
+    GnomADFrequencyResponse:
+      type: object
+      properties:
+        variant_id:
+          type: string
+          description: gnomAD variant identifier
+        chrom:
+          type: string
+          description: Chromosome
+        pos:
+          type: integer
+          description: Position
+        ref:
+          type: string
+          description: Reference allele
+        alt:
+          type: string
+          description: Alternate allele
+        exome_af:
+          type: number
+          format: float
+          description: Exome allele frequency
+        genome_af:
+          type: number
+          format: float
+          description: Genome allele frequency
+        exome_ac:
+          type: integer
+          description: Exome allele count
+        exome_an:
+          type: integer
+          description: Exome allele number
+        genome_ac:
+          type: integer
+          description: Genome allele count
+        genome_an:
+          type: integer
+          description: Genome allele number
+
+    EnrichedVariantResponse:
+      type: object
+      required:
+        - variant_id
+      properties:
+        variant_id:
+          type: string
+          description: Variant identifier
+        clinvar_data:
+          $ref: '#/components/schemas/ClinVarData'
+        gnomad_data:
+          $ref: '#/components/schemas/GnomADFrequencyResponse'
+        hgvs_mapping:
+          type: string
+          description: HGVS expression mapping
+        clinical_significance:
+          type: string
+          description: Clinical significance from ClinVar
+        review_status:
+          type: string
+          description: Review status from ClinVar
+        allele_frequency:
+          type: number
+          format: float
+          description: Population allele frequency from gnomAD
+        enriched_metadata:
+          type: object
+          description: Additional metadata about enrichment
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type
+        message:
+          type: string
+          description: Error message details
+        details:
+          type: array
+          items:
+            type: string
+          description: Additional error details
+
+tags:
+  - name: variants
+    description: Enriched variant data endpoints

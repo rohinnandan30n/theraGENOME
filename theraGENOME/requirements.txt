@@ -1,0 +1,76 @@
+# Database & ORM
+alembic==1.13.1
+sqlalchemy==2.0.23
+sqlalchemy[asyncio]==2.0.23
+psycopg2-binary==2.9.9
+asyncpg==0.29.0
+
+# API & Web Framework
+fastapi==0.109.2
+uvicorn[standard]==0.27.0
+httpx==0.25.2
+pydantic==2.5.3
+pydantic-settings==2.2.1
+
+# Configuration & Utilities
+python-dotenv==1.0.0
+faker==22.6.0
+pyaml==23.12.0
+
+# Data Science & ML
+numpy==1.24.3
+scipy==1.11.4
+scikit-learn==1.4.1
+pandas==2.1.4
+anndata==0.10.4
+scanpy==1.9.6
+
+# Omics & Bioinformatics
+pydeseq2==0.4.0
+
+# Federated Learning
+flower==1.7.0
+flwr==1.7.0
+
+# Differential Privacy
+dp-accounting==0.4.0
+
+# Async & Concurrency
+aiohttp==3.9.2
+asyncio==3.4.3
+aiokafka==0.10.0
+
+# Message Queue
+kafka-python==2.0.2
+
+# Monitoring & Telemetry
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+opentelemetry-instrumentation==0.43b0
+opentelemetry-exporter-jaeger==1.22.0
+
+# Logging & Metrics
+prometheus-client==0.19.0
+python-json-logger==2.0.7
+
+# Development & Testing
+pytest==7.4.4
+pytest-asyncio==0.23.3
+pytest-cov==4.1.0
+black==24.1.1
+flake8==7.0.0
+mypy==1.8.0
+
+# LLM & AI Integration (Task 4.5)
+openai==1.13.0
+langchain==0.1.11
+ollama==0.1.18
+python-sse==0.2.0
+
+# XAI & Interpretability
+shap==0.45.0
+lime==0.2.0
+
+# Optional: GPU support (uncomment if using CUDA)
+# torch==2.2.0
+# tensorflow==2.15.0

@@ -1,0 +1,62 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+  
+  # Prometheus metrics receiver (scrape Kong metrics endpoint)
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: 'kong'
+          scrape_interval: 15s
+          static_configs:
+            - targets: ['localhost:8001']
+
+exporters:
+  jaeger:
+    endpoint: http://jaeger:14250
+    tls:
+      insecure: true
+  
+  prometheus:
+    endpoint: 0.0.0.0:8889
+  
+  logging:
+    loglevel: debug
+
+processors:
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  memory_limiter:
+    check_interval: 1s
+    limit_mib: 512
+    spike_limit_mib: 128
+  
+  attributes:
+    actions:
+      - key: environment
+        value: production
+        action: upsert
+      - key: service.name
+        from_attribute: rpc.service
+        action: upsert
+
+extensions:
+  health_check:
+    endpoint: 0.0.0.0:13133
+
+service:
+  extensions: [health_check]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch, attributes]
+      exporters: [jaeger, logging]
+    metrics:
+      receivers: [otlp, prometheus]
+      processors: [memory_limiter, batch]
+      exporters: [prometheus, logging]

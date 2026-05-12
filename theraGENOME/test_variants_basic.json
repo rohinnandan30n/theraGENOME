@@ -1,0 +1,14 @@
+[
+  {
+    "gene": "TP53",
+    "mutation": "p.R175H frameshift"
+  },
+  {
+    "gene": "BRCA1",
+    "mutation": "c.68_69delAG frameshift"
+  },
+  {
+    "gene": "EGFR",
+    "mutation": "p.L858R missense"
+  }
+]

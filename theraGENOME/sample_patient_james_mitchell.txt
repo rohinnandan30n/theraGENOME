@@ -1,0 +1,406 @@
+================================================================================
+                    THERAGENOME ANALYSIS REPORT
+                         SAMPLE TEST REPORT
+================================================================================
+
+Report ID:        RPT-2026-05-11-002
+Report Date:      May 11, 2026
+Report Status:    COMPLETE ✓
+Analysis Type:    Whole Exome Sequencing (WXS) - Pharmacogenomics
+Patient ID:       PAT-003-2026
+Patient Name:     James Mitchell
+Age:              62 years | Male
+
+================================================================================
+                        ANALYSIS SUMMARY
+================================================================================
+
+Total Variants Analyzed:    11
+Pathogenic Variants:        1
+Disease Risk Variants:      1
+Drug Metabolism Variants:   6
+
+Overall Risk Category:      MODERATE
+Cancer Risk:                MODERATE (25-35% by age 80)
+Drug Interactions:          6 IDENTIFIED
+Critical Alerts:            2
+
+================================================================================
+                   PHARMACOGENOMICS PROFILE RESULTS
+================================================================================
+
+TEST RESULTS:
+
+1. CYP2D6 - Intermediate Metabolizer
+   Status:         ✓ DETECTED
+   Result:         *4/*41
+   Copy Number:    1
+   Phenotype:      Intermediate metabolizer
+   Efficiency:     70% of normal
+   Risk Level:     CAUTION
+   
+   Impact:
+   - Codeine: Reduced efficacy at standard doses
+   - Tramadol: Requires higher doses (120-150% standard)
+   - Antidepressants (SSRIs): Monitor effectiveness
+   - Beta-blockers: May need dose adjustment
+   
+   Recommendation:
+   Opioid pain meds: Monitor pain control closely
+   Monitor: Assess effectiveness at current dose
+   
+   Normal: 30% | Abnormal: 70%
+
+2. CYP2C19 - Poor Metabolizer
+   Status:         ✓ DETECTED
+   Result:         *2/*2
+   Phenotype:      Poor metabolizer
+   Efficiency:     10% (severely reduced)
+   Risk Level:     HIGH ⚠️
+   
+   Impact:
+   - Clopidogrel (Plavix): REDUCED ANTIPLATELET EFFECT
+   - Omeprazole: Increased levels (reflux medication)
+   - Escitalopram: Potential toxicity at standard doses
+   
+   Recommendation: 
+   Consider prasugrel or ticagrelor instead of clopidogrel
+   Reduce omeprazole dose by 50%
+   
+   Normal: 5% | Abnormal: 95%
+
+3. CYP2C9 - Intermediate Metabolizer
+   Status:         ✓ DETECTED
+   Result:         *1/*3
+   Phenotype:      Intermediate metabolizer
+   Efficiency:     60% of normal
+   Risk Level:     CAUTION
+   
+   Impact:
+   - Warfarin: Increased sensitivity, requires lower doses
+   - NSAIDs: May accumulate in bloodstream
+   - Phenytoin (if seizure disorder): Monitor levels
+   
+   Recommendation:
+   Warfarin: Start 2mg daily, monitor INR closely (goal 2-3)
+   NSAIDs: Use lowest effective dose, short duration only
+   
+   Normal: 40% | Abnormal: 60%
+
+4. TPMT - Normal Activity
+   Status:         ✓ DETECTED
+   Result:         *1/*1
+   Phenotype:      Normal metabolizer
+   Efficiency:     100% (standard)
+   Risk Level:     LOW
+   
+   Recommendation: Standard dosing appropriate
+   
+   Normal: 100% | Abnormal: 0%
+
+5. NAT2 - Slow Acetylator
+   Status:         ✓ DETECTED
+   Result:         *5/*6 (Slow)
+   Phenotype:      Slow acetylator
+   Efficiency:     50% of normal
+   Risk Level:     MEDIUM
+   
+   Impact:
+   - Isoniazid (TB): Risk of hepatotoxicity and neuropathy
+   - Sulfamethoxazole (antibiotic): Accumulates, higher risk of reactions
+   - Procainamide: May accumulate to toxic levels
+   
+   Recommendation:
+   TB treatment: Consider alternative regimen if available
+   Antibiotics: Limit duration, monitor for adverse effects
+   
+   Normal: 20% | Abnormal: 80%
+
+6. SLCO1B1 - Normal Function
+   Status:         ✓ DETECTED
+   Result:         *1/*1 (Normal)
+   Phenotype:      Normal transporter function
+   Efficiency:     100% of normal
+   Risk Level:     LOW
+   
+   Impact:
+   - Statins: Standard metabolism expected
+   - Pravastatin: Normal handling
+   
+   Recommendation: Standard statin dosing acceptable
+   
+   Normal: 100% | Abnormal: 0%
+
+7. UGT1A1 - Normal Metabolizer
+   Status:         ✓ DETECTED
+   Result:         TA6/TA6 (Normal)
+   Phenotype:      Normal glucuronidation
+   Efficiency:     100% of normal
+   Risk Level:     LOW
+   
+   Impact:
+   - Irinotecan (chemotherapy): Standard dosing appropriate
+   - Bilirubin: Normal levels expected
+   
+   Recommendation: Standard chemotherapy dosing acceptable
+   
+   Normal: 100% | Abnormal: 0%
+
+================================================================================
+                    DISEASE RISK VARIANTS
+================================================================================
+
+CRITICAL FINDINGS:
+
+1. TP53 - PATHOGENIC MUTATION
+   Status:         🛑 DETECTED - PATHOGENIC
+   Gene:           Tumor Protein 53
+   Mutation:       p.R175H (missense)
+   Type:           Missense mutation
+   Classification: PATHOGENIC
+   
+   Cancer Risk:
+   - Li-Fraumeni Syndrome (LFS) pattern
+   - Early-onset cancers
+   - Multiple primary malignancies
+   - Breast, colon, lung, pancreatic, and other cancers
+   
+   Action Required:
+   ✓ Genetic counseling (URGENT)
+   ✓ Enhanced cancer screening
+   ✓ MRI screening for brain/spinal tumors
+   ✓ Avoid radiation when possible (increased sensitivity)
+   ✓ Family genetic testing
+
+2. APOE - DISEASE RISK VARIANT
+   Status:         ⚠️ DETECTED - DISEASE RISK
+   Gene:           Apolipoprotein E
+   Genotype:       E3/E4
+   Classification: MODERATE RISK
+   
+   Health Risk:
+   - Alzheimer's Disease: Increased risk (3-8x if E4/E4)
+   - Cardiovascular disease: Increased risk
+   - Elevated cholesterol: More likely
+   
+   Action Required:
+   ✓ Regular cognitive screening (age 50+)
+   ✓ Cardiovascular risk management
+   ✓ Lifestyle modification (exercise, diet)
+   ✓ Consider statin therapy
+
+================================================================================
+                   DRUG INTERACTION ASSESSMENT
+================================================================================
+
+LIVER FUNCTION:           ✓ Normal
+KIDNEY FUNCTION:          ✓ Normal (eGFR: 75 ml/min)
+Overall Drug Risk:        ⚠️  MODERATE-HIGH
+
+MEDICATION RECOMMENDATIONS:
+
+RECOMMENDED - SAFE TO USE:
+  ✓ Aspirin (cardiac prevention)       - 81mg daily
+  ✓ Lisinopril (blood pressure)        - 10mg daily
+  ✓ Atorvastatin (cholesterol)         - 40mg daily
+  ✓ Levothyroxine (if needed)          - Standard dose
+
+CAUTION - ADJUST DOSE:
+  ⚠️  Warfarin (anticoagulation)       - START 2mg daily (NOT 5mg standard)
+  ⚠️  Omeprazole (reflux)              - REDUCE to 10-15mg daily (NOT 20mg)
+  ⚠️  Tramadol (pain relief)           - INCREASE to 120-150% dose if needed
+  ⚠️  Clopidogrel (Plavix)             - INEFFECTIVE - Use prasugrel instead
+
+CONTRAINDICATED - AVOID OR USE WITH EXTREME CAUTION:
+  🛑 Clopidogrel (Plavix)              - Poor antiplatelet effect (CYP2C19*2/*2)
+  🛑 High-dose omeprazole             - Accumulates to toxic levels
+  🛑 Procainamide                      - Accumulates (slow acetylator)
+  🛑 Radiation therapy                 - Increased sensitivity (TP53 mutation)
+
+DRUG INTERACTIONS (6 Total):
+  1. Warfarin + NSAIDs               - Increased bleeding risk
+  2. Lisinopril + NSAIDs             - Reduced BP control, renal risk
+  3. Atorvastatin + Warfarin         - Enhanced warfarin effect
+  4. Aspirin + NSAIDs                - Increased GI bleeding risk
+  5. Warfarin + Omeprazole           - Slight INR elevation
+  6. Multiple CYP450 interactions    - Cumulative effect with warfarin
+
+================================================================================
+                      CLINICAL RECOMMENDATIONS
+================================================================================
+
+IMMEDIATE ACTIONS (This Week):
+  1. ✓ Urgent genetic counseling for TP53 mutation
+  2. ✓ Consider switching Plavix to prasugrel if on cardiac medications
+  3. ✓ Baseline warfarin dosing adjustment if starting anticoagulation
+  4. ✓ Inform all treating physicians of metabolic status
+
+SHORT-TERM ACTIONS (This Month):
+  1. ✓ Complete genetic counseling
+  2. ✓ MRI screening for occult malignancies
+  3. ✓ Cardiology consultation for antiplatelet choice
+  4. ✓ Family genetic testing coordination
+  5. ✓ Establish enhanced cancer surveillance program
+
+LONG-TERM MANAGEMENT (Ongoing):
+  1. ✓ Annual enhanced cancer screening
+  2. ✓ Avoid radiation exposure when possible
+  3. ✓ Cognitive screening starting age 55-60
+  4. ✓ Regular cardiovascular risk assessment
+  5. ✓ Monitor medication efficacy and side effects
+  6. ✓ Lifestyle optimization (exercise, Mediterranean diet)
+  7. ✓ Annual medication review for optimization
+
+================================================================================
+                        CANCER SCREENING PLAN
+================================================================================
+
+FREQUENCY: Enhanced surveillance due to TP53 mutation
+
+Age 50-60 (Current):
+  • Annual full-body cancer screening with imaging
+  • Brain MRI every 2-3 years
+  • Colonoscopy every 3 years (or 5 years if normal)
+  • Annual chest X-ray or CT if smoking history
+  • Annual clinical skin exam
+
+Age 60+:
+  • Semi-annual cancer surveillance
+  • Brain MRI every 2 years
+  • Colonoscopy every 2-3 years
+  • Annual chest imaging
+  • Abdominal/pelvic ultrasound annually
+  • Annual clinical breast and skin exams
+
+CONSIDER: 
+  - Genetic counseling for family members
+  - Avoid unnecessary radiation (CT scans)
+  - Consider chemoprevention discussion with oncologist
+
+================================================================================
+                       MEDICATION DOSING SUMMARY
+================================================================================
+
+Current Medications (Recommended Adjustments):
+
+  1. Lisinopril (blood pressure)
+     Current Dose:      10mg daily
+     Recommended Dose:  10mg daily (NO CHANGE - normal metabolism)
+     Monitoring:        BP control, renal function annually
+     Frequency:         Once daily, morning
+
+  2. Atorvastatin (cholesterol)
+     Current Dose:      40mg daily
+     Recommended Dose:  40mg daily (SLCO1B1 normal function)
+     Monitoring:        Lipid panel in 6 weeks, CK if muscle pain
+     Frequency:         Once daily, evening
+
+  3. Aspirin (cardiac prevention)
+     Current Dose:      81mg daily
+     Recommended Dose:  81mg daily ← REDUCE from higher doses if applicable
+     Monitoring:        Bleeding signs, adherence
+     Frequency:         Once daily
+
+  4. Warfarin (if on anticoagulation)
+     Current Dose:      Not specified
+     Recommended Dose:  2mg daily STARTING DOSE (CYP2C9*1/*3)
+     Monitoring:        INR check at 3-5 days, then weekly until stable
+     Frequency:         Once daily, consistent time
+     NOTE:              Standard 5mg dose would be too high!
+
+  5. Omeprazole (if on acid reflux treatment)
+     Current Dose:      20mg daily
+     Recommended Dose:  10-15mg daily ← REDUCE by 50%
+     Monitoring:        Symptom control, Vitamin B12 annually
+     Frequency:         Once daily, morning (30 min before meals)
+
+DRUG AVOIDANCE:
+  🛑 Do NOT prescribe: Clopidogrel (Plavix) - Use prasugrel instead
+  🛑 Avoid: Procainamide, high-dose isoniazid
+  🛑 Minimize: Radiation exposure, NSAIDs
+
+GENETIC COUNSELING REQUIRED FOR:
+  - TP53 mutation (Li-Fraumeni Syndrome)
+  - APOE E3/E4 genotype (Alzheimer's risk)
+  - Family member testing
+
+================================================================================
+                            TEST SUMMARY TABLE
+================================================================================
+
+Gene           | Result              | Status      | Action
+---------------|---------------------|-------------|----------------------------
+CYP2D6         | *4/*41 (intermediate)| ABNORMAL   | Monitor opioid dosing
+CYP2C19        | *2/*2 (poor)        | CRITICAL   | SWITCH Plavix to prasugrel
+CYP2C9         | *1/*3 (intermediate)| ABNORMAL   | REDUCE warfarin to 2mg start
+TPMT           | *1/*1 (normal)      | NORMAL     | Standard dosing OK
+NAT2           | *5/*6 (slow)        | ABNORMAL   | Monitor antibiotic duration
+SLCO1B1        | *1/*1 (normal)      | NORMAL     | Standard dosing OK
+UGT1A1         | TA6/TA6 (normal)    | NORMAL     | Standard chemotherapy OK
+TP53           | p.R175H mutation    | CRITICAL   | Urgent genetic counseling
+APOE           | E3/E4               | ABNORMAL   | Alzheimer's risk screening
+BRCA1          | Normal              | NORMAL     | Standard screening
+Lynch Syndrome | Negative            | NORMAL     | Standard screening
+
+Total: 11 genes | Abnormal: 5 (45%) | Critical: 2 (18%) | Normal: 4 (36%)
+
+================================================================================
+                         QUALITY METRICS
+================================================================================
+
+Analysis Confidence: 98.7%
+Coverage Depth:     142x (Excellent)
+Variant Call Rate:  100%
+Data Quality:       PASS
+Annotation Status:  Complete
+Clinical Validity:  High
+
+Version: TheraGenome v1.0
+Method: Whole Exome Sequencing (WXS)
+Reference: GRCh38/hg38
+Accreditation: CLIA Certified
+
+================================================================================
+                      CERTIFICATION & APPROVAL
+================================================================================
+
+Report Analyzed By:     Dr. Lisa Wong, MD, PhD - Clinical Geneticist
+Report Reviewed By:     Dr. Robert Martinez, MD - Medical Director
+Date Generated:         May 11, 2026
+Report Status:          FINAL
+Approval Status:        ✓ APPROVED FOR CLINICAL USE
+
+CLIA License:           12D2159588
+CAP Accreditation:      Yes
+Report Validity:        5 years from date
+
+DISCLAIMER:
+This report contains genetic findings with significant clinical implications.
+Results should be reviewed with a qualified genetic counselor before clinical
+decision-making. This report is confidential and intended for authorized
+medical personnel only.
+
+================================================================================
+                            END OF REPORT
+================================================================================
+
+Report Summary Statistics:
+- Pathogenic Variants Found:        1
+- Disease Risk Variants Found:      1
+- Drug Metabolism Variants Found:   6
+- Drug Interactions Identified:     6
+- Critical Alerts Raised:           2
+- Recommendations Generated:        20+
+- Total Genes Analyzed:             11
+- Analysis Status:                  COMPLETE ✓
+- Clinical Significance:            HIGH
+
+NEXT STEPS:
+1. Download this report
+2. Schedule genetic counselor (PRIORITY - TP53 mutation)
+3. Consult cardiology regarding Plavix alternatives
+4. Adjust warfarin dosing if needed
+5. Plan enhanced cancer surveillance
+6. Notify family members for genetic testing
+
+================================================================================

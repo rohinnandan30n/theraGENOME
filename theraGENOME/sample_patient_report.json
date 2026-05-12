@@ -1,0 +1,141 @@
+{
+  "patient_id": "PAT-001-2026",
+  "patient_name": "John Doe",
+  "date_of_birth": "1985-03-15",
+  "age": 41,
+  "sex": "M",
+  "ethnicity": "European",
+  "sequencing_date": "2026-05-01",
+  "sequencing_type": "Whole Exome Sequencing (WXS)",
+  "lab_name": "Clinical Genomics Laboratory",
+  "report_date": "2026-05-11",
+  
+  "genetic_profile": {
+    "pharmacogenes": [
+      {
+        "gene": "CYP2D6",
+        "genotype": "*4/*41",
+        "phenotype": "intermediate_metabolizer",
+        "copy_number": 1,
+        "clinical_significance": "Reduced metabolism of ~25% of drugs (codeine, tramadol, antidepressants)"
+      },
+      {
+        "gene": "CYP2C19",
+        "genotype": "*2/*2",
+        "phenotype": "poor_metabolizer",
+        "copy_number": 1,
+        "clinical_significance": "Poor metabolism of clopidogrel, omeprazole, escitalopram - REQUIRES DOSE ADJUSTMENT"
+      },
+      {
+        "gene": "CYP2C9",
+        "genotype": "*1/*3",
+        "phenotype": "intermediate_metabolizer",
+        "copy_number": 1,
+        "clinical_significance": "Reduced warfarin metabolism - REQUIRES INR MONITORING"
+      },
+      {
+        "gene": "TPMT",
+        "genotype": "*3A/*1",
+        "phenotype": "intermediate_activity",
+        "copy_number": 1,
+        "clinical_significance": "Intermediate risk for thiopurine toxicity - standard dosing acceptable with monitoring"
+      },
+      {
+        "gene": "HLA-B",
+        "genotype": "*5701",
+        "phenotype": "carrier",
+        "copy_number": 1,
+        "clinical_significance": "CONTRAINDICATION for abacavir (HIV medication) - ABSOLUTE AVOIDANCE REQUIRED"
+      },
+      {
+        "gene": "DPYD",
+        "genotype": "*2A/wt",
+        "phenotype": "deficient",
+        "copy_number": 1,
+        "clinical_significance": "CONTRAINDICATION for 5-fluorouracil and capecitabine (chemotherapy) - HIGH RISK OF TOXICITY"
+      },
+      {
+        "gene": "G6PD",
+        "genotype": "A-/wt",
+        "phenotype": "deficient",
+        "copy_number": 1,
+        "clinical_significance": "Risk of hemolysis with oxidative stressors - AVOID sulfonamides, dapsone, antimalarials"
+      }
+    ],
+    
+    "clinical_variants": [
+      {
+        "chromosome": 17,
+        "position": 7577121,
+        "gene": "TP53",
+        "variant": "p.R175H",
+        "rs_id": "rs121912664",
+        "allele_frequency": 0.0001,
+        "pathogenicity": "likely_pathogenic",
+        "clinical_significance": "Associated with increased cancer risk"
+      },
+      {
+        "chromosome": 17,
+        "position": 43044295,
+        "gene": "BRCA1",
+        "variant": "c.68_69delAG",
+        "rs_id": "rs80357906",
+        "allele_frequency": 0.00005,
+        "pathogenicity": "pathogenic",
+        "clinical_significance": "Frameshift mutation - INCREASED BREAST/OVARIAN CANCER RISK"
+      }
+    ]
+  },
+  
+  "drug_recommendations": [
+    {
+      "category": "Antidepressant - RECOMMENDED",
+      "drug": "Sertraline",
+      "dose": "50mg daily",
+      "reason": "Partial CYP2D6 substrate - suitable for intermediate metabolizer. Start at standard dose.",
+      "interactions": ["Warfarin (monitor INR)"],
+      "monitoring": "Therapeutic drug level at 4 weeks"
+    },
+    {
+      "category": "Anticoagulant - REQUIRES MONITORING",
+      "drug": "Warfarin",
+      "dose": "5-7mg daily (individualized by INR)",
+      "reason": "CYP2C9*3 reduces metabolism - INCREASED BLEEDING RISK",
+      "interactions": ["NSAIDs (GI bleeding)", "Sertraline"],
+      "monitoring": "INR check weekly for first month, then every 4 weeks"
+    },
+    {
+      "category": "AVOID - CONTRAINDICATED",
+      "drug": "Abacavir (HIV)",
+      "reason": "HLA-B*5701 positive - ABSOLUTE CONTRAINDICATION",
+      "alternative": "Use alternative antiretroviral (Bictegravir, Dolutegravir)"
+    },
+    {
+      "category": "AVOID - CONTRAINDICATED",
+      "drug": "Fluorouracil / Capecitabine",
+      "reason": "DPYD*2A deficient - HIGH RISK OF SEVERE TOXICITY (neutropenia, diarrhea)",
+      "alternative": "Use alternative chemotherapy (taxanes, platinum-based)"
+    },
+    {
+      "category": "CAUTION",
+      "drug": "Codeine",
+      "dose": "NOT RECOMMENDED",
+      "reason": "CYP2D6 intermediate metabolizer - reduced analgesic effect",
+      "alternative": "Use morphine, oxycodone, or non-opioid analgesics"
+    }
+  ],
+  
+  "risk_summary": {
+    "overall_risk": "HIGH",
+    "metabolizer_status": "Intermediate CYP2D6, Poor CYP2C19",
+    "major_contraindications": 3,
+    "drug_interactions": 8,
+    "recommendations": "URGENT: Review medication list with pharmacist. HIGH RISK of drug-related adverse events due to genetic profile."
+  },
+  
+  "clinical_notes": "Patient has compound pharmacogenetic issues requiring careful drug selection. Key points: CYP2C19 poor metabolizer status requires dose reduction for clopidogrel and escitalopram. HLA-B*5701 positivity is absolute contraindication for abacavir. DPYD deficiency precludes fluoropyrimidine use.",
+  
+  "report_certified_by": "Dr. Sarah Johnson, MD, Clinical Geneticist",
+  "certification_date": "2026-05-11",
+  "clia_number": "12D2159587"
+}

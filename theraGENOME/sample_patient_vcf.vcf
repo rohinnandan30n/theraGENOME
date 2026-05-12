@@ -1,0 +1,21 @@
+##fileformat=VCFv4.2
+##fileDate=20260511
+##source=TheraGenomePatientPortal
+##reference=hg38
+##INFO=<ID=GENE,Number=1,Type=String,Description="Gene name">
+##INFO=<ID=ALLELE,Number=1,Type=String,Description="Star allele designation">
+##INFO=<ID=PHENOTYPE,Number=1,Type=String,Description="Metabolizer phenotype">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=PHENOTYPE,Number=1,Type=String,Description="Phenotype">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	PATIENT001
+chr22	42127941	rs28365031	A	G	100	PASS	GENE=CYP2D6;ALLELE=CYP2D6*4/*41;PHENOTYPE=intermediate_metabolizer	GT:PHENOTYPE	1/1:intermediate_metabolizer
+chr22	42130692	rs1080985	C	T	100	PASS	GENE=CYP2D6;ALLELE=CYP2D6*1/*4	GT:PHENOTYPE	0/1:normal_metabolizer
+chr10	94942278	rs4244285	G	A	100	PASS	GENE=CYP2C19;ALLELE=CYP2C19*2/*1;PHENOTYPE=intermediate_metabolizer	GT:PHENOTYPE	0/1:intermediate_metabolizer
+chr10	94942278	rs4244285	G	A	100	PASS	GENE=CYP2C19;ALLELE=CYP2C19*2/*2	GT:PHENOTYPE	1/1:poor_metabolizer
+chr10	96702047	rs1057910	C	T	100	PASS	GENE=CYP2C9;ALLELE=CYP2C9*1/*3;PHENOTYPE=intermediate_metabolizer	GT:PHENOTYPE	0/1:intermediate_metabolizer
+chr6	31396870	rs9264942	A	T	100	PASS	GENE=HLA-B;ALLELE=HLA-B*5701	GT:PHENOTYPE	0/1:carrier
+chr1	97915614	rs3918290	C	T	100	PASS	GENE=DPYD;ALLELE=DPYD*2A	GT:PHENOTYPE	0/1:carrier
+chr6	18131055	rs1142345	G	A	100	PASS	GENE=TPMT;ALLELE=TPMT*3A/*1;PHENOTYPE=intermediate_activity	GT:PHENOTYPE	0/1:intermediate_activity
+chr12	110612602	rs6917289	G	A	100	PASS	GENE=SLCO1B1;ALLELE=SLCO1B1*5	GT:PHENOTYPE	0/1:carrier
+chr1	160480165	rs1801280	G	A	100	PASS	GENE=NAT2;ALLELE=NAT2*5/*4;PHENOTYPE=slow_acetylator	GT:PHENOTYPE	0/1:slow_acetylator
+chrX	154724106	rs1050828	T	C	100	PASS	GENE=G6PD;ALLELE=G6PD*A-	GT:PHENOTYPE	1/0:g6pd_deficiency
