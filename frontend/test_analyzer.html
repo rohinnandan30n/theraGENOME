@@ -1,92 +1,318 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Test Report Analyzer</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        textarea { width: 100%; height: 300px; }
-        button { padding: 10px 20px; font-size: 16px; }
-        .results { margin-top: 20px; border: 1px solid #ccc; padding: 10px; }
-        .error { color: red; }
-        .success { color: green; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Analyzer — TheraGenome AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="shared.js"></script>
+  <style>
+    :root {
+      --primary: #7c3aed;
+      --primary-dark: #5b21b6;
+      --secondary: #ec4899;
+      --bg-dark: #0d0b1e;
+      --bg-card: #1e1a38;
+      --bg-hover: #2d2050;
+      --text-primary: #f1f0ff;
+      --text-secondary: #c4b5fd;
+      --border: #2d2050;
+      --border-light: rgba(124,58,237,0.18);
+      --danger: #f87171;
+      --success: #34d399;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, var(--bg-dark) 0%, #120d2e 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+    body::before {
+      content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(ellipse 60% 50% at 10% 20%, rgba(124,58,237,0.1) 0%, transparent 60%),
+                  radial-gradient(ellipse 50% 40% at 85% 80%, rgba(236,72,153,0.08) 0%, transparent 60%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,11,30,0.92); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0 2rem; height: 64px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo {
+      font-weight: 800; font-size: 1.2rem; text-decoration: none;
+      background: linear-gradient(135deg, #7c3aed, #ec4899);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display:flex; gap:12px; align-items:center; }
+    .nav-link {
+      text-decoration:none; font-size:0.85rem; font-weight:600;
+      color:var(--text-secondary); padding:6px 14px; border-radius:8px;
+      border:1px solid transparent; transition:all 0.2s;
+    }
+    .nav-link:hover { border-color:var(--border-light); color:var(--text-primary); }
+    .theme-toggle {
+      width:34px; height:34px; border:1.5px solid var(--border-light); border-radius:8px;
+      background:transparent; color:var(--text-secondary); font-size:15px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.18s;
+    }
+    .theme-toggle:hover { border-color:var(--primary); color:var(--primary); }
+
+    /* ── MAIN ── */
+    .container {
+      position:relative; z-index:1;
+      max-width: 900px; margin: 48px auto; padding: 0 24px;
+    }
+    .page-eyebrow {
+      font-size:0.72rem; font-weight:600; letter-spacing:2px; text-transform:uppercase;
+      color:var(--text-secondary); display:flex; align-items:center; gap:8px; margin-bottom:12px;
+    }
+    .page-eyebrow::before { content:''; width:20px; height:1px; background:var(--primary); }
+    h1 {
+      font-size: clamp(1.8rem, 4vw, 2.5rem); font-weight: 800; margin-bottom: 8px;
+      background: linear-gradient(135deg, #f1f0ff 0%, #c4b5fd 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .page-sub { color:var(--text-secondary); font-size:0.95rem; margin-bottom:36px; }
+
+    .card {
+      background: rgba(30,26,56,0.85); backdrop-filter:blur(12px);
+      border: 1px solid var(--border-light); border-radius:20px;
+      padding: 32px; margin-bottom: 24px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .card:hover { border-color:rgba(124,58,237,0.35); box-shadow:0 8px 40px rgba(124,58,237,0.1); }
+    .card h2 { font-size:1.1rem; font-weight:700; color:var(--text-primary); margin-bottom:20px; display:flex; align-items:center; gap:8px; }
+
+    textarea {
+      width:100%; min-height:220px; padding:16px;
+      background: rgba(13,11,30,0.6); border:1px solid var(--border-light);
+      border-radius:12px; color:var(--text-primary);
+      font-family:'JetBrains Mono','Courier New',monospace; font-size:0.88rem;
+      resize:vertical; transition:border-color 0.2s; line-height:1.6;
+    }
+    textarea:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 3px rgba(124,58,237,0.12); }
+    textarea::placeholder { color:var(--text-secondary); opacity:0.7; }
+
+    .btn-row { display:flex; gap:12px; margin-top:20px; flex-wrap:wrap; }
+    .btn {
+      padding: 12px 24px; border:none; border-radius:10px;
+      font-family:'Inter',sans-serif; font-size:0.9rem; font-weight:600;
+      cursor:pointer; transition:all 0.2s; display:flex; align-items:center; gap:8px;
+    }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color:#fff;
+    }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(124,58,237,0.4); }
+    .btn-primary:disabled { opacity:0.4; cursor:not-allowed; transform:none; box-shadow:none; }
+    .btn-secondary {
+      background: rgba(124,58,237,0.1); color:var(--text-secondary);
+      border:1px solid var(--border-light);
+    }
+    .btn-secondary:hover { background:rgba(124,58,237,0.2); color:var(--text-primary); }
+    .btn-demo {
+      background: rgba(52,211,153,0.12); color:#34d399;
+      border:1px solid rgba(52,211,153,0.3);
+    }
+    .btn-demo:hover { background:rgba(52,211,153,0.22); }
+
+    /* spinner */
+    .spinner { width:18px; height:18px; border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; animation:spin 0.7s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+
+    /* Results */
+    #results { display:none; }
+    .result-box {
+      background: rgba(13,11,30,0.5); border:1px solid var(--border-light);
+      border-radius:14px; padding:24px; font-family:'JetBrains Mono','Courier New',monospace;
+      font-size:0.85rem; line-height:1.8; color:var(--text-primary); white-space:pre-wrap;
+      max-height:500px; overflow-y:auto;
+    }
+    .result-box::-webkit-scrollbar { width:5px; }
+    .result-box::-webkit-scrollbar-thumb { background:var(--bg-hover); border-radius:3px; }
+
+    .alert {
+      padding:14px 18px; border-radius:10px; margin-bottom:16px;
+      font-size:0.88rem; display:flex; align-items:flex-start; gap:10px;
+    }
+    .alert-success { background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); color:#34d399; }
+    .alert-error   { background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:#f87171; }
+
+    .badge-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; }
+    .badge {
+      font-size:0.72rem; font-weight:600; padding:3px 10px; border-radius:999px;
+      background:rgba(124,58,237,0.15); color:var(--text-secondary);
+      border:1px solid rgba(124,58,237,0.25);
+    }
+    .badge.green { background:rgba(52,211,153,0.12); color:#34d399; border-color:rgba(52,211,153,0.3); }
+    .badge.red   { background:rgba(248,113,113,0.12); color:#f87171; border-color:rgba(248,113,113,0.3); }
+  </style>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
-    <h1>Report Analyzer Test</h1>
-    
-    <textarea id="reportText" placeholder="Paste report here..."></textarea>
-    <br>
-    <button onclick="analyzeReport()">Analyze</button>
-    <button onclick="loadSample()">Load Sample</button>
-    
-    <div id="results" class="results" style="display: none;"></div>
-    
-    <script>
-        async function loadSample() {
-            try {
-                // Try loading from the root directory
-                const response = await fetch('/../sample_patient_james_mitchell.txt');
-                const text = await response.text();
-                document.getElementById('reportText').value = text;
-            } catch(e) {
-                // Fallback: just show a message with sample text
-                alert('Loading from backend API directly. Click Analyze to test.');
-            }
-        }
-        
-        async function analyzeReport() {
-            const text = document.getElementById('reportText').value;
-            if (!text.trim()) {
-                alert('Please enter report text');
-                return;
-            }
-            
-            try {
-                const response = await fetch('http://localhost:8000/api/v1/reports/analyze-text', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        text: text,
-                        mode: 'doctor',
-                        report_type: 'pasted_text'
-                    })
-                });
-                
-                const data = await response.json();
-                const resultsDiv = document.getElementById('results');
-                
-                if (data.success) {
-                    const tests = data.data.tests || [];
-                    let html = '<h2 class="success">✓ Analysis Successful!</h2>';
-                    html += '<p><strong>Patient:</strong> ' + data.patient_name + '</p>';
-                    html += '<p><strong>Date:</strong> ' + data.date_of_report + '</p>';
-                    html += '<p><strong>Report Type:</strong> ' + data.report_type + '</p>';
-                    html += '<p><strong>Tests Found:</strong> ' + tests.length + '</p>';
-                    
-                    if (tests.length > 0) {
-                        html += '<h3>Test Results:</h3><table border="1" cellpadding="10">';
-                        html += '<tr><th>Test Name</th><th>Value</th><th>Unit</th><th>Abnormality</th></tr>';
-                        tests.forEach(t => {
-                            html += '<tr>';
-                            html += '<td>' + t.test_name + '</td>';
-                            html += '<td>' + t.value + '</td>';
-                            html += '<td>' + t.unit + '</td>';
-                            html += '<td>' + t.abnormality + '</td>';
-                            html += '</tr>';
-                        });
-                        html += '</table>';
-                    }
-                    
-                    resultsDiv.innerHTML = html;
-                } else {
-                    resultsDiv.innerHTML = '<p class="error">Error: ' + data.message + '</p>';
-                }
-                resultsDiv.style.display = 'block';
-            } catch(e) {
-                document.getElementById('results').innerHTML = '<p class="error">Error: ' + e + '</p>';
-                document.getElementById('results').style.display = 'block';
-            }
-        }
-    </script>
+  <nav class="shared-navbar">
+    <div class="inner">
+      <a href="home.html" class="nav-logo">
+        <div class="logo-icon">🧬</div>
+        <span class="logo-text">TheraGenome</span>
+      </a>
+      <div class="nav-links">
+        <a href="home.html">Home</a>
+        <a href="reports.html" class="active">Report Analyzer</a>
+        <a href="education.html">Education</a>
+        <a href="chatbot.html">Chatbot</a>
+      </div>
+      <div class="nav-btns">
+        <div class="nav-actions">
+          <select class="lang-select" id="langSelect" onchange="switchLang(this.value)" title="Language">
+            <option value="en">🌐 EN</option>
+            <option value="kn">ಕನ್ನಡ</option>
+            <option value="hi">हिंदी</option>
+            <option value="ta">தமிழ்</option>
+            <option value="te">తెలుగు</option>
+            <option value="mr">मराठी</option>
+            <option value="bn">বাংলা</option>
+            <option value="ml">മലയാളം</option>
+          </select>
+          <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+        </div>
+        <a href="login.html" class="btn-login">Login</a>
+        <a href="login.html" class="btn-signup">Sign Up</a>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-eyebrow">Developer Tool</div>
+    <h1>🔬 Report Analyzer Test</h1>
+    <p class="page-sub">Paste any medical report text and test the AI analysis API directly.</p>
+
+    <div class="card">
+      <h2>📋 Input Report Text</h2>
+      <textarea id="reportText" placeholder="Paste your medical report here...
+
+Example:
+Patient: Jane Doe, Age: 34
+WBC: 12.5 k/uL (Normal: 4.5-11.0)
+Hemoglobin: 10.2 g/dL (Normal: 12.0-16.0)
+Glucose: 105 mg/dL (Normal: 70-99)
+Creatinine: 1.4 mg/dL (Normal: 0.5-1.1)"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="analyzeBtn" onclick="analyzeReport()">
+          <span id="btnText">🔬 Analyze Report</span>
+          <span id="btnSpinner" class="spinner" style="display:none;"></span>
+        </button>
+        <button class="btn btn-demo" onclick="loadSample()">📄 Load Sample</button>
+        <button class="btn btn-secondary" onclick="clearAll()">🗑 Clear</button>
+      </div>
+    </div>
+
+    <div id="results">
+      <div class="card">
+        <h2>✅ Analysis Results</h2>
+        <div class="badge-row" id="badgeRow"></div>
+        <div id="alertBox"></div>
+        <div class="result-box" id="resultContent"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function loadSample() {
+      document.getElementById('reportText').value = `Patient: James Mitchell, Age: 58, Gender: Male
+Date: 2026-05-12
+
+COMPLETE BLOOD COUNT:
+WBC: 12.5 k/uL  [High]  (Normal: 4.5-11.0)
+RBC: 3.9 M/uL   [Low]   (Normal: 4.5-5.5)
+Hemoglobin: 10.8 g/dL  [Low]  (Normal: 13.5-17.5)
+Hematocrit: 33%  [Low]  (Normal: 41-53%)
+Platelets: 420 k/uL  [High]  (Normal: 150-400)
+
+COMPREHENSIVE METABOLIC PANEL:
+Glucose: 142 mg/dL  [High]  (Normal: 70-99)
+HbA1c: 7.8%  [High]  (Normal: <5.7%)
+Creatinine: 1.6 mg/dL  [High]  (Normal: 0.7-1.3)
+eGFR: 48 mL/min  [Low]  (Normal: >60)
+ALT: 52 U/L  [High]  (Normal: 7-40)
+AST: 48 U/L  [High]  (Normal: 10-40)
+
+LIPID PANEL:
+Total Cholesterol: 248 mg/dL  [High]  (Normal: <200)
+LDL: 168 mg/dL  [High]  (Normal: <100)
+HDL: 38 mg/dL  [Low]  (Normal: >40)
+
+Current Medications: Metformin 1000mg, Lisinopril 10mg`;
+    }
+
+    function clearAll() {
+      document.getElementById('reportText').value = '';
+      document.getElementById('results').style.display = 'none';
+    }
+
+    async function analyzeReport() {
+      const text = document.getElementById('reportText').value.trim();
+      if (!text) { alert('Please enter report text first.'); return; }
+
+      const btn = document.getElementById('analyzeBtn');
+      const btnText = document.getElementById('btnText');
+      const spinner = document.getElementById('btnSpinner');
+
+      btn.disabled = true;
+      btnText.textContent = 'Analyzing...';
+      spinner.style.display = 'flex';
+
+      try {
+        const response = await fetch('http://localhost:8000/api/v1/reports/analyze-text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text, mode: 'doctor', patient_context: {} })
+        });
+
+        const data = await response.json();
+
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+
+        // Badges
+        const badgeRow = document.getElementById('badgeRow');
+        badgeRow.innerHTML = `
+          <span class="badge green">✅ Status: ${response.status}</span>
+          <span class="badge">Mode: Doctor</span>
+          <span class="badge">API: /reports/analyze-text</span>
+        `;
+
+        // Alert
+        document.getElementById('alertBox').innerHTML = `
+          <div class="alert alert-success">✅ Analysis complete — ${new Date().toLocaleTimeString()}</div>
+        `;
+
+        // Content
+        const content = data.analysis || data.summary || data.result || JSON.stringify(data, null, 2);
+        document.getElementById('resultContent').textContent = content;
+
+      } catch(err) {
+        document.getElementById('results').style.display = 'block';
+        document.getElementById('badgeRow').innerHTML = `<span class="badge red">❌ Error</span>`;
+        document.getElementById('alertBox').innerHTML = `<div class="alert alert-error">❌ ${err.message} — Is the backend running on port 8000?</div>`;
+        document.getElementById('resultContent').textContent = err.stack || err.message;
+      } finally {
+        btn.disabled = false;
+        btnText.textContent = '🔬 Analyze Report';
+        spinner.style.display = 'none';
+      }
+    }
+
+    function toggleTheme() {
+      // handled by shared.js if available, otherwise toggle manually
+      if (typeof window.toggleTheme === 'function') return;
+    }
+  </script>
 </body>
 </html>

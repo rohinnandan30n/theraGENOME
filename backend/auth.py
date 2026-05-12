@@ -34,6 +34,13 @@ class PatientLoginRequest(BaseModel):
     password: str
     role: str = "patient"
 
+class PatientRegistrationRequest(BaseModel):
+    email: EmailStr
+    password: str
+    full_name: Optional[str] = None
+    phone: Optional[str] = None
+    role: str = "patient"
+
 class DoctorRegistrationRequest(BaseModel):
     email: EmailStr
     password: str

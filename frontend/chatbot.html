@@ -11,26 +11,45 @@
             box-sizing: border-box;
         }
 
+        /* ── CSS Variables ── */
         :root {
-            --primary: #14b8a6;
-            --primary-dark: #0d9488;
-            --secondary: #a855f7;
-            --accent: #f97316;
-            --danger: #ef4444;
-            --success: #22c55e;
-            --warning: #eab308;
-            --bg-dark: #0f1419;
-            --bg-card: #1a2332;
-            --bg-hover: #2d3e52;
-            --text-primary: #e2e8f0;
-            --text-secondary: #94a3b8;
-            --border: #374151;
-            --border-light: rgba(148, 163, 184, 0.2);
+            --primary:        #7c3aed;
+            --primary-dark:   #5b21b6;
+            --secondary:      #ec4899;
+            --accent:         #a78bfa;
+            --danger:         #f87171;
+            --success:        #34d399;
+            --warning:        #fbbf24;
+            --bg-dark:        #0d0b1e;
+            --bg-card:        #1e1a38;
+            --bg-hover:       #2d2050;
+            --text-primary:   #f1f0ff;
+            --text-secondary: #c4b5fd;
+            --border:         #2d2050;
+            --border-light:   rgba(124,58,237,0.18);
+            /* chat-specific */
+            --chat-main-bg:    rgba(30,26,56,0.75);
+            --chat-history-bg: rgba(13,11,30,0.45);
+            --chat-input-bg:   rgba(30,26,56,0.95);
+            --chat-bubble-bg:  rgba(45,32,80,0.9);
+        }
+        html[data-theme="light"] {
+            --bg-dark:        #f4f2ff;
+            --bg-card:        #ffffff;
+            --bg-hover:       #ede9fe;
+            --text-primary:   #1a1640;
+            --text-secondary: #5b4fa0;
+            --border:         #ddd5fc;
+            --border-light:   rgba(124,58,237,0.2);
+            --chat-main-bg:    rgba(255,255,255,0.95);
+            --chat-history-bg: #f4f2ff;
+            --chat-input-bg:   rgba(248,246,255,0.98);
+            --chat-bubble-bg:  #ede9fe;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a2f4a 100%);
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #120d2e 100%);
             color: var(--text-primary);
             min-height: 100vh;
             position: relative;
@@ -43,7 +62,7 @@
             right: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.03) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.07) 0%, transparent 60%);
             pointer-events: none;
             z-index: 0;
         }
@@ -53,7 +72,7 @@
             z-index: 1;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 40px 20px;
+            padding: 24px 20px;
         }
 
         header {
@@ -61,14 +80,26 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 40px;
-            background: rgba(26, 35, 50, 0.8);
+            background: rgba(30, 26, 56, 0.85);
             backdrop-filter: blur(20px);
             border: 1px solid var(--border-light);
             padding: 20px 30px;
-            border-radius: 12px;
+            border-radius: 16px;
             flex-wrap: wrap;
             gap: 20px;
         }
+        .theme-toggle-btn {
+            width: 36px; height: 36px;
+            border: 1.5px solid var(--border-light);
+            border-radius: 8px;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.18s;
+        }
+        .theme-toggle-btn:hover { border-color: var(--primary); color: var(--primary); background: rgba(124,58,237,0.1); }
 
         .logo {
             font-size: 20px;
@@ -127,34 +158,36 @@
         }
 
         .chatbot-main {
-            background: rgba(26, 35, 50, 0.6);
+            background: var(--chat-main-bg);
             border: 1px solid var(--border-light);
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(124,58,237,0.12);
             backdrop-filter: blur(20px);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            height: calc(100vh - 250px);
+            height: calc(100vh - 200px);
+            min-height: 500px;
         }
 
         .chatbot-header {
-            background: linear-gradient(135deg, var(--primary) 0%, #0d9488 100%);
-            color: var(--bg-dark);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: #fff;
             padding: 20px 30px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
         }
 
         .chatbot-header h1 {
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 5px;
             font-weight: 700;
+            color: #fff;
         }
 
         .chatbot-header p {
             font-size: 14px;
-            opacity: 0.9;
-            color: rgba(15, 20, 25, 0.8);
+            opacity: 0.88;
+            color: rgba(255,255,255,0.88);
         }
 
         .chatbot-mode-selector {
@@ -188,7 +221,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 30px;
-            background: rgba(15, 20, 25, 0.5);
+            background: var(--chat-history-bg);
         }
 
         .chat-welcome {
@@ -249,9 +282,9 @@
         }
 
         .bot-message .message-content {
-            background: var(--bg-card);
+            background: var(--chat-bubble-bg);
             color: var(--text-primary);
-            border: 1px solid var(--border);
+            border: 1px solid var(--border-light);
             border-radius: 0 12px 12px 12px;
         }
 
@@ -268,8 +301,8 @@
 
         .chatbot-input-area {
             padding: 20px 30px;
-            background: rgba(26, 35, 50, 0.9);
-            border-top: 1px solid var(--border);
+            background: var(--chat-input-bg);
+            border-top: 1px solid var(--border-light);
             display: flex;
             gap: 10px;
         }
@@ -372,16 +405,47 @@
             }
         }
     </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="shared.js"></script>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">theraGENOME<span class="logo-tag">| Precision Medicine</span></div>
-            <div class="nav-links">
-                <a href="reports.html" class="back-btn">← Back to Reports</a>
-                <button class="logout-btn" onclick="logout()">Logout</button>
+    <!-- SHARED NAVBAR -->
+    <nav class="shared-navbar">
+            <div class="inner">
+                <a href="home.html" class="nav-logo">
+                    <div class="logo-icon">🧬</div>
+                    <span class="logo-text">TheraGenome</span>
+                </a>
+                <div class="nav-links">
+                    <a href="home.html">Home</a>
+                    <a href="reports.html">Report Analyzer</a>
+                    <a href="education.html">Education</a>
+                    <a href="chatbot.html" class="active">Chatbot</a>
+                </div>
+                <div class="nav-btns">
+                    <div class="nav-actions">
+                        <select class="lang-select" id="langSelect" onchange="switchLang(this.value)" title="Language">
+                            <option value="en">🌐 EN</option>
+                            <option value="kn">ಕನ್ನಡ</option>
+                            <option value="hi">हिंदी</option>
+                            <option value="ta">தமிழ்</option>
+                            <option value="te">తెలుగు</option>
+                            <option value="mr">मराठी</option>
+                            <option value="bn">বাংলা</option>
+                            <option value="ml">മലയാളം</option>
+                        </select>
+                        <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+                    </div>
+                    <a href="login.html" class="btn-login">Login</a>
+                    <a href="login.html" class="btn-signup">Sign Up</a>
+                </div>
             </div>
-        </header>
+        </nav>
+
+    <div class="container">
 
         <div class="chatbot-main">
             <div class="chatbot-header">

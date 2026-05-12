@@ -1,0 +1,183 @@
+/*
+ * TheraGENOME — Shared Navbar Styles
+ * Included in every page so the navbar looks identical everywhere.
+ * Import AFTER page-specific styles.
+ */
+
+/* ── CSS vars used by navbar (light defaults, dark overrides) ── */
+:root {
+  --purple:       #7c3aed;
+  --purple-dark:  #5b21b6;
+  --purple-light: #ede9fe;
+  --pink:         #ec4899;
+  --pink-light:   #fce7f3;
+  --nav-text:     #18113a;
+  --nav-text-mid: #4b5563;
+  --nav-border:   #e5e7eb;
+  --nav-bg:       rgba(255,255,255,0.94);
+}
+[data-theme="dark"] {
+  --nav-text:     #f1f0ff;
+  --nav-text-mid: #c4b5fd;
+  --nav-border:   #2d2050;
+  --nav-bg:       rgba(13,11,30,0.96);
+  --purple-light: rgba(124,58,237,0.12);
+  --pink-light:   rgba(236,72,153,0.1);
+}
+
+/* ── Layout ── */
+.shared-navbar {
+  background: var(--nav-bg);
+  backdrop-filter: blur(18px) saturate(1.6);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  border-bottom: 1px solid var(--nav-border);
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  width: 100%;
+  transition: background 0.3s, border-color 0.3s;
+}
+.shared-navbar .inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  gap: 24px;
+}
+
+/* ── Logo ── */
+.shared-navbar .nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--nav-text);
+  letter-spacing: -0.4px;
+  flex-shrink: 0;
+}
+.shared-navbar .logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  border-radius: 9px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+}
+.shared-navbar .logo-text {
+  background: linear-gradient(135deg, #7c3aed, #ec4899);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Center links ── */
+.shared-navbar .nav-links {
+  display: flex;
+  gap: 28px;
+  align-items: center;
+  flex: 1;
+  justify-content: center;
+}
+.shared-navbar .nav-links a {
+  color: var(--nav-text-mid);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: color 0.18s;
+  position: relative;
+  padding-bottom: 2px;
+}
+.shared-navbar .nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px; left: 0;
+  width: 0; height: 2px;
+  background: #7c3aed;
+  border-radius: 2px;
+  transition: width 0.2s;
+}
+.shared-navbar .nav-links a:hover,
+.shared-navbar .nav-links a.active { color: #7c3aed; }
+.shared-navbar .nav-links a:hover::after,
+.shared-navbar .nav-links a.active::after { width: 100%; }
+
+/* ── Right side actions ── */
+.shared-navbar .nav-btns {
+  display: flex; gap: 10px; align-items: center;
+}
+.shared-navbar .nav-actions {
+  display: flex; align-items: center; gap: 8px;
+}
+.shared-navbar .lang-select {
+  height: 34px; padding: 0 10px;
+  border: 1.5px solid var(--nav-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nav-text-mid);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+  appearance: none; -webkit-appearance: none;
+}
+.shared-navbar .lang-select:hover { border-color: #7c3aed; color: #7c3aed; }
+.shared-navbar .lang-select:focus { outline: none; border-color: #7c3aed; }
+
+.shared-navbar .icon-btn {
+  width: 34px; height: 34px;
+  border: 1.5px solid var(--nav-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nav-text-mid);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; font-size: 15px;
+  transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+}
+.shared-navbar .icon-btn:hover {
+  border-color: #7c3aed;
+  color: #7c3aed;
+  background: var(--purple-light);
+}
+
+.shared-navbar .btn-login {
+  padding: 7px 18px;
+  border: 1.5px solid var(--nav-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--nav-text);
+  font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s;
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.shared-navbar .btn-login:hover {
+  border-color: #7c3aed; color: #7c3aed; background: var(--purple-light);
+}
+.shared-navbar .btn-signup {
+  padding: 7px 18px;
+  border: none; border-radius: 8px;
+  background: #7c3aed; color: #fff;
+  font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s;
+  box-shadow: 0 3px 10px rgba(124,58,237,0.3);
+  font-family: 'Inter', sans-serif;
+  white-space: nowrap;
+}
+.shared-navbar .btn-signup:hover {
+  background: #5b21b6; transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(124,58,237,0.38);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .shared-navbar .nav-links { display: none; }
+  .shared-navbar .inner { padding: 0 16px; }
+}

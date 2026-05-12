@@ -5,32 +5,34 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>theraGENOME | Precision Medicine Education</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="shared.js"></script>
 <style>
 :root {
-  --bg: #06080f;
-  --bg1: #0c0f1a;
-  --bg2: #111524;
-  --bg3: #181d2e;
-  --surface: #1e2438;
-  --surface2: #252b3d;
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.13);
-  --teal: #00d4aa;
-  --teal-dim: #007a63;
-  --teal-glow: rgba(0,212,170,0.15);
-  --purple: #9b59f5;
-  --purple-dim: #5c2fb8;
-  --purple-glow: rgba(155,89,245,0.15);
-  --rose: #f0567a;
-  --rose-glow: rgba(240,86,122,0.15);
-  --amber: #f5a623;
-  --amber-glow: rgba(245,166,35,0.12);
-  --text: #e8ecf4;
-  --text-muted: #7a82a0;
-  --text-dim: #4a5068;
+  --bg: #0d0b1e;
+  --bg1: #16122e;
+  --bg2: #1a163a;
+  --bg3: #211c42;
+  --surface: #2a2550;
+  --surface2: #332e5e;
+  --border: rgba(124,58,237,0.15);
+  --border2: rgba(124,58,237,0.28);
+  --teal: #7c3aed;
+  --teal-dim: #5b21b6;
+  --teal-glow: rgba(124,58,237,0.15);
+  --purple: #ec4899;
+  --purple-dim: #be185d;
+  --purple-glow: rgba(236,72,153,0.15);
+  --rose: #f87171;
+  --rose-glow: rgba(248,113,113,0.15);
+  --amber: #fbbf24;
+  --amber-glow: rgba(251,191,36,0.12);
+  --text: #f1f0ff;
+  --text-muted: #c4b5fd;
+  --text-dim: #7c6fad;
   --font-display: 'DM Serif Display', serif;
-  --font-body: 'Space Grotesk', sans-serif;
+  --font-body: 'Space Grotesk', 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --radius: 14px;
   --radius-lg: 20px;
@@ -39,14 +41,14 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html{scroll-behavior:smooth;}
 body{font-family:var(--font-body);background:var(--bg);color:var(--text);overflow-x:hidden;min-height:100vh;}
-body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");opacity:0.4;}
-body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(0,212,170,0.07) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 85% 90%,rgba(155,89,245,0.07) 0%,transparent 70%);}
+body::before{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='512' height='512' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");opacity:0.3;}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 40% at 20% 10%,rgba(124,58,237,0.1) 0%,transparent 70%),radial-gradient(ellipse 50% 50% at 85% 90%,rgba(236,72,153,0.08) 0%,transparent 70%);}
 ::-webkit-scrollbar{width:5px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--surface2);border-radius:3px;}
 
-header{position:sticky;top:0;z-index:500;background:rgba(6,8,15,0.88);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--border);padding:0 2.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
-.logo{font-family:var(--font-display);font-size:1.5rem;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--teal) 0%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(0,212,170,0.3));}
+header{position:sticky;top:0;z-index:500;background:rgba(13,11,30,0.92);backdrop-filter:blur(20px) saturate(1.5);border-bottom:1px solid var(--border);padding:0 2.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;}
+.logo{font-family:var(--font-display);font-size:1.5rem;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--teal) 0%,var(--purple) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(124,58,237,0.3));text-decoration:none;}
 .logo-tag{font-family:var(--font-body);font-size:0.78rem;font-weight:400;-webkit-text-fill-color:var(--text-muted);margin-left:0.5rem;}
 .api-input{background:var(--surface);border:1px solid var(--border);padding:0.45rem 0.9rem;border-radius:8px;color:var(--text);font-family:var(--font-mono);font-size:0.75rem;width:210px;outline:none;transition:border-color 0.2s;}
 .api-input:focus{border-color:var(--teal);}
@@ -250,15 +252,42 @@ header{position:sticky;top:0;z-index:500;background:rgba(6,8,15,0.88);backdrop-f
 .ai-response strong{color:var(--teal);}
 .spinner{width:18px;height:18px;border:2px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin 0.7s linear infinite;display:none;margin:0.75rem auto 0;}
 </style>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="theme.css">
 </head>
 <body>
 
-<header>
-  <div class="logo">theraGENOME<span class="logo-tag">| Precision Medicine</span></div>
-  <div class="nav-links">
-    <a href="reports.html" class="back-btn">← Back to Reports</a>
+<nav class="shared-navbar">
+  <div class="inner">
+    <a href="home.html" class="nav-logo">
+      <div class="logo-icon">🧬</div>
+      <span class="logo-text">TheraGenome</span>
+    </a>
+    <div class="nav-links">
+      <a href="home.html">Home</a>
+      <a href="reports.html">Report Analyzer</a>
+      <a href="education.html" class="active">Education</a>
+      <a href="chatbot.html">Chatbot</a>
+    </div>
+    <div class="nav-btns">
+      <div class="nav-actions">
+        <select class="lang-select" id="langSelect" onchange="switchLang(this.value)" title="Language">
+          <option value="en">🌐 EN</option>
+          <option value="kn">ಕನ್ನಡ</option>
+          <option value="hi">हिंदी</option>
+          <option value="ta">தமிழ்</option>
+          <option value="te">తెలుగు</option>
+          <option value="mr">मराठी</option>
+          <option value="bn">বাংলা</option>
+          <option value="ml">മലയാളം</option>
+        </select>
+        <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+      </div>
+      <a href="login.html" class="btn-login">Login</a>
+      <a href="login.html" class="btn-signup">Sign Up</a>
+    </div>
   </div>
-</header>
+</nav>
 
 <nav class="nav-tabs">
   <button class="tab-btn active" onclick="showTab('variants',this)">Gene Variants</button>

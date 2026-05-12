@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Response, Cookie
 from typing import Optional
 from backend.auth import (
     PatientLoginRequest,
+    PatientRegistrationRequest,
     DoctorRegistrationRequest,
     LoginResponse,
     UserInfoResponse,
@@ -76,76 +77,40 @@ async def login(request: PatientLoginRequest, response: Response) -> LoginRespon
 
 
 @auth_router.post("/register-patient", response_model=LoginResponse)
-async def register_patient(request: PatientLoginRequest, response: Response) -> LoginResponse:
+async def register_patient(request: PatientRegistrationRequest, response: Response) -> LoginResponse:
     """
-    Patient registration endpoint
-    
-    Args:
-        request: Contains email, password, and role
-        
-    Returns:
-        LoginResponse with user info if successful
-        
-    Raises:
-        HTTPException 400 if user already exists or data is invalid
+    Patient registration endpoint — accepts full_name and phone.
     """
-    # Validate password
     if len(request.password) < 8:
-        raise HTTPException(
-            status_code=400,
-            detail="Password must be at least 8 characters"
-        )
-    
-    # Check if user already exists
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
     existing_user = get_user_by_email(request.email)
     if existing_user:
-        raise HTTPException(
-            status_code=400,
-            detail="Email already registered"
-        )
-    
+        raise HTTPException(status_code=400, detail="Email already registered")
+
     try:
-        # Create patient user
         user = create_user(
             email=request.email,
             password=request.password,
             role="patient",
-            full_name=None
+            full_name=request.full_name
         )
-        
-        # Generate session token
+
         session_token = generate_session_token()
-        sessions[session_token] = {
-            "user_id": user.id,
-            "email": user.email,
-            "role": user.role
-        }
-        
-        # Set secure cookie
+        sessions[session_token] = {"user_id": user.id, "email": user.email, "role": user.role}
+
         response.set_cookie(
-            key="session_token",
-            value=session_token,
-            httponly=True,
-            secure=False,  # Set to True in production with HTTPS
-            samesite="lax",
-            max_age=86400  # 24 hours
+            key="session_token", value=session_token,
+            httponly=True, secure=False, samesite="lax", max_age=86400
         )
-        
+
         return LoginResponse(
             success=True,
             message="Patient registration successful",
-            user=UserInfoResponse(
-                email=user.email,
-                role=user.role,
-                full_name=user.full_name
-            )
+            user=UserInfoResponse(email=user.email, role=user.role, full_name=user.full_name)
         )
-    
     except ValueError as e:
-        raise HTTPException(
-            status_code=400,
-            detail=str(e)
-        )
+        raise HTTPException(status_code=400, detail=str(e))
 
 
 @auth_router.post("/register-doctor", response_model=LoginResponse)
@@ -162,16 +127,9 @@ async def register_doctor(request: DoctorRegistrationRequest, response: Response
     Raises:
         HTTPException 400 if data is invalid or user already exists
     """
-    # Validate medical email domain
-    email_domain = request.email.split('@')[1].lower()
-    medical_domains = ['hospital', 'clinic', 'medical', 'health', 'healthcare', 'med', 'dr', 'doctor', '.edu', 'university']
-    
-    if not any(med_domain in email_domain for med_domain in medical_domains):
-        raise HTTPException(
-            status_code=400,
-            detail="Please use an official medical institution email (hospital, clinic, medical, etc.)"
-        )
-    
+    # NOTE: Email domain check removed to allow all emails during development.
+    # Re-enable in production if strict institutional email is required.
+
     # Validate license number
     if len(request.license_number) < 5:
         raise HTTPException(
