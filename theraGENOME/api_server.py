@@ -855,7 +855,8 @@ async def get_test_results():
                         "severity": "critical",
                         "risk_score": 0.87,
                         "gene": "BRCA2",
-                        "recommendation": "Genetic counseling within 2 weeks, enhanced cancer screening"
+                        "recommendation": "Genetic counseling within 2 weeks, enhanced cancer screening",
+                        "impacted_organs": ["fullbody"]
                     },
                     {
                         "disease": "Elevated Breast Cancer Risk",
@@ -869,7 +870,8 @@ async def get_test_results():
                         "severity": "high",
                         "risk_score": 1.0,
                         "gene": "UGT1A1",
-                        "recommendation": "Avoid irinotecan and 5-fluorouracil"
+                        "recommendation": "Avoid irinotecan and 5-fluorouracil",
+                        "impacted_organs": ["liver", "stomach"]
                     }
                 ],
                 "pharmacogenomics": {
@@ -889,7 +891,8 @@ async def get_test_results():
                             "titration": "Standard pain management titration",
                             "monitoring": "Assess pain control at each visit",
                             "expected_outcome": "Adequate pain relief with increased dosing",
-                            "genetic_score": 0.95
+                            "genetic_score": 0.95,
+                            "impacted_organs": ["brain"]
                         },
                         {
                             "rank": "2",
@@ -901,7 +904,8 @@ async def get_test_results():
                             "titration": "Start low, monitor lipids in 6 weeks",
                             "monitoring": "Check lipid panel, watch for muscle pain",
                             "expected_outcome": "Cholesterol control with reduced toxicity risk",
-                            "genetic_score": 0.70
+                            "genetic_score": 0.70,
+                            "impacted_organs": ["liver"]
                         },
                         {
                             "rank": "3",
@@ -913,7 +917,8 @@ async def get_test_results():
                             "titration": "Standard SSRI titration schedule",
                             "monitoring": "Serotonin levels, drug interactions with tramadol",
                             "expected_outcome": "Standard response expected",
-                            "genetic_score": 1.0
+                            "genetic_score": 1.0,
+                            "impacted_organs": []
                         }
                     ]
                 },
