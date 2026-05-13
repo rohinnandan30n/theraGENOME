@@ -66,6 +66,7 @@ openai==1.13.0
 langchain==0.1.11
 ollama==0.1.18
 python-sse==0.2.0
+python-docx==1.2.0
 
 # XAI & Interpretability
 shap==0.45.0

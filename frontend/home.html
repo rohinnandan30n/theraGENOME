@@ -437,6 +437,66 @@
         }
     </style>
     <link rel="stylesheet" href="theme.css">
+    <style>
+        html { scroll-behavior: smooth; }
+        .about-section {
+            padding: 100px 0;
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+        }
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+        .about-text h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 24px;
+            color: var(--text);
+            letter-spacing: -1px;
+        }
+        .about-text p {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-mid);
+            margin-bottom: 30px;
+        }
+        .about-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        .stat-card {
+            padding: 24px;
+            background: var(--bg);
+            border: 1.5px solid var(--border);
+            border-radius: 16px;
+        }
+        .stat-card h4 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--purple);
+            margin-bottom: 4px;
+        }
+        .stat-card p {
+            font-size: 13px;
+            color: var(--text-soft);
+            margin-bottom: 0;
+        }
+        .about-image {
+            position: relative;
+        }
+        .about-image img {
+            width: 100%;
+            border-radius: 24px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+        @media (max-width: 768px) {
+            .about-grid { grid-template-columns: 1fr; gap: 40px; }
+        }
+    </style>
 </head>
 <body>
 
@@ -467,8 +527,6 @@
                     </select>
                     <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
                 </div>
-                <a href="login.html" class="btn-login" id="nav-login">Login</a>
-                <a href="login.html" class="btn-signup" id="nav-signup">Sign Up</a>
             </div>
         </div>
     </nav>
@@ -486,8 +544,9 @@
                     TheraGenome makes sense of your health data — from <strong>AI-powered medical report analysis</strong> to drug interaction prediction and personalized treatment recommendations.
                 </p>
                 <div class="hero-btns">
-                    <a href="reports.html" class="btn btn-primary">Start Analysis →</a>
-                    <a href="education.html" class="btn btn-ghost">Learn More</a>
+                    <a href="login.html" class="btn btn-primary" id="hero-signup">Sign Up</a>
+                    <a href="login.html" class="btn btn-ghost" id="hero-login">Login</a>
+                    <a href="#about" class="btn btn-ghost" id="hero-learn">Learn More</a>
                 </div>
             </div>
             <div class="hero-visual">
@@ -516,6 +575,38 @@
                         <circle class="dot" cx="140" cy="200" r="5" fill="#ec4899"/>
                         <circle class="dot" cx="140" cy="270" r="5" fill="#ec4899"/>
                     </svg>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- ABOUT -->
+    <section class="about-section" id="about">
+        <div class="inner">
+            <div class="about-grid">
+                <div class="about-text">
+                    <p class="section-label" style="color: var(--purple)">About TheraGenome</p>
+                    <h2 id="about-title">Pioneering Genomic Intelligence</h2>
+                    <p id="about-desc">
+                        TheraGenome is an advanced AI platform that bridges the gap between raw genomic data and clinical action. 
+                        We empower patients with understandable health insights and provide doctors with precision tools for personalized medicine.
+                        Our mission is to make genomic science accessible, actionable, and accurate for everyone.
+                    </p>
+                    <div class="about-stats">
+                        <div class="stat-card">
+                            <h4>99.9%</h4>
+                            <p>Analysis Accuracy</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>50k+</h4>
+                            <p>Reports Analyzed</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image">
+                    <div style="background: var(--hero-card-bg); border-radius: 24px; padding: 40px; text-align: center; font-size: 100px;">
+                        🔬
+                    </div>
                 </div>
             </div>
         </div>
@@ -558,7 +649,7 @@
         <div class="cta-inner">
             <h2>Ready to Transform Your Healthcare?</h2>
             <p>Start analyzing your medical reports with TheraGenome's AI-powered platform</p>
-            <a href="reports.html" class="btn-white">Get Started Now →</a>
+            <a href="#hero-signup" class="btn-white">Get Started Now →</a>
         </div>
     </section>
 
@@ -730,12 +821,11 @@ window.applyTranslations = function(lang) {
     localStorage.setItem('lang', lang);
     const s = (id, val) => { const el = document.getElementById(id); if(el) el.innerHTML = val; };
     const q = (sel, val) => { const el = document.querySelector(sel); if(el) el.innerHTML = val; };
-    s('nav-login', t.navLogin); s('nav-signup', t.navSignup);
+    s('hero-login', t.navLogin); s('hero-signup', t.navSignup);
     q('.hero-eyebrow', t.eyebrow);
     q('.hero-content h1', `${t.h1a}<br><span class="highlight">${t.h1b}</span>`);
     q('.hero-desc', t.heroDesc);
-    q('.hero-btns .btn-primary', t.btnStart);
-    q('.hero-btns .btn-ghost', t.btnLearn);
+    q('#hero-learn', t.btnLearn);
     q('.section-label', t.featLabel);
     q('.section-header h2', t.featTitle);
     const cards = document.querySelectorAll('.feature-card');

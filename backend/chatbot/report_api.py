@@ -35,6 +35,14 @@ except ImportError:
     print("Warning: PyMuPDF (fitz) not installed. PDF support disabled.")
     HAS_FITZ = False
 
+# Try to import docx for Word document support
+try:
+    import docx
+    HAS_DOCX = True
+except ImportError:
+    print("Warning: python-docx not installed. DOCX support disabled.")
+    HAS_DOCX = False
+
 
 # ──────────────────────────────────────────────
 #  Request/Response Models
@@ -133,6 +141,45 @@ class DocumentExtractor:
         except Exception as e:
             raise ValueError(f"Failed to extract image: {str(e)}")
 
+    @staticmethod
+    def extract_from_docx(file_content: bytes) -> str:
+        """
+        Extract text from DOCX (Word) using python-docx.
+        
+        Parameters
+        ----------
+        file_content : bytes
+            Raw DOCX file bytes
+        
+        Returns
+        -------
+        str
+            Extracted text
+        """
+        if not HAS_DOCX:
+            raise ValueError("python-docx not installed. Install with: pip install python-docx")
+            
+        try:
+            doc_stream = io.BytesIO(file_content)
+            doc = docx.Document(doc_stream)
+            text = ""
+            
+            # Extract from paragraphs
+            for para in doc.paragraphs:
+                if para.text.strip():
+                    text += para.text + "\n"
+            
+            # Extract from tables
+            for table in doc.tables:
+                for row in table.rows:
+                    row_text = [cell.text.strip() for cell in row.cells if cell.text.strip()]
+                    if row_text:
+                        text += " | ".join(row_text) + "\n"
+                        
+            return text
+        except Exception as e:
+            raise ValueError(f"Failed to extract Word document: {str(e)}")
+
 
 # ──────────────────────────────────────────────
 #  API Router
@@ -176,11 +223,17 @@ if HAS_FASTAPI:
         """
         try:
             # Validate file type
-            ALLOWED_TYPES = {"application/pdf", "image/png", "image/jpeg", "image/jpg"}
+            ALLOWED_TYPES = {
+                "application/pdf", 
+                "image/png", 
+                "image/jpeg", 
+                "image/jpg",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            }
             if file.content_type not in ALLOWED_TYPES:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"File type {file.content_type} not supported. Use PDF or images."
+                    detail=f"File type {file.content_type} not supported. Use PDF, images, or DOCX."
                 )
             
             # Read file content
@@ -189,6 +242,8 @@ if HAS_FASTAPI:
             # Extract text based on file type
             if file.content_type == "application/pdf":
                 extracted_text = _extractor.extract_from_pdf(file_content)
+            elif file.content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+                extracted_text = _extractor.extract_from_docx(file_content)
             else:
                 extracted_text = _extractor.extract_from_image(file_content)
             

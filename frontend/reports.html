@@ -106,6 +106,30 @@
         .mode-btn:hover {
             background: rgba(124, 58, 237, 0.2);
         }
+
+        .btn-logout {
+            padding: 9px 20px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+        }
+
+        .btn-logout:active {
+            transform: translateY(0);
+        }
+        
         .theme-toggle-btn {
             width: 36px; height: 36px;
             border: 1.5px solid var(--border-light);
@@ -672,8 +696,7 @@
                     </select>
                     <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
                 </div>
-                <a href="login.html" class="btn-login">Login</a>
-                <a href="login.html" class="btn-signup">Sign Up</a>
+                <button class="btn-logout" id="logoutBtn" onclick="handleLogout()" style="display:none;">Logout</button>
             </div>
         </div>
     </nav>
@@ -685,12 +708,7 @@
                 <h1>📊 Report Analyzer</h1>
                 <p style="color: var(--text-secondary); margin-top: 5px;">AI-powered medical report analysis</p>
             </div>
-            <div style="display: flex; gap: 12px; align-items: center; flex-wrap:wrap;">
-                <div class="mode-selector">
-                    <button class="mode-btn active" data-mode="doctor">👨‍⚕️ Doctor</button>
-                    <button class="mode-btn" data-mode="patient">👤 Patient</button>
-                </div>
-            </div>
+
         </div>
 
         <!-- Content Grid -->
@@ -707,9 +725,9 @@
                         <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click();">
                             <div class="upload-icon">📄</div>
                             <p><strong>Click to upload</strong> or drag and drop</p>
-                            <p style="font-size: 0.9rem;">PDF, PNG, or JPG (Max 50 MB)</p>
+                            <p style="font-size: 0.9rem;">PDF, PNG, JPG, or DOCX (Max 50 MB)</p>
                         </div>
-                        <input type="file" id="fileInput" class="file-input" accept=".pdf,.png,.jpg,.jpeg" />
+                        <input type="file" id="fileInput" class="file-input" accept=".pdf,.png,.jpg,.jpeg,.docx" />
                     </div>
 
                     <!-- Method 2: Paste Text -->
@@ -873,7 +891,25 @@
             // Only initialize UI after auth check completes
             new ReportAnalyzerUI();
             setupInputModeSwitcher();
+            updateAuthUI(); // Update logout button visibility
         });
+
+        function handleLogout() {
+            sessionStorage.removeItem('userRole');
+            sessionStorage.removeItem('userEmail');
+            sessionStorage.removeItem('reportData');
+            window.location.href = '/login.html';
+        }
+
+        function updateAuthUI() {
+            const userEmail = sessionStorage.getItem('userEmail');
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (userEmail && logoutBtn) {
+                logoutBtn.style.display = 'block';
+            } else if (logoutBtn) {
+                logoutBtn.style.display = 'none';
+            }
+        }
 
         class ReportAnalyzerUI {
             constructor() {
@@ -984,9 +1020,9 @@
                 const file = files[0];
                 if (!file) return;
 
-                const allowed = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg'];
+                const allowed = ['application/pdf', 'image/png', 'image/jpeg', 'image/jpg', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
                 if (!allowed.includes(file.type)) {
-                    alert('Please upload a PDF or image file');
+                    alert('Please upload a PDF, image file, or DOCX file');
                     return;
                 }
 
@@ -1432,7 +1468,7 @@
                 document.getElementById('uploadZone').innerHTML = `
                     <div class="upload-icon">📄</div>
                     <p><strong>Click to upload</strong> or drag and drop</p>
-                    <p style="font-size: 0.9rem;">PDF, PNG, or JPG (Max 50 MB)</p>
+                    <p style="font-size: 0.9rem;">PDF, PNG, JPG, or DOCX (Max 50 MB)</p>
                 `;
                 document.getElementById('fileInput').value = '';
                 document.getElementById('pasteTextarea').value = '';
@@ -1479,7 +1515,7 @@
                 uploadZone.innerHTML = `
                     <div class="upload-icon">📄</div>
                     <p><strong>Click to upload</strong> or drag and drop</p>
-                    <p style="font-size: 0.9rem;">PDF, PNG, or JPG (Max 50 MB)</p>
+                    <p style="font-size: 0.9rem;">PDF, PNG, JPG, or DOCX (Max 50 MB)</p>
                 `;
                 document.getElementById('resultsContainer').classList.remove('active');
                 updateAnalyzeButtonState();
