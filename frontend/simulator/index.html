@@ -259,16 +259,39 @@
                     currentModel.position.y = -center.y * scale;
                     currentModel.position.z = -center.z * scale;
 
-                    // Material application
+                    // Material application - preserve original colors from GLB
                     currentModel.traverse((node) => {
                         if (node.isMesh) {
-                            node.material = new THREE.MeshStandardMaterial({
-                                color: baseColor,
-                                metalness: 0.2,
-                                roughness: 0.4,
-                                emissive: baseColor,
-                                emissiveIntensity: 0.15
-                            });
+                            let material = node.material;
+                            
+                            // Clone material if it exists to preserve original properties
+                            if (material) {
+                                material = material.clone();
+                                
+                                // Enhance for better visibility
+                                material.metalness = material.metalness || 0.2;
+                                material.roughness = material.roughness || 0.4;
+                                
+                                // Apply risk indication through emissive effect
+                                if (isAffected) {
+                                    material.emissive = new THREE.Color(0xef4444); // Red glow
+                                    material.emissiveIntensity = 0.3;
+                                } else {
+                                    material.emissive = new THREE.Color(0x22c55e); // Subtle green glow
+                                    material.emissiveIntensity = 0.1;
+                                }
+                            } else {
+                                // Fallback if no material exists
+                                material = new THREE.MeshStandardMaterial({
+                                    color: 0xcccccc,
+                                    metalness: 0.2,
+                                    roughness: 0.4,
+                                    emissive: isAffected ? 0xef4444 : 0x22c55e,
+                                    emissiveIntensity: isAffected ? 0.3 : 0.1
+                                });
+                            }
+                            
+                            node.material = material;
                         }
                     });
 
