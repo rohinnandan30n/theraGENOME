@@ -142,9 +142,13 @@
             <select id="organ-selector">
                 <option value="heart">Heart</option>
                 <option value="liver">Liver</option>
-                <option value="kidneys">Kidneys</option>
+                <option value="kidney">Kidneys</option>
                 <option value="lungs">Lungs</option>
                 <option value="brain">Brain</option>
+                <option value="pancreas">Pancreas</option>
+                <option value="stomach">Stomach</option>
+                <option value="uteras">Uterus</option>
+                <option value="fullbody">Full Body</option>
             </select>
         </div>
 
@@ -200,10 +204,10 @@
             container.appendChild(renderer.domElement);
 
             // Lighting
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.8);
             scene.add(hemiLight);
             
-            const spotLight = new THREE.SpotLight(0xffffff, 2.5);
+            const spotLight = new THREE.SpotLight(0xffffff, 1.2);
             spotLight.position.set(5, 5, 5);
             scene.add(spotLight);
 
@@ -229,10 +233,11 @@
             
             if (currentModel) scene.remove(currentModel);
 
-            const isAffected = checkInvolvement(organName);
+            const impact = checkInvolvement(organName);
+            const isAffected = impact !== null;
             const baseColor = isAffected ? 0xef4444 : 0x22c55e;
             
-            updateUI(organName, isAffected);
+            updateUI(organName, impact);
 
             const modelPath = `./models/${organName}.glb`;
             console.log(`Loading model: ${modelPath} (Risk: ${isAffected})`);
@@ -255,18 +260,20 @@
                     currentModel.position.y = -center.y * scale;
                     currentModel.position.z = -center.z * scale;
 
-                    // Material application
-                    currentModel.traverse((node) => {
-                        if (node.isMesh) {
-                            node.material = new THREE.MeshStandardMaterial({
-                                color: baseColor,
-                                metalness: 0.2,
-                                roughness: 0.4,
-                                emissive: baseColor,
-                                emissiveIntensity: 0.15
-                            });
-                        }
-                    });
+                    // Material application - DO NOT OVERRIDE. Preserve original colors/textures.
+                    // We will indicate status using a dedicated PointLight instead.
+                    
+                    // Add/Update status light
+                    const lightName = 'statusLight';
+                    let statusLight = scene.getObjectByName(lightName);
+                    if (!statusLight) {
+                        statusLight = new THREE.PointLight(baseColor, 10, 20);
+                        statusLight.name = lightName;
+                        statusLight.position.set(0, 2, 4);
+                        scene.add(statusLight);
+                    } else {
+                        statusLight.color.set(baseColor);
+                    }
 
                     scene.add(currentModel);
                 },
@@ -291,54 +298,82 @@
         }
 
         function checkInvolvement(organ) {
-            if (!reportData || !reportData.data || !reportData.data.analysis) return false;
+            if (!reportData || !reportData.data || !reportData.data.analysis) return null;
             
             const analysis = reportData.data.analysis;
             const organLower = organ.toLowerCase();
             
-            // 1. Check direct organ involvement list from report
-            const involvement = analysis.organ_involvement || {};
-            if (Object.keys(involvement).some(key => key.toLowerCase() === organLower)) return true;
-            
-            // 2. Check drug interaction risk specific flags
-            const risk = analysis.drug_interaction_risk || {};
-            if (organLower === 'liver' && risk.liver_function_concern) return true;
-            if (organLower === 'kidneys' && risk.kidney_function_concern) return true;
-            
-            // 3. Check drug recommendations for specific warnings
-            if (analysis.drug_recommendations) {
-                const hasWarning = analysis.drug_recommendations.some(drug => 
-                    drug.note && drug.note.toLowerCase().includes(organLower)
+            // 1. Check pharmacogenomics specific recommendations (AI recommended drugs)
+            if (analysis.pharmacogenomics && analysis.pharmacogenomics.specific_recommendations) {
+                const drugImpact = analysis.pharmacogenomics.specific_recommendations.find(rec => 
+                    rec.impacted_organs && rec.impacted_organs.some(o => o.toLowerCase() === organLower)
                 );
-                if (hasWarning) return true;
+                if (drugImpact) {
+                    return {
+                        type: 'drug',
+                        name: drugImpact.specific_drug || drugImpact.category,
+                        action: drugImpact.action,
+                        note: drugImpact.monitoring || drugImpact.expected_outcome
+                    };
+                }
             }
 
-            // 4. Check pharmacogenomics notes
-            if (analysis.pharmacogenomics && analysis.pharmacogenomics.metabolism_note) {
-                if (analysis.pharmacogenomics.metabolism_note.toLowerCase().includes(organLower)) return true;
+            // 2. Check detected conditions for organ impacts
+            if (analysis.detected_conditions) {
+                const conditionImpact = analysis.detected_conditions.find(cond => 
+                    cond.impacted_organs && cond.impacted_organs.some(o => o.toLowerCase() === organLower)
+                );
+                if (conditionImpact) {
+                    return {
+                        type: 'condition',
+                        name: conditionImpact.disease,
+                        reason: conditionImpact.recommendation
+                    };
+                }
+            }
+
+            // 3. Check direct organ involvement list from report
+            const involvement = analysis.organ_involvement || {};
+            if (Object.keys(involvement).some(key => key.toLowerCase() === organLower)) {
+                return { type: 'involvement', reason: 'Direct clinical involvement detected in lab report.' };
             }
             
-            // 5. Check for keywords in critical findings
+            // 4. Check drug interaction risk specific flags
+            const risk = analysis.drug_interaction_risk || {};
+            if (organLower === 'liver' && risk.liver_function_concern) {
+                return { type: 'risk', reason: 'Elevated liver function risk detected.' };
+            }
+            if (organLower === 'kidney' && risk.kidney_function_concern) {
+                return { type: 'risk', reason: 'Elevated kidney function risk detected.' };
+            }
+            
+            // 4. Check for keywords in critical findings
             const critical = analysis.critical_findings || [];
             const organKeywords = {
                 heart: ['cardiac', 'heart', 'troponin', 'ecg', 'pulse', 'valve'],
                 liver: ['alt', 'ast', 'liver', 'bilirubin', 'hepatic', 'hdl'],
-                kidneys: ['creatinine', 'kidney', 'renal', 'egfr', 'bun', 'urine'],
+                kidney: ['creatinine', 'kidney', 'renal', 'egfr', 'bun', 'urine'],
                 lungs: ['oxygen', 'lung', 'respiratory', 'breath', 'pulmonary'],
-                brain: ['neurological', 'brain', 'cognitive', 'cns', 'synapse']
+                brain: ['neurological', 'brain', 'cognitive', 'cns', 'synapse'],
+                pancreas: ['insulin', 'glucose', 'pancreas', 'diabetes', 'amylase'],
+                stomach: ['gastric', 'stomach', 'digestive', 'acid', 'ulcer'],
+                uteras: ['uterus', 'uterine', 'reproductive', 'ovary'],
+                fullbody: ['systemic', 'general', 'fatigue', 'fever']
             };
             
             if (organKeywords[organLower]) {
-                const isCriticalMatch = critical.some(f => 
+                const criticalFinding = critical.find(f => 
                     organKeywords[organLower].some(kw => f.test.toLowerCase().includes(kw))
                 );
-                if (isCriticalMatch) return true;
+                if (criticalFinding) {
+                    return { type: 'critical', reason: `Critical marker detected: ${criticalFinding.test} (${criticalFinding.value})` };
+                }
             }
 
-            return false;
+            return null;
         }
 
-        function updateUI(organ, affected) {
+        function updateUI(organ, impact) {
             const badge = document.getElementById('status-badge');
             const desc = document.getElementById('impact-desc');
             const nameDisp = document.getElementById('organ-name-display');
@@ -348,10 +383,17 @@
             nameDisp.innerText = organName;
             recContainer.innerHTML = '';
 
-            if (affected) {
+            if (impact) {
                 badge.innerText = 'Impact Detected';
                 badge.className = 'status-badge badge-risk';
-                desc.innerText = `Your genomic profile and recent lab markers indicate that recommended treatments may cause strain or adverse effects on the ${organName}.`;
+                
+                if (impact.type === 'drug') {
+                    desc.innerHTML = `AI analysis detected a potential impact from recommended drug: <strong style="color: #ef4444;">${impact.name}</strong>. <br/><br/>Action: <strong>${impact.action}</strong><br/>Note: ${impact.note}`;
+                } else if (impact.type === 'condition') {
+                    desc.innerHTML = `Risk associated with detected condition: <strong style="color: #ef4444;">${impact.name}</strong>. <br/><br/>Recommendation: ${impact.reason}`;
+                } else {
+                    desc.innerText = impact.reason || `Your genomic profile and recent lab markers indicate that recommended treatments may cause strain or adverse effects on the ${organName}.`;
+                }
                 
                 // Show relevant clinical recommendation if it mentions the organ
                 if (reportData.data.analysis.recommendations) {
