@@ -1,0 +1,395 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TheraGenome - 3D Drug Impact Simulator</title>
+    <style>
+        body { margin: 0; background-color: #0f172a; color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        #canvas-container { width: 100vw; height: 100vh; }
+        
+        .ui-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            pointer-events: auto;
+            max-width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        h1 { font-size: 1.4rem; margin: 0 0 8px 0; color: #14b8a6; display: flex; align-items: center; gap: 10px; }
+        p { font-size: 0.85rem; color: #94a3b8; line-height: 1.5; margin-bottom: 15px; }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+        }
+        .badge-safe { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .badge-risk { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .recommendation-box {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 10px;
+            border-left: 3px solid #14b8a6;
+        }
+        .recommendation-title { font-size: 0.75rem; color: #14b8a6; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
+        .recommendation-text { font-size: 0.8rem; color: #e2e8f0; }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: rgba(20, 184, 166, 0.1);
+            color: #14b8a6;
+            border: 1px solid #14b8a6;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            z-index: 10;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .back-btn:hover { background: #14b8a6; color: #0f172a; }
+
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(20, 184, 166, 0.1);
+            border-top: 4px solid #14b8a6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        #organ-selector {
+            width: 100%;
+            padding: 10px;
+            background: #1e293b;
+            color: white;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            outline: none;
+        }
+        #organ-selector:focus { border-color: #14b8a6; }
+
+        .controls-hint {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.75rem;
+            color: #475569;
+            background: rgba(15, 23, 42, 0.5);
+            padding: 8px 15px;
+            border-radius: 999px;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+        <p>Loading TheraGenome 3D Assets...</p>
+    </div>
+
+    <a href="../reports.html" class="back-btn">
+        <span>ΓåÉ</span> Back to Reports
+    </a>
+
+    <div class="ui-overlay">
+        <div class="card">
+            <h1><span>≡ƒº¼</span> Impact Simulator</h1>
+            <p>Evaluating drug compatibility with your genomic profile. The organ color reflects the calculated risk.</p>
+            
+            <label style="font-size: 0.75rem; color: #64748b; margin-bottom: 5px; display: block;">SELECT ORGAN TO SIMULATE</label>
+            <select id="organ-selector">
+                <option value="heart">Heart</option>
+                <option value="liver">Liver</option>
+                <option value="kidneys">Kidneys</option>
+                <option value="lungs">Lungs</option>
+                <option value="brain">Brain</option>
+            </select>
+        </div>
+
+        <div class="card" id="impact-card">
+            <div id="status-badge" class="status-badge">Analyzing...</div>
+            <h2 id="organ-name-display" style="margin: 0 0 10px 0; font-size: 1.2rem;">Heart</h2>
+            <p id="impact-desc" style="margin-bottom: 0;">Initial data loading...</p>
+            
+            <div id="recommendation-container"></div>
+        </div>
+    </div>
+
+    <div class="controls-hint">
+        Left Click: Rotate ΓÇó Right Click: Pan ΓÇó Scroll: Zoom
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <!-- Three.js Library -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        let scene, camera, renderer, controls, currentModel;
+        const container = document.getElementById('canvas-container');
+        
+        // Retrieve report data from session storage
+        const reportData = JSON.parse(sessionStorage.getItem('reportData') || '{}');
+        console.log('Simulator initialized with report data:', reportData);
+
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0f172a);
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 0, 4);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.outputColorSpace = THREE.SRGBColorSpace;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            container.appendChild(renderer.domElement);
+
+            // Lighting
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 1.5);
+            scene.add(hemiLight);
+            
+            const spotLight = new THREE.SpotLight(0xffffff, 2.5);
+            spotLight.position.set(5, 5, 5);
+            scene.add(spotLight);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+
+            window.addEventListener('resize', onWindowResize);
+
+            // Start with heart
+            loadOrgan('heart');
+            
+            document.getElementById('organ-selector').addEventListener('change', (e) => {
+                loadOrgan(e.target.value);
+            });
+
+            document.getElementById('loading').style.display = 'none';
+            animate();
+        }
+
+        function loadOrgan(organName) {
+            const loader = new GLTFLoader();
+            
+            if (currentModel) scene.remove(currentModel);
+
+            const isAffected = checkInvolvement(organName);
+            const baseColor = isAffected ? 0xef4444 : 0x22c55e;
+            
+            updateUI(organName, isAffected);
+
+            const modelPath = `./models/${organName}.glb`;
+            console.log(`Loading model: ${modelPath} (Risk: ${isAffected})`);
+
+            loader.load(
+                modelPath,
+                (gltf) => {
+                    currentModel = gltf.scene;
+                    
+                    // Auto-centering and scaling
+                    const box = new THREE.Box3().setFromObject(currentModel);
+                    const size = box.getSize(new THREE.Vector3());
+                    const center = box.getCenter(new THREE.Vector3());
+                    
+                    const maxDim = Math.max(size.x, size.y, size.z);
+                    const scale = 2.5 / maxDim;
+                    currentModel.scale.set(scale, scale, scale);
+                    
+                    currentModel.position.x = -center.x * scale;
+                    currentModel.position.y = -center.y * scale;
+                    currentModel.position.z = -center.z * scale;
+
+                    // Material application
+                    currentModel.traverse((node) => {
+                        if (node.isMesh) {
+                            node.material = new THREE.MeshStandardMaterial({
+                                color: baseColor,
+                                metalness: 0.2,
+                                roughness: 0.4,
+                                emissive: baseColor,
+                                emissiveIntensity: 0.15
+                            });
+                        }
+                    });
+
+                    scene.add(currentModel);
+                },
+                undefined,
+                (error) => {
+                    console.warn(`Model ${organName}.glb not found. Using proxy geometry.`);
+                    createProxyGeometry(baseColor);
+                }
+            );
+        }
+
+        function createProxyGeometry(color) {
+            // Using a TorusKnot as a cool placeholder if model is missing
+            const geometry = new THREE.TorusKnotGeometry(0.8, 0.3, 100, 16);
+            const material = new THREE.MeshStandardMaterial({ 
+                color: color, 
+                emissive: color, 
+                emissiveIntensity: 0.2 
+            });
+            currentModel = new THREE.Mesh(geometry, material);
+            scene.add(currentModel);
+        }
+
+        function checkInvolvement(organ) {
+            if (!reportData || !reportData.data || !reportData.data.analysis) return false;
+            
+            const analysis = reportData.data.analysis;
+            const organLower = organ.toLowerCase();
+            
+            // 1. Check direct organ involvement list from report
+            const involvement = analysis.organ_involvement || {};
+            if (Object.keys(involvement).some(key => key.toLowerCase() === organLower)) return true;
+            
+            // 2. Check drug interaction risk specific flags
+            const risk = analysis.drug_interaction_risk || {};
+            if (organLower === 'liver' && risk.liver_function_concern) return true;
+            if (organLower === 'kidneys' && risk.kidney_function_concern) return true;
+            
+            // 3. Check drug recommendations for specific warnings
+            if (analysis.drug_recommendations) {
+                const hasWarning = analysis.drug_recommendations.some(drug => 
+                    drug.note && drug.note.toLowerCase().includes(organLower)
+                );
+                if (hasWarning) return true;
+            }
+
+            // 4. Check pharmacogenomics notes
+            if (analysis.pharmacogenomics && analysis.pharmacogenomics.metabolism_note) {
+                if (analysis.pharmacogenomics.metabolism_note.toLowerCase().includes(organLower)) return true;
+            }
+            
+            // 5. Check for keywords in critical findings
+            const critical = analysis.critical_findings || [];
+            const organKeywords = {
+                heart: ['cardiac', 'heart', 'troponin', 'ecg', 'pulse', 'valve'],
+                liver: ['alt', 'ast', 'liver', 'bilirubin', 'hepatic', 'hdl'],
+                kidneys: ['creatinine', 'kidney', 'renal', 'egfr', 'bun', 'urine'],
+                lungs: ['oxygen', 'lung', 'respiratory', 'breath', 'pulmonary'],
+                brain: ['neurological', 'brain', 'cognitive', 'cns', 'synapse']
+            };
+            
+            if (organKeywords[organLower]) {
+                const isCriticalMatch = critical.some(f => 
+                    organKeywords[organLower].some(kw => f.test.toLowerCase().includes(kw))
+                );
+                if (isCriticalMatch) return true;
+            }
+
+            return false;
+        }
+
+        function updateUI(organ, affected) {
+            const badge = document.getElementById('status-badge');
+            const desc = document.getElementById('impact-desc');
+            const nameDisp = document.getElementById('organ-name-display');
+            const recContainer = document.getElementById('recommendation-container');
+            
+            const organName = organ.charAt(0).toUpperCase() + organ.slice(1);
+            nameDisp.innerText = organName;
+            recContainer.innerHTML = '';
+
+            if (affected) {
+                badge.innerText = 'Impact Detected';
+                badge.className = 'status-badge badge-risk';
+                desc.innerText = `Your genomic profile and recent lab markers indicate that recommended treatments may cause strain or adverse effects on the ${organName}.`;
+                
+                // Show relevant clinical recommendation if it mentions the organ
+                if (reportData.data.analysis.recommendations) {
+                    const relevantRec = reportData.data.analysis.recommendations.find(r => 
+                        r.toLowerCase().includes(organ.toLowerCase())
+                    );
+                    if (relevantRec) {
+                        recContainer.innerHTML = `
+                            <div class="recommendation-box">
+                                <div class="recommendation-title">Clinical Adjustment</div>
+                                <div class="recommendation-text">${relevantRec}</div>
+                            </div>
+                        `;
+                    }
+                }
+            } else {
+                badge.innerText = 'Safe / Low Risk';
+                badge.className = 'status-badge badge-safe';
+                desc.innerText = `No negative genomic markers or abnormal lab values were identified for the ${organName}. Standard dosage protocols are likely safe.`;
+            }
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            if (currentModel) {
+                currentModel.rotation.y += 0.005;
+            }
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+</html>
